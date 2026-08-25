@@ -83,9 +83,29 @@ describe('computeGraph over the 4-striving worked example', () => {
     expect(g.hottestEdge).toMatchObject(EXPECTED.hottestEdge);
   });
 
+  it('load-bearing edge is s1–s2 at c = 3.6, the heaviest of 3.6 / 1.3 / 1.0', () => {
+    expect(g.loadBearingEdge).toMatchObject({ aId: 's1', bId: 's2' });
+    expect(g.loadBearingEdge?.load).toBeCloseTo(3.6, 10);
+  });
+
   it('largest facilitation cluster is {s1, s2, s4} — 3 nodes joined by s1–s4 and s2–s4', () => {
     expect(g.clusters[0]?.ids.slice().sort()).toEqual([...EXPECTED.largestClusterIds]);
     expect(g.clusters[0]?.weight).toBe(3);
+  });
+});
+
+describe('load-bearing edge separates weight from heat', () => {
+  // a–b: effect −2, heat 0  → load 2.0, heat 0   ← heaviest
+  // c–d: effect −1, heat 9  → load 1.9, heat 9   ← hottest
+  const st: Striving[] = ['a', 'b', 'c', 'd'].map((id) => ({ id, text: id, createdTs: TS, status: 'active' as const }));
+  const rt: PairRating[] = [
+    { aId: 'a', bId: 'b', effect: -2, heat: 0, ts: TS },
+    { aId: 'c', bId: 'd', effect: -1, heat: 9, ts: TS },
+  ];
+  it('picks the heaviest edge for load, the hottest for heat', () => {
+    const g = computeGraph(st, rt, noForks);
+    expect(g.loadBearingEdge).toMatchObject({ aId: 'a', bId: 'b' });
+    expect(g.hottestEdge).toMatchObject({ aId: 'c', bId: 'd' });
   });
 });
 
@@ -152,6 +172,7 @@ describe('empty and degenerate graphs', () => {
     expect(g.conflictIndexPercent).toBeNull();
     expect(g.loadBearing).toBeNull();
     expect(g.hottestEdge).toBeNull();
+    expect(g.loadBearingEdge).toBeNull();
   });
   it('all-positive graph: G = 0', () => {
     const st: Striving[] = ['a', 'b'].map((id) => ({ id, text: id, createdTs: TS, status: 'active' as const }));

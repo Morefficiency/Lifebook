@@ -94,11 +94,13 @@ export interface LedgerEntry {
   id: string;
   ts: string;
   kind: LedgerKind;
-  payload: unknown; // typed per kind, see src/data/ledger.ts
-  annotations?: Annotation[]; // append-only; entries themselves are never edited
+  /**
+   * Typed per kind — see LedgerPayload in src/data/ledger.ts.
+   * Entries are never edited. An annotation is itself an append-only entry of
+   * kind 'annotation' pointing at the entry it comments on.
+   */
+  payload: unknown;
 }
-
-export interface Annotation { id: string; text: string; ts: string }
 
 export interface Profile {
   xp: number;

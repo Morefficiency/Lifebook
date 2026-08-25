@@ -1,0 +1,104 @@
+/* Self-hosted fonts. These resolve to files inside node_modules at build time
+   and are emitted into dist/assets — no CDN, no third-party request. Latin
+   subsets only, so the bundle carries exactly the glyphs the app uses. (§3) */
+@import '@fontsource/fraunces/latin-400.css';
+@import '@fontsource/fraunces/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-bone font-sans antialiased;
+    /* A very slight vertical lift, like looking up. Static, never animated. */
+    background-image: radial-gradient(120% 80% at 50% 0%, #10151F 0%, #0B0E14 62%);
+    background-attachment: fixed;
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3 {
+    @apply font-display font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  /* Visible keyboard focus everywhere; never removed. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-instrument ring-offset-2 ring-offset-canvas rounded-sm;
+  }
+
+  ::selection { background: #7BA3C4; color: #0B0E14; }
+
+  input[type='range'] {
+    @apply w-full appearance-none bg-transparent;
+  }
+  input[type='range']::-webkit-slider-runnable-track {
+    @apply h-1 rounded-full bg-hairline;
+  }
+  input[type='range']::-moz-range-track {
+    @apply h-1 rounded-full bg-hairline;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    @apply appearance-none h-5 w-5 -mt-2 rounded-full bg-instrument border-2 border-canvas cursor-pointer;
+  }
+  input[type='range']::-moz-range-thumb {
+    @apply h-5 w-5 rounded-full bg-instrument border-2 border-canvas cursor-pointer;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-hairline bg-surface/70 p-5;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5
+           text-sm font-medium transition-colors duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary { @apply btn bg-instrument text-canvas hover:bg-[#96B8D4]; }
+  .btn-ghost   { @apply btn border border-hairline text-bone hover:border-instrument-dim hover:bg-surface; }
+  .btn-quiet   { @apply btn text-muted hover:text-bone; }
+
+  .field {
+    @apply w-full rounded-md border border-hairline bg-surface px-3 py-2.5 text-bone
+           placeholder:text-muted/60 focus:border-instrument-dim;
+  }
+
+  .label { @apply block text-sm font-medium text-bone; }
+  .hint  { @apply mt-1.5 text-sm leading-relaxed text-muted; }
+
+  .prose-quiet {
+    @apply max-w-measure leading-relaxed text-muted;
+  }
+  .prose-quiet p + p { @apply mt-4; }
+
+  .numeral { @apply font-mono tabular-nums; }
+}
+
+/* §15 — prefers-reduced-motion is respected globally, not per component. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes draw { to { stroke-dashoffset: 0; } }

@@ -79,7 +79,10 @@ export interface GraphMetrics {
   conflictIndex: number | null;
   conflictIndexPercent: number | null;
   loadBearing: NodeMetric | null;
+  /** Highest heat — the edge that bothers the user most. */
   hottestEdge: EdgeMetric | null;
+  /** Highest c_ij — the edge carrying the most weight in the map. */
+  loadBearingEdge: EdgeMetric | null;
   faultLineCount: number;
   helpLinkCount: number;
   /** Connected components of the facilitation sub-graph, largest first. */
@@ -166,11 +169,18 @@ export function computeGraph(
   }
 
   let hottestEdge: EdgeMetric | null = null;
+  let loadBearingEdge: EdgeMetric | null = null;
   for (const e of edges) {
     if (e.kind !== 'conflict') continue;
-    if (!hottestEdge) { hottestEdge = e; continue; }
-    if (e.heat > hottestEdge.heat) hottestEdge = e;
+    if (!hottestEdge) hottestEdge = e;
+    else if (e.heat > hottestEdge.heat) hottestEdge = e;
     else if (e.heat === hottestEdge.heat && e.load > hottestEdge.load + EPS) hottestEdge = e;
+
+    if (!loadBearingEdge) loadBearingEdge = e;
+    else if (e.load > loadBearingEdge.load + EPS) loadBearingEdge = e;
+    else if (Math.abs(e.load - loadBearingEdge.load) <= EPS && e.heat > loadBearingEdge.heat) {
+      loadBearingEdge = e;
+    }
   }
 
   return {
@@ -183,6 +193,7 @@ export function computeGraph(
     conflictIndexPercent: conflictIndex === null ? null : Math.round(conflictIndex * 100),
     loadBearing,
     hottestEdge,
+    loadBearingEdge,
     faultLineCount: edges.filter((e) => e.kind === 'conflict').length,
     helpLinkCount: edges.filter((e) => e.kind === 'facilitation').length,
     clusters: facilitationClusters(nodes, edges),
