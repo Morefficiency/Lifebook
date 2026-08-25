@@ -52,14 +52,11 @@ export default function Rerate() {
   return (
     <div className="mx-auto w-full max-w-2xl">
       <h1 className="text-2xl sm:text-3xl">{S.broken.rerateCta}</h1>
-      <p className="mt-3 max-w-measure text-muted">
-        Two predictions on this pair have now broken. That is a reason to look at the rating again —
-        not a reason to change it. Only you decide whether it still reads true.
-      </p>
+      <p className="mt-3 max-w-measure text-muted">{S.rerate.lead}</p>
 
       <div className="card mt-8">
         <p className="leading-snug"><StrivingText text={labels.get(edge.aId) ?? ''} /></p>
-        <p className="my-1.5 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">and</p>
+        <p className="my-1.5 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">{S.bits.and}</p>
         <p className="leading-snug"><StrivingText text={labels.get(edge.bId) ?? ''} /></p>
       </div>
 

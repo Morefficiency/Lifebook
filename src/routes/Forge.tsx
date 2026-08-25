@@ -97,7 +97,7 @@ export default function Forge() {
         <div className="card mt-6">
           <p className="text-xs uppercase tracking-[0.14em] text-muted">{S.quest.fromEdge}</p>
           <p className="mt-2 leading-snug"><StrivingText text={labels.get(edge.aId) ?? ''} /></p>
-          <p className="my-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fault-bright">against</p>
+          <p className="my-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fault-bright">{S.bits.against}</p>
           <p className="leading-snug"><StrivingText text={labels.get(edge.bId) ?? ''} /></p>
         </div>
       ) : (
@@ -171,8 +171,8 @@ export default function Forge() {
               </div>
               {s.ifCue.trim() && s.thenAction.trim() ? (
                 <p className="mt-2 text-sm text-muted">
-                  <span className="text-instrument">If/When</span> {s.ifCue.trim()},{' '}
-                  <span className="text-instrument">then I will</span> {s.thenAction.trim()}.
+                  <span className="text-instrument">{S.forge.ifCue}</span> {s.ifCue.trim()},{' '}
+                  <span className="text-instrument">{S.forge.thenAction}</span> {s.thenAction.trim()}.
                 </p>
               ) : null}
             </li>

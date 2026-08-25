@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MapFrame, NetworkMap } from '../components/NetworkMap';
 import { Explain, StatChip, StrivingText, Tag } from '../components/ui';
 import { S } from '../strings';
-import { edgeKey } from '../engine/graph';
+import { conflictEdgesByHeat, edgeKey } from '../engine/graph';
 import type { EdgeMetric } from '../engine/graph';
 import {
   useActiveQuests, useCoherence, useGraph, useStrivingLookup, useXpBreakdown,
@@ -26,10 +26,7 @@ export default function MapView() {
   const [selected, setSelected] = useState<EdgeMetric | null>(null);
   const [showAllFaults, setShowAllFaults] = useState(false);
 
-  const faults = graph.edges
-    .filter((e) => e.kind === 'conflict')
-    .slice()
-    .sort((a, b) => b.heat - a.heat || b.load - a.load);
+  const faults = conflictEdgesByHeat(graph);
 
   const openFork = (e: EdgeMetric) => {
     navigate(`/fork?a=${encodeURIComponent(e.aId)}&b=${encodeURIComponent(e.bId)}`);
@@ -101,12 +98,12 @@ export default function MapView() {
           <div className="card mt-5 animate-fade-up">
             <div className="flex flex-wrap items-center gap-2">
               {selected.kind === 'conflict'
-                ? <Tag tone={selected.carried ? 'carry' : 'fault'}>heat {selected.heat}/10</Tag>
-                : <Tag tone="facil">help link</Tag>}
+                ? <Tag tone={selected.carried ? 'carry' : 'fault'}>{S.bits.heatOf(selected.heat)}</Tag>
+                : <Tag tone="facil">{S.bits.helpLink}</Tag>}
             </div>
             <p className="mt-3 leading-snug"><StrivingText text={labels.get(selected.aId) ?? ''} /></p>
             <p className="my-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">
-              {selected.kind === 'conflict' ? 'against' : 'and'}
+              {selected.kind === 'conflict' ? S.bits.against : S.bits.and}
             </p>
             <p className="leading-snug"><StrivingText text={labels.get(selected.bId) ?? ''} /></p>
             <div className="mt-4 flex gap-3">
@@ -125,10 +122,10 @@ export default function MapView() {
         {/* Keyboard and screen-reader path to the same selection the map offers. */}
         <section className="mt-8">
           <h2 className="text-sm uppercase tracking-[0.14em] text-muted">
-            Fault lines, hottest first
+            {S.bits.faultLinesHottest}
           </h2>
           {faults.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">No fault lines on the map right now.</p>
+            <p className="mt-3 text-sm text-muted">{S.bits.noFaultLinesNow}</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {(showAllFaults ? faults : faults.slice(0, FAULTS_SHOWN)).map((e) => (
@@ -140,14 +137,14 @@ export default function MapView() {
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <Tag tone={e.carried ? 'carry' : 'fault'}>
-                        {Math.abs(e.effect) === 2 ? 'strongly conflicting' : 'conflicting'}
+                        {Math.abs(e.effect) === 2 ? S.bits.stronglyConflicting : S.bits.conflicting}
                       </Tag>
-                      <Tag tone={e.carried ? 'carry' : 'fault'}>heat {e.heat}/10</Tag>
-                      {e.carried ? <Tag tone="carry">carried</Tag> : null}
+                      <Tag tone={e.carried ? 'carry' : 'fault'}>{S.bits.heatOf(e.heat)}</Tag>
+                      {e.carried ? <Tag tone="carry">{S.bits.carried}</Tag> : null}
                     </div>
                     <p className="mt-2 text-sm leading-snug">
                       <StrivingText text={labels.get(e.aId) ?? ''} />
-                      <span className="text-fault-bright"> against </span>
+                      <span className="text-fault-bright"> {S.bits.against} </span>
                       <StrivingText text={labels.get(e.bId) ?? ''} />
                     </p>
                   </button>
@@ -161,9 +158,7 @@ export default function MapView() {
               className="btn-quiet mt-3 px-0 text-sm"
               onClick={() => setShowAllFaults((v) => !v)}
             >
-              {showAllFaults
-                ? 'Show the hottest few'
-                : `Show all ${faults.length} fault lines`}
+              {showAllFaults ? S.bits.showFewerFaults : S.bits.showAllFaults(faults.length)}
             </button>
           ) : null}
         </section>
@@ -210,18 +205,12 @@ function ExplainConflictIndex({ load, facil, pct }: {
 }) {
   return (
     <div className="space-y-2">
-      <p>
-        Each fault line is weighted <span className="numeral">|effect| × (1 + heat/10)</span>, so a
-        strong clash that bothers you a lot counts for more than a mild one you barely notice.
-      </p>
+      <p>{S.howComputed.conflictIndexFormula}</p>
       <p className="numeral text-muted">
         conflict {load.toFixed(2)} ÷ (conflict {load.toFixed(2)} + help {facil.toFixed(2)}) ={' '}
         {pct === null ? '—' : `${pct}%`}
       </p>
-      <p>
-        There is no correct value. It is the share of the force in your map that pulls against
-        itself, on the day you rated it.
-      </p>
+      <p>{S.howComputed.conflictIndexNoCorrect}</p>
     </div>
   );
 }
@@ -239,11 +228,8 @@ function ExplainCoherence({ current, initial, pct }: {
           1 − ({current.toFixed(2)} ÷ {initial.toFixed(2)}) = {pct === null ? '—' : `${pct}%`}
         </p>
       )}
-      <Explain label="Why can it be negative?">
-        <p className="text-sm">
-          If you re-rate pairs and the map picks up more conflict than it started with, this drops
-          below zero. It is not clamped, because hiding that would make the number less useful.
-        </p>
+      <Explain label={S.howComputed.coherenceNegativeLabel}>
+        <p className="text-sm">{S.howComputed.coherenceNegative}</p>
       </Explain>
     </div>
   );

@@ -69,7 +69,7 @@ export default function QuestDetail() {
       <div className="flex flex-wrap items-center gap-2">
         <Tag>{quest.status === 'active' ? S.quest.active
           : quest.status === 'reported' ? S.quest.reported : S.quest.abandoned}</Tag>
-        {quest.edge ? <Tag tone="fault">from a fault line</Tag> : null}
+        {quest.edge ? <Tag tone="fault">{S.bits.fromFaultLine}</Tag> : null}
       </div>
 
       <h1 className="mt-4 text-2xl sm:text-3xl">{quest.wish}</h1>
@@ -93,7 +93,7 @@ export default function QuestDetail() {
           <p className="text-xs uppercase tracking-[0.14em] text-muted">{S.quest.fromEdge}</p>
           <p className="mt-2 text-sm leading-snug">
             <StrivingText text={labels.get(quest.edge.aId) ?? ''} />
-            <span className="text-fault-bright"> against </span>
+            <span className="text-fault-bright"> {S.bits.against} </span>
             <StrivingText text={labels.get(quest.edge.bId) ?? ''} />
           </p>
         </div>
@@ -116,8 +116,8 @@ export default function QuestDetail() {
                     onChange={() => toggleStep(quest.id, s.id)}
                   />
                   <span className={`leading-relaxed ${s.done ? 'text-muted line-through' : ''}`}>
-                    <span className="text-instrument">If/When</span> {s.ifCue},{' '}
-                    <span className="text-instrument">then I will</span> {s.thenAction}.
+                    <span className="text-instrument">{S.forge.ifCue}</span> {s.ifCue},{' '}
+                    <span className="text-instrument">{S.forge.thenAction}</span> {s.thenAction}.
                   </span>
                 </label>
               </li>
@@ -283,11 +283,11 @@ function PredictionBroken({ quest, result }: { quest: Quest; result: ReportResul
 
       <div className="mx-auto mt-10 grid max-w-md grid-cols-2 gap-3">
         <div className="rounded-md border border-hairline p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-muted">Your forecast</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-muted">{S.bits.yourForecast}</p>
           <p className="mt-2 numeral text-3xl text-fault-bright">{quest.forecastP}%</p>
         </div>
         <div className="rounded-md border border-facil/50 bg-facil/10 p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-muted">What happened</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-muted">{S.bits.whatHappened}</p>
           <p className="mt-2 text-lg text-facil-bright">{S.broken.reality}</p>
         </div>
       </div>

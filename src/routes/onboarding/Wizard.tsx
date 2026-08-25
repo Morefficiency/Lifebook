@@ -1,5 +1,6 @@
 /** Shared chrome for the Mirror wizard: progress indicator + step frame (§5). */
 import type { ReactNode } from 'react';
+import { S } from '../../strings';
 import { WIZARD_STEPS, type OnboardingStep } from '../../store/progress';
 
 export function WizardFrame({ step, title, lead, children, wide = false }: {
@@ -9,7 +10,7 @@ export function WizardFrame({ step, title, lead, children, wide = false }: {
 
   return (
     <div className={wide ? 'w-full' : 'mx-auto w-full max-w-2xl'}>
-      <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-xs" aria-label="Progress">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-xs" aria-label={S.a11y.progress}>
         {WIZARD_STEPS.map((s, i) => {
           const done = i < index;
           const current = i === index;
@@ -25,7 +26,7 @@ export function WizardFrame({ step, title, lead, children, wide = false }: {
                 {s.label}
               </span>
               {i < WIZARD_STEPS.length - 1 ? (
-                <span aria-hidden="true" className="text-hairline">/</span>
+                <span aria-hidden="true" className="text-instrument-dim">/</span>
               ) : null}
             </li>
           );

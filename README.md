@@ -181,8 +181,11 @@ Where the spec was silent, the simplest option consistent with §2 and §13:
 2. **Heat is a single item**, adapted from the Elliot & Devine (1994) discomfort
    index. The full three-item version is a later upgrade.
 3. **Access codes are checked client-side** and are readable in the bundle.
-4. **English only.** All copy is in `src/strings.ts` so a locale is a copy of one
-   file.
+4. **English only.** Every user-facing string is in `src/strings.ts` — including
+   the /science page's content, the badge and level copy, the ledger labels, the
+   insight-report templates and the screen-reader-only labels — so a locale is a
+   copy of exactly one file. `src/engine/` and `src/data/` import their words
+   from it rather than holding any of their own.
 5. **Coherence % is descriptive, not a validated scale.** It is an index of one
    person's own ratings on two occasions, with no norms and no comparability.
    The /science page says exactly this.

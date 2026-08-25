@@ -79,7 +79,7 @@ export default function Duels() {
         aria-valuemin={0}
         aria-valuemax={pairs.length}
         aria-valuenow={Math.min(index, pairs.length)}
-        aria-label="Pairs rated"
+        aria-label={S.a11y.pairsRated}
       >
         <div
           className="h-full bg-instrument transition-[width] duration-200"

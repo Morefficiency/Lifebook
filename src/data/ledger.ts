@@ -6,6 +6,7 @@
  * comments on. Payloads are typed per kind here so the ledger view can render
  * them without guessing.
  */
+import { S } from '../strings';
 import type { EdgeRef, ForkChoice, LedgerEntry, LedgerKind } from '../types';
 
 export interface LedgerPayloads {
@@ -32,30 +33,16 @@ export function entry<K extends LedgerKind>(
   return { id, ts, kind, payload };
 }
 
-export const LEDGER_KIND_LABEL: Record<LedgerKind, string> = {
-  mirror_completed: 'Mirror completed',
-  fork: 'Fork decision',
-  quest_created: 'Quest created',
-  step_done: 'Step completed',
-  field_report: 'Field report',
-  prediction_broken: 'Prediction broken',
-  release_victory: 'Release',
-  carry_marked: 'Carried',
-  reassessment: 'Reassessment',
-  annotation: 'Annotation',
-  quest_abandoned: 'Quest shelved',
-  level_up: 'Level',
-  badge_earned: 'Badge',
-};
+export const LEDGER_KIND_LABEL: Record<LedgerKind, string> = S.ledgerKinds;
 
 /** Filter groups offered in the ledger UI (§10). */
 export const LEDGER_FILTERS: { id: string; label: string; kinds: LedgerKind[] }[] = [
-  { id: 'all', label: 'Everything', kinds: [] },
-  { id: 'evidence', label: 'Evidence', kinds: ['field_report', 'prediction_broken'] },
-  { id: 'decisions', label: 'Decisions', kinds: ['fork', 'release_victory', 'carry_marked', 'reassessment'] },
-  { id: 'action', label: 'Action', kinds: ['quest_created', 'step_done', 'quest_abandoned'] },
-  { id: 'milestones', label: 'Milestones', kinds: ['mirror_completed', 'level_up', 'badge_earned'] },
-  { id: 'annotation', label: 'Annotations', kinds: ['annotation'] },
+  { id: 'all', label: S.ledgerFilters.all, kinds: [] },
+  { id: 'evidence', label: S.ledgerFilters.evidence, kinds: ['field_report', 'prediction_broken'] },
+  { id: 'decisions', label: S.ledgerFilters.decisions, kinds: ['fork', 'release_victory', 'carry_marked', 'reassessment'] },
+  { id: 'action', label: S.ledgerFilters.action, kinds: ['quest_created', 'step_done', 'quest_abandoned'] },
+  { id: 'milestones', label: S.ledgerFilters.milestones, kinds: ['mirror_completed', 'level_up', 'badge_earned'] },
+  { id: 'annotation', label: S.ledgerFilters.annotation, kinds: ['annotation'] },
 ];
 
 export function annotationsFor(ledger: LedgerEntry[], targetId: string): LedgerEntry[] {

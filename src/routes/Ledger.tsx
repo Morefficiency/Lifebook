@@ -191,8 +191,8 @@ function EntryBody({ entry, labels }: { entry: LedgerEntry; labels: Map<string, 
     case 'step_done':
       return (
         <p className="text-muted">
-          <span className="text-instrument">If/When</span> {String(p['ifCue'])},{' '}
-          <span className="text-instrument">then I will</span> {String(p['thenAction'])}.
+          <span className="text-instrument">{S.forge.ifCue}</span> {String(p['ifCue'])},{' '}
+          <span className="text-instrument">{S.forge.thenAction}</span> {String(p['thenAction'])}.
         </p>
       );
     case 'field_report':

@@ -55,7 +55,6 @@ export const S = {
   },
 
   gate: {
-    title: 'Coherence',
     next25: 'The next 25 minutes, in four steps',
     steps: [
       'Name three things you stand for.',
@@ -76,7 +75,6 @@ export const S = {
     codeBad: 'That code was not recognised. Check for stray spaces and try again.',
     purchase: 'Get an access code',
     begin: 'Begin',
-    resume: 'Resume where you left off',
     consentRequired: 'Both boxes are required before you can start.',
   },
 
@@ -137,8 +135,6 @@ export const S = {
 
   mirror: {
     title: 'The Mirror',
-    building: 'Drawing your map',
-    reveal: 'Reveal the map',
     legendTitle: 'How to read it',
     legend: [
       'Red line: these two work against each other. Thicker means a stronger effect, brighter means the clash bothers you more.',
@@ -194,7 +190,6 @@ export const S = {
     notePlaceholder: 'What makes this the right call right now…',
     noteHint: (min: number) => `At least ${min} characters. The writing is the point — this is the part that does the work, not the button.`,
     noteShort: (min: number) => `A little more — ${min} characters minimum.`,
-    submit: 'Record this decision',
   },
 
   forge: {
@@ -231,7 +226,6 @@ export const S = {
     fearLow: 'Not at all',
     fearHigh: 'A lot',
     create: 'Activate quest',
-    freeQuest: 'Quest without a fault line',
   },
 
   quest: {
@@ -271,7 +265,6 @@ export const S = {
   broken: {
     title: 'PREDICTION BROKEN',
     lead: 'You said it was likely. It didn’t happen.',
-    youSaid: (p: number) => `You forecast ${p}%`,
     reality: 'It did not happen',
     beliefWas: 'The belief you were testing',
     cooled: 'That fault line just cooled by one step on your map.',
@@ -288,10 +281,6 @@ export const S = {
     conflictIndex: 'Conflict index',
     coherence: 'Coherence',
     xp: 'XP',
-    empty: 'Your map is empty until the Mirror is done.',
-    startMirror: 'Start the Mirror',
-    pickEdge: 'Select a fault line',
-    edgeSelected: 'Fault line selected',
     openFork: 'Open the Fork',
     deselect: 'Clear selection',
     tapHint: 'Tap any line to select it. Tap any number to see exactly how it is computed.',
@@ -303,7 +292,6 @@ export const S = {
     lead: 'Append-only. Entries are never edited or deleted — you can add a note to any of them.',
     empty: 'The ledger fills with evidence, not intentions.',
     filter: 'Filter',
-    all: 'Everything',
     annotate: 'Add annotation',
     annotatePlaceholder: 'A note from later…',
     annotateSave: 'Save note',
@@ -324,11 +312,10 @@ export const S = {
       'How much of the conflict load your map started with is no longer pulling on you. Released goals and consciously carried tensions count as zero. It is a description of your own ratings, not a validated scale.',
     coherenceNoBaseline: 'Set once the Mirror is complete.',
     xp: 'XP',
-    xpDef: 'Paid for evidence, never for effort or for showing up. Nothing spends it and nothing takes it away.',
+    xpDef: 'Paid for evidence, never for effort or for showing up. Nothing spends it, nothing expires, and it never falls just because time passed. It is a running description of what is on your record, so correcting the record — un-ticking a step you ticked by mistake — moves it too.',
     level: 'Level',
     badges: 'Badges',
     badgesDef: 'Certificates that a specific thing happened. Nothing more.',
-    badgesEmpty: 'None yet.',
     breakdown: 'Where the XP came from',
     none: '—',
   },
@@ -386,16 +373,259 @@ export const S = {
     lead: 'Every mechanic in this app traces to a specific finding. Nothing in our copy claims anything that is not on this page.',
     leftOutTitle: 'What we deliberately left out, and why',
     caveatTitle: 'Honest limits',
+
+    items: [
+      {
+        mechanic: 'Listing strivings, then rating every pair',
+        body: 'Personal strivings — the things a person is typically trying to do — can be laid out as a matrix in which each striving is rated against every other for whether it helps or hinders. Higher conflict in that matrix has been associated with more rumination about goals and less action on them. The matrix in this app is the same instrument, shortened.',
+        cite: 'Emmons, R. A., & King, L. A. (1988). Conflict among personal strivings. Journal of Personality and Social Psychology, 54(6), 1040–1048.',
+      },
+      {
+        mechanic: 'Choosing three values before you see the map',
+        body: 'Reflecting on a value you hold before receiving information that threatens your self-image makes people less defensive about that information and more able to use it. That is why the values step runs first and is never scored — it exists to make the map easier to look at honestly.',
+        cite: 'Steele, C. M. (1988). The psychology of self-affirmation. Advances in Experimental Social Psychology, 21, 261–302.',
+      },
+      {
+        mechanic: 'Rating how much a clash bothers you',
+        body: 'Holding two things that pull against each other produces measurable discomfort, and that discomfort is what tends to drive change. It can be asked about directly. This app uses a single-item version of the standard discomfort measure; the full multi-item version is more reliable and is a later addition.',
+        cite: 'Festinger, L. (1957). A Theory of Cognitive Dissonance. · Elliot, A. J., & Devine, P. G. (1994). On the motivational nature of cognitive dissonance. JPSP, 67(3), 382–394.',
+      },
+      {
+        mechanic: 'The mandatory Obstacle field',
+        body: 'Imagining a wished-for outcome and then contrasting it with the concrete inner obstacle in the way produces more follow-through than imagining the outcome alone. Positive visualisation on its own does worse than doing nothing in several studies. This is why the form will not submit without the obstacle.',
+        cite: 'Oettingen, G. (2014). Rethinking Positive Thinking: Inside the New Science of Motivation.',
+      },
+      {
+        mechanic: 'Steps written as "If/When X, then I will Y"',
+        body: 'Plans that specify a cue and a response are acted on substantially more often than plans that state only an intention. The gain comes from the specificity of the cue, so the step boxes force both halves.',
+        cite: 'Gollwitzer, P. M. (1999). Implementation intentions: Strong effects of simple plans. American Psychologist, 54(7), 493–503.',
+      },
+      {
+        mechanic: 'Forecasting the feared outcome, then checking it',
+        body: 'What appears to change a fear-driven belief is not relaxation or repetition but the mismatch between what you expected and what happened. The larger and clearer the mismatch, the more the belief moves. Everything about the forecast slider exists to make that mismatch measurable, which is why a broken prediction is the largest single event in this app.',
+        cite: 'Craske, M. G., Treanor, M., Conway, C. C., Zbozinek, T., & Vervliet, B. (2014). Maximizing exposure therapy: An inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.',
+      },
+      {
+        mechanic: 'No streaks, no cash, no leaderboards',
+        body: 'Tangible rewards offered for doing a task reliably reduce the interest people have in the task once the reward stops. Streaks, quotas and points that buy something outside the app all create a reason to report what keeps the reward coming rather than what actually happened. XP here is a record, not a currency: nothing spends it and nothing takes it away.',
+        cite: 'Deci, E. L., Koestner, R., & Ryan, R. M. (1999). A meta-analytic review of experiments examining the effects of extrinsic rewards on intrinsic motivation. Psychological Bulletin, 125(6), 627–668.',
+      },
+      {
+        mechanic: 'Scoring forecasts with a Brier score',
+        body: 'A probability forecast can be scored against what happened by taking the squared difference between the two and averaging over forecasts. It rewards being right and being honest about uncertainty at the same time, which is exactly what this app wants to measure.',
+        cite: 'Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. Monthly Weather Review, 78(1), 1–3.',
+      },
+    ],
+
+    leftOut: [
+      {
+        thing: 'Trait affirmations ("I am confident", "I am enough")',
+        why: 'The values step affirms something you did, not something you are. Repeating a positive self-statement you do not believe has been found to leave people with low self-esteem feeling worse, and this app never asks you to assert a trait about yourself.',
+      },
+      {
+        thing: 'Behaviour surveillance',
+        why: 'Nothing is tracked in the background, nothing is inferred from how you use the app, and no belief is ever attributed to you that you did not type. You are the only source of truth about you.',
+      },
+      {
+        thing: 'Engagement mechanics',
+        why: 'No streaks, no daily goals, no notifications, no time pressure, no randomised rewards. Each of those would give you a reason to misreport, and a measurement you cannot trust is worse than no measurement.',
+      },
+      {
+        thing: 'Any AI or server call',
+        why: 'The insight report is a fixed template filled in with your own numbers. It says the same words for the same ratings every time, it cannot invent a claim about you, and it works with the network turned off.',
+      },
+      {
+        thing: 'Reading outcomes backwards into character',
+        why: 'The ledger records what you did and what happened as two separate facts. A quest that went badly still counts as courage; a quest that went well on a forecast you never believed pays nothing. Luck exists, in both directions.',
+      },
+    ],
+
+    caveats: [
+      'Pair ratings here are symmetric — one number for "how do these two affect each other". The original method rates each direction separately. This halves the number of judgements and loses some information.',
+      'The discomfort question is a single item, not the validated multi-item index.',
+      'Coherence % is a descriptive index of your own ratings on two occasions. It is not a validated scale, it has no norms, and it cannot be compared with anyone else.',
+      'Everything in this app describes what you entered. None of it measures a trait, and none of it is a clinical assessment of any kind.',
+    ],
+  },
+
+  /* ------------------------------------------------------------------ *
+   * Copy consumed by src/engine and src/data. It lives here rather than
+   * next to the logic so this file really is the whole locale (§14.4).
+   * ------------------------------------------------------------------ */
+
+  levels: [
+    { name: 'Surveyor', meaning: 'You are taking the measurements. Nothing has been tested yet.' },
+    { name: 'Cartographer', meaning: 'You have a map of your own goals and you have started acting on it.' },
+    { name: 'Field Scientist', meaning: 'You are running experiments in the real world and filing what happened.' },
+    { name: 'Experimenter', meaning: 'You have enough reports that patterns in your own predictions are visible.' },
+    { name: 'Calibrated', meaning: 'Your forecasts now have a track record you can check them against.' },
+    { name: 'Cartographer of the Deep', meaning: 'You have mapped, tested and revised the same territory more than once.' },
+  ],
+
+  badges: {
+    first_light: { name: 'First Light', description: 'You rated every pair and looked at the result.' },
+    first_contact: { name: 'First Contact', description: 'You filed your first field report from the real world.' },
+    prediction_broken: { name: 'Prediction Broken', description: 'You forecast the feared outcome at 60% or more and it did not happen.' },
+    serial_falsifier: { name: 'Serial Falsifier', description: 'Ten broken predictions on the record.' },
+    resistance_was_right: { name: 'The Resistance Was Right', description: 'You released a goal that was no longer yours. That is a result, not a retreat.' },
+    held_not_hidden: { name: 'Held, Not Hidden', description: 'You named a tension you are choosing to carry instead of pretending it is gone.' },
+    cold_reader: { name: 'Cold Reader', description: 'Calibration of 85 or better across at least ten reports.' },
+    deep_breath: { name: 'Deep Breath', description: 'You attempted a quest you had rated 9 or 10 for dread.' },
+  },
+
+  xpLines: {
+    mirror_completed: {
+      label: 'Mirror completed',
+      explain: 'Paid once, for rating every pair honestly enough to produce a map.',
+    },
+    fork: {
+      label: 'Fork decisions with a written note',
+      explain: 'Paid per fault line you took a decision on and wrote at least 20 characters about. The articulation is the intervention, so an unwritten decision pays nothing.',
+    },
+    step_done: {
+      label: 'Steps completed',
+      explain: 'Paid per implementation-intention step you marked done. Small on purpose: effort is not evidence.',
+    },
+    field_report: {
+      label: 'Field reports filed',
+      explain: 'Paid per report, whichever way the outcome went. Filing the result is the behaviour being paid for.',
+    },
+    epistemic_bonus: {
+      label: 'Feared outcome happened, and you wrote what it taught',
+      explain: 'Paid when the thing you feared actually occurred and you logged the learning. Information about the world is worth more than a comfortable result.',
+    },
+    prediction_broken: {
+      label: 'PREDICTION BROKEN',
+      explain: 'Paid when you forecast the feared outcome at 60% or more and it did not happen. This is the largest single event in the app, because a disconfirmed prediction is the only thing here that reliably moves a belief.',
+    },
+    pair_rerating: {
+      label: 'Pairs re-rated after evidence',
+      explain: 'Paid when you go back and change a pair rating because something you did in the real world told you it was wrong.',
+    },
+  },
+
+  ledgerKinds: {
+    mirror_completed: 'Mirror completed',
+    fork: 'Fork decision',
+    quest_created: 'Quest created',
+    step_done: 'Step completed',
+    field_report: 'Field report',
+    prediction_broken: 'Prediction broken',
+    release_victory: 'Release',
+    carry_marked: 'Carried',
+    reassessment: 'Reassessment',
+    annotation: 'Annotation',
+    quest_abandoned: 'Quest shelved',
+    level_up: 'Level',
+    badge_earned: 'Badge',
+  },
+
+  ledgerFilters: {
+    all: 'Everything',
+    evidence: 'Evidence',
+    decisions: 'Decisions',
+    action: 'Action',
+    milestones: 'Milestones',
+    annotation: 'Annotations',
+  },
+
+  insight: {
+    honesty:
+      'This map is made entirely of your own answers on one day. It is a mirror, not a verdict — mirrors update. Nothing here measures your worth, your personality, or your future.',
+    positionDisclaimer:
+      'Where a striving sits on the map means nothing. Only edge colour, edge thickness, edge glow and node size carry information — the positions come from a layout algorithm and would land somewhere else on a second run.',
+    headlineTitle: 'What you put in',
+    headlineCounts: (strivings: string, help: string, faults: string) =>
+      `You listed ${strivings}. Rating every pair against every other pair produced ${help} and ${faults}.`,
+    headlineIndex: (pct: number) =>
+      `Weighted by how strong each link is and how much the clashes bother you, ${pct}% of the total force in this map is pulling against itself. That figure is a share, not a grade: there is no correct number for it.`,
+    noFaultLines:
+      'You rated no fault lines at all. Nothing in this map is currently pulling against anything else, so there is no conflict to design an experiment around yet. If that reads as wrong to you, the ratings are the thing to revisit — not the map.',
+    loadBearingTitle: 'The load-bearing striving',
+    loadBearing: (name: string) =>
+      `Your ratings put ${name} inside more of your conflicts than anything else. This doesn’t mean ${name} is wrong — it means every fault line runs through it, so any experiment here pays double.`,
+    loadBearingDegree: (on: string, total: number) => `It sits on ${on} out of ${total}.`,
+    hottestTitle: 'The hottest fault line',
+    hottestPair: (a: string, b: string) => `${a} against ${b}.`,
+    hottestHeat: (heat: number) =>
+      `You rated the discomfort of that clash at ${heat} out of 10. It is the loudest one on the map, which makes it the cheapest place to learn something — not the most urgent thing to fix.`,
+    clusterTitle: 'Your existing engine',
+    clusterShort: (names: string) => `${names} already feed each other in your ratings.`,
+    clusterMany: (n: number) => `${n} of your strivings already feed each other in your ratings.`,
+    clusterBody:
+      'This part of the map is doing work for you without being asked. It is worth knowing what is already running before you go looking for what to change.',
+    positionsTitle: 'How to read the picture',
+    honestyTitle: 'What this is not',
+  },
+
+  /** Labels that only assistive technology reads. Copy all the same (§14.4). */
+  a11y: {
+    primaryNav: 'Primary',
+    progress: 'Progress',
+    pairsRated: 'Pairs rated',
+    consent: 'Consent',
+    strivingText: 'Striving text',
+    releaseTarget: 'Which striving to release',
+  },
+
+  /** Small shared fragments used across screens. */
+  bits: {
+    errorDetails: 'Details',
+    against: 'against',
+    and: 'and',
+    conflicting: 'conflicting',
+    stronglyConflicting: 'strongly conflicting',
+    helpLink: 'help link',
+    carried: 'carried',
+    alreadyCarried: 'already carried',
+    fromFaultLine: 'from a fault line',
+    heatOf: (h: number) => `heat ${h}/10`,
+    strivings: 'Strivings',
+    helpLinks: 'Help links',
+    faultLines: 'Fault lines',
+    conflictIndex: 'Conflict index',
+    faultLinesHottest: 'Fault lines, hottest first',
+    noFaultLinesNow: 'No fault lines on the map right now.',
+    showAllFaults: (n: number) => `Show all ${n} fault lines`,
+    showFewerFaults: 'Show the hottest few',
+    yourForecast: 'Your forecast',
+    whatHappened: 'What happened',
+    footer: 'Everything you enter stays in this browser. No account, no server, no analytics.',
+    accessMode: 'Access mode',
+    schemaVersion: 'Schema version',
+    persistenceError:
+      'This browser refused to save to its local database, so changes may not survive a refresh. Private-browsing modes and blocked site data are the usual cause.',
+  },
+
+  /** "How is this computed?" bodies. Design Law 5 — nothing is hidden. */
+  howComputed: {
+    conflictIndexFormula:
+      'Each fault line is weighted |effect| × (1 + heat/10), so a strong clash that bothers you a lot counts for more than a mild one you barely notice.',
+    conflictIndexShare:
+      'The index is that conflict total as a share of the conflict total plus the help total.',
+    conflictIndexNoCorrect:
+      'There is no correct value. It is the share of the force in your map that pulls against itself, on the day you rated it.',
+    coherenceNegativeLabel: 'Why can it be negative?',
+    coherenceNegative:
+      'If you re-rate pairs and the map picks up more conflict than it started with, this drops below zero. It is not clamped, because hiding that would make the number less useful.',
+    brier:
+      'Brier score: the average squared distance between your forecast and what happened, where the feared outcome happening counts as 1 and not happening counts as 0.',
+    brierNone: 'No reports yet.',
+    brierTerms: 'terms',
+    courage:
+      'One point per quest rated 7 or higher for dread that reached at least one completed step. Whether the quest went well is deliberately not part of it.',
+    acrossReports: (n: number) => `Across ${n} reports.`,
+  },
+
+  rerate: {
+    lead:
+      'Two predictions on this pair have now broken. That is a reason to look at the rating again — not a reason to change it. Only you decide whether it still reads true.',
   },
 
   common: {
     back: 'Back',
-    next: 'Next',
     cancel: 'Cancel',
     save: 'Save',
-    done: 'Done',
-    of: 'of',
-    optional: 'optional',
     required: 'required',
     loading: 'Loading your data…',
     notFound: 'Nothing here.',

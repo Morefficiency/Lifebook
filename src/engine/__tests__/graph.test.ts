@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  canonicalEdge, computeGraph, coolEdgeHeat, edgeConflictLoad, edgeKey,
+  canonicalEdge, computeGraph, conflictEdgesByHeat, conflictEdgesByWeight,
+  coolEdgeHeat, edgeConflictLoad, edgeKey,
 } from '../graph';
 import { EXPECTED, RATINGS, STRIVINGS, TS } from './fixtures';
 import type { ForkDecision, PairRating, Striving } from '../../types';
@@ -106,6 +107,32 @@ describe('load-bearing edge separates weight from heat', () => {
     const g = computeGraph(st, rt, noForks);
     expect(g.loadBearingEdge).toMatchObject({ aId: 'a', bId: 'b' });
     expect(g.hottestEdge).toMatchObject({ aId: 'c', bId: 'd' });
+  });
+});
+
+describe('the two fault-line orderings the UI offers', () => {
+  const g = computeGraph(STRIVINGS, RATINGS, noForks);
+  it('by weight: 3.6, 1.3, 1.0 — facilitation edges excluded', () => {
+    expect(conflictEdgesByWeight(g).map((e) => `${e.aId}-${e.bId}`))
+      .toEqual(['s1-s2', 's1-s3', 's3-s4']);
+  });
+  it('by heat: 8, 3, 0', () => {
+    expect(conflictEdgesByHeat(g).map((e) => e.heat)).toEqual([8, 3, 0]);
+  });
+  it('the two can disagree — a strong cold clash outweighs a mild hot one', () => {
+    const st: Striving[] = ['a', 'b', 'c', 'd'].map((id) => ({ id, text: id, createdTs: TS, status: 'active' as const }));
+    const rt: PairRating[] = [
+      { aId: 'a', bId: 'b', effect: -2, heat: 0, ts: TS }, // load 2.0, heat 0
+      { aId: 'c', bId: 'd', effect: -1, heat: 9, ts: TS }, // load 1.9, heat 9
+    ];
+    const h = computeGraph(st, rt, noForks);
+    expect(conflictEdgesByWeight(h)[0]).toMatchObject({ aId: 'a' });
+    expect(conflictEdgesByHeat(h)[0]).toMatchObject({ aId: 'c' });
+  });
+  it('neither mutates the graph it was given', () => {
+    const before = g.edges.map((e) => `${e.aId}-${e.bId}`);
+    conflictEdgesByWeight(g); conflictEdgesByHeat(g);
+    expect(g.edges.map((e) => `${e.aId}-${e.bId}`)).toEqual(before);
   });
 });
 

@@ -200,6 +200,22 @@ export function computeGraph(
   };
 }
 
+/**
+ * The two orderings the UI offers for fault lines, kept here so no component
+ * has to know that "weight" means c_ij and "hottest" means heat (§3).
+ */
+export function conflictEdgesByWeight(g: GraphMetrics): EdgeMetric[] {
+  return g.edges
+    .filter((e) => e.kind === 'conflict')
+    .sort((a, b) => b.load - a.load || b.heat - a.heat);
+}
+
+export function conflictEdgesByHeat(g: GraphMetrics): EdgeMetric[] {
+  return g.edges
+    .filter((e) => e.kind === 'conflict')
+    .sort((a, b) => b.heat - a.heat || b.load - a.load);
+}
+
 /** Connected components over facilitation edges; singletons included, largest first. */
 function facilitationClusters(nodes: NodeMetric[], edges: EdgeMetric[]): FacilitationCluster[] {
   const parent = new Map<string, string>(nodes.map((n) => [n.id, n.id]));

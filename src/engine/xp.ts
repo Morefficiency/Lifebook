@@ -9,6 +9,7 @@
  * on. The single largest event is a disconfirmed negative prediction (+50),
  * never task completion (Design Law 3).
  */
+import { S } from '../strings';
 import type { AppState } from '../types';
 import { calibration, isPredictionBroken } from './scoring';
 
@@ -39,36 +40,7 @@ export interface XpBreakdown { total: number; lines: XpLine[] }
 /** A fork decision only pays once it carries the required ≥20-character note. */
 export const FORK_NOTE_MIN = 20;
 
-const LINE_META: Record<XpSource, { label: string; explain: string }> = {
-  mirror_completed: {
-    label: 'Mirror completed',
-    explain: 'Paid once, for rating every pair honestly enough to produce a map.',
-  },
-  fork: {
-    label: 'Fork decisions with a written note',
-    explain: `Paid per fault line you took a decision on and wrote at least ${FORK_NOTE_MIN} characters about. The articulation is the intervention, so an unwritten decision pays nothing.`,
-  },
-  step_done: {
-    label: 'Steps completed',
-    explain: 'Paid per implementation-intention step you marked done. Small on purpose: effort is not evidence.',
-  },
-  field_report: {
-    label: 'Field reports filed',
-    explain: 'Paid per report, whichever way the outcome went. Filing the result is the behaviour being paid for.',
-  },
-  epistemic_bonus: {
-    label: 'Feared outcome happened, and you wrote what it taught',
-    explain: 'Paid when the thing you feared actually occurred and you logged the learning. Information about the world is worth more than a comfortable result.',
-  },
-  prediction_broken: {
-    label: 'PREDICTION BROKEN',
-    explain: 'Paid when you forecast the feared outcome at 60% or more and it did not happen. This is the largest single event in the app, because a disconfirmed prediction is the only thing here that reliably moves a belief.',
-  },
-  pair_rerating: {
-    label: 'Pairs re-rated after evidence',
-    explain: 'Paid when you go back and change a pair rating because something you did in the real world told you it was wrong.',
-  },
-};
+const LINE_META = S.xpLines;
 
 /** Number of ledger entries recording a pair re-rating prompted by evidence. */
 function pairReratingCount(state: AppState): number {
@@ -115,14 +87,14 @@ export function computeXp(state: AppState): XpBreakdown {
 
 export interface LevelDef { xp: number; name: string; meaning: string }
 
-export const LEVELS: LevelDef[] = [
-  { xp: 0, name: 'Surveyor', meaning: 'You are taking the measurements. Nothing has been tested yet.' },
-  { xp: 100, name: 'Cartographer', meaning: 'You have a map of your own goals and you have started acting on it.' },
-  { xp: 250, name: 'Field Scientist', meaning: 'You are running experiments in the real world and filing what happened.' },
-  { xp: 500, name: 'Experimenter', meaning: 'You have enough reports that patterns in your own predictions are visible.' },
-  { xp: 900, name: 'Calibrated', meaning: 'Your forecasts now have a track record you can check them against.' },
-  { xp: 1500, name: 'Cartographer of the Deep', meaning: 'You have mapped, tested and revised the same territory more than once.' },
-];
+/** Thresholds are product decisions (§9); the words come from the locale file. */
+const LEVEL_XP = [0, 100, 250, 500, 900, 1500] as const;
+
+export const LEVELS: LevelDef[] = LEVEL_XP.map((xp, i) => ({
+  xp,
+  name: S.levels[i]!.name,
+  meaning: S.levels[i]!.meaning,
+}));
 
 export interface LevelState {
   index: number;
@@ -160,16 +132,13 @@ export function levelFor(xp: number): LevelState {
 
 export interface Badge { id: string; name: string; description: string }
 
-export const BADGES: Badge[] = [
-  { id: 'first_light', name: 'First Light', description: 'You rated every pair and looked at the result.' },
-  { id: 'first_contact', name: 'First Contact', description: 'You filed your first field report from the real world.' },
-  { id: 'prediction_broken', name: 'Prediction Broken', description: 'You forecast the feared outcome at 60% or more and it did not happen.' },
-  { id: 'serial_falsifier', name: 'Serial Falsifier', description: 'Ten broken predictions on the record.' },
-  { id: 'resistance_was_right', name: 'The Resistance Was Right', description: 'You released a goal that was no longer yours. That is a result, not a retreat.' },
-  { id: 'held_not_hidden', name: 'Held, Not Hidden', description: 'You named a tension you are choosing to carry instead of pretending it is gone.' },
-  { id: 'cold_reader', name: 'Cold Reader', description: 'Calibration of 85 or better across at least ten reports.' },
-  { id: 'deep_breath', name: 'Deep Breath', description: 'You attempted a quest you had rated 9 or 10 for dread.' },
-];
+/** Order is the order they are displayed in; the copy comes from the locale file. */
+const BADGE_IDS = [
+  'first_light', 'first_contact', 'prediction_broken', 'serial_falsifier',
+  'resistance_was_right', 'held_not_hidden', 'cold_reader', 'deep_breath',
+] as const;
+
+export const BADGES: Badge[] = BADGE_IDS.map((id) => ({ id, ...S.badges[id] }));
 
 const BADGE_BY_ID = new Map(BADGES.map((b) => [b.id, b]));
 

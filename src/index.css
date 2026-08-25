@@ -77,7 +77,7 @@
 
   .field {
     @apply w-full rounded-md border border-hairline bg-surface px-3 py-2.5 text-bone
-           placeholder:text-muted/60 focus:border-instrument-dim;
+           placeholder:text-muted focus:border-instrument-dim;
   }
 
   .label { @apply block text-sm font-medium text-bone; }

@@ -97,7 +97,7 @@ export default function Landing() {
         ) : null}
 
         <fieldset>
-          <legend className="sr-only">Consent</legend>
+          <legend className="sr-only">{S.a11y.consent}</legend>
           <label className="flex items-start gap-3 text-sm leading-relaxed">
             <input
               type="checkbox"

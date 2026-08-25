@@ -92,11 +92,11 @@ export default function ForkRoute() {
 
       <div className="card mt-8">
         <div className="flex flex-wrap items-center gap-2">
-          {metric ? <Tag tone="fault">heat {metric.heat}/10</Tag> : null}
-          {metric?.carried ? <Tag tone="carry">already carried</Tag> : null}
+          {metric ? <Tag tone="fault">{S.bits.heatOf(metric.heat)}</Tag> : null}
+          {metric?.carried ? <Tag tone="carry">{S.bits.alreadyCarried}</Tag> : null}
         </div>
         <p className="mt-3 leading-snug"><StrivingText text={aText} /></p>
-        <p className="my-1.5 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fault-bright">against</p>
+        <p className="my-1.5 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fault-bright">{S.bits.against}</p>
         <p className="leading-snug"><StrivingText text={bText} /></p>
       </div>
 

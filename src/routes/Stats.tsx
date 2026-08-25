@@ -27,22 +27,19 @@ export default function Stats() {
           value={cal.score}
           suffix=""
           definition={S.stats.calibrationDef}
-          footnote={cal.sufficient ? `Across ${cal.n} reports.` : S.stats.calibrationThin(cal.n)}
+          footnote={cal.sufficient ? S.howComputed.acrossReports(cal.n) : S.stats.calibrationThin(cal.n)}
           dimmed={!cal.sufficient}
           explain={
             <div className="space-y-2">
-              <p>
-                Brier score: the average squared distance between your forecast and what happened,
-                where the feared outcome happening counts as 1 and not happening counts as 0.
-              </p>
+              <p>{S.howComputed.brier}</p>
               <p className="numeral text-muted">
                 {cal.brier === null
-                  ? 'No reports yet.'
+                  ? S.howComputed.brierNone
                   : `B = ${cal.brier.toFixed(4)} → round((1 − B) × 100) = ${cal.score}`}
               </p>
               {cal.terms.length > 0 ? (
                 <p className="numeral text-xs text-muted">
-                  terms: {cal.terms.map((t) => t.toFixed(3)).join(', ')}
+                  {S.howComputed.brierTerms}: {cal.terms.map((t) => t.toFixed(3)).join(', ')}
                 </p>
               ) : null}
             </div>
@@ -53,10 +50,7 @@ export default function Stats() {
           value={courage}
           definition={S.stats.courageDef}
           explain={
-            <p>
-              One point per quest rated 7 or higher for dread that reached at least one completed
-              step. Whether the quest went well is deliberately not part of it.
-            </p>
+            <p>{S.howComputed.courage}</p>
           }
         />
         <StatCard

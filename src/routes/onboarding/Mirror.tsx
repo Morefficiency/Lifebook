@@ -53,7 +53,7 @@ export default function Mirror() {
         <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
           {S.mirror.legend.map((l) => (
             <li key={l} className="flex gap-3">
-              <span aria-hidden="true" className="text-hairline">·</span>
+              <span aria-hidden="true" className="text-instrument-dim">·</span>
               <span>{l}</span>
             </li>
           ))}

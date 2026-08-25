@@ -37,7 +37,7 @@ export default function Strivings() {
         {strivings.map((st) => (
           <li key={st.id} className="flex items-start gap-2 rounded-md border border-hairline bg-surface/60 p-3">
             <span className="mt-2.5 shrink-0 text-sm text-muted">{S.strivings.prefix}</span>
-            <label className="sr-only" htmlFor={`st-${st.id}`}>Striving text</label>
+            <label className="sr-only" htmlFor={`st-${st.id}`}>{S.a11y.strivingText}</label>
             <input
               id={`st-${st.id}`}
               className="field flex-1 border-transparent bg-transparent px-1 py-2"

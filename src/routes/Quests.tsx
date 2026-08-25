@@ -35,7 +35,7 @@ export default function Quests() {
                     <Tag tone={q.status === 'active' ? 'neutral' : 'neutral'}>
                       {STATUS_LABEL[q.status]}
                     </Tag>
-                    {q.edge ? <Tag tone="fault">from a fault line</Tag> : null}
+                    {q.edge ? <Tag tone="fault">{S.bits.fromFaultLine}</Tag> : null}
                   </div>
                   <p className="mt-3 leading-snug">{q.wish}</p>
                   <p className="mt-2 numeral text-xs text-muted">

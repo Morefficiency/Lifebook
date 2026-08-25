@@ -24,7 +24,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <header className="sticky top-0 z-20 border-b border-hairline bg-canvas/85 backdrop-blur">
         <nav
-          aria-label="Primary"
+          aria-label={S.a11y.primaryNav}
           className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-1 gap-y-2 px-4 py-3 sm:px-6"
         >
           <Link
@@ -58,7 +58,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <footer className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 text-xs text-muted sm:px-6">
         <p>
-          Everything you enter stays in this browser. No account, no server, no analytics.{' '}
+          {S.bits.footer}{' '}
           <Link to="/support" className="underline decoration-hairline underline-offset-4 hover:text-bone">
             {S.nav.support}
           </Link>

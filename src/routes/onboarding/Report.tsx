@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { S } from '../../strings';
 import { useGraph, useInsightReport, useStrivingLookup } from '../../store/selectors';
-import { edgeKey } from '../../engine/graph';
+import { conflictEdgesByWeight, edgeKey } from '../../engine/graph';
 import type { EdgeMetric } from '../../engine/graph';
-import { StrivingText, Tag } from '../../components/ui';
+import { Explain, StrivingText, Tag } from '../../components/ui';
 
 export default function InsightReportRoute() {
   const navigate = useNavigate();
@@ -13,12 +13,7 @@ export default function InsightReportRoute() {
   const graph = useGraph();
   const labels = useStrivingLookup();
 
-  const faults = useMemo(
-    () => graph.edges.filter((e) => e.kind === 'conflict')
-      .slice()
-      .sort((a, b) => b.load - a.load || b.heat - a.heat),
-    [graph.edges],
-  );
+  const faults = useMemo(() => conflictEdgesByWeight(graph), [graph]);
 
   const preselect = graph.loadBearingEdge;
   const [selected, setSelected] = useState<string | null>(
@@ -41,13 +36,25 @@ export default function InsightReportRoute() {
       <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted">{S.report.regenerate}</p>
 
       <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Headline label="Strivings" value={report.headline.strivings} />
-        <Headline label="Help links" value={report.headline.helpLinks} />
-        <Headline label="Fault lines" value={report.headline.faultLines} />
+        <Headline label={S.bits.strivings} value={report.headline.strivings} />
+        <Headline label={S.bits.helpLinks} value={report.headline.helpLinks} />
+        <Headline label={S.bits.faultLines} value={report.headline.faultLines} />
         <Headline
-          label="Conflict index"
+          label={S.bits.conflictIndex}
           value={report.headline.conflictIndexPercent}
           suffix="%"
+          explain={
+            <div className="space-y-2">
+              <p>{S.howComputed.conflictIndexFormula} {S.howComputed.conflictIndexShare}</p>
+              <p className="numeral text-muted">
+                {graph.totalConflictLoad.toFixed(2)} ÷ ({graph.totalConflictLoad.toFixed(2)} +{' '}
+                {graph.totalFacilitation.toFixed(2)}) ={' '}
+                {report.headline.conflictIndexPercent === null
+                  ? '—' : `${report.headline.conflictIndexPercent}%`}
+              </p>
+              <p>{S.howComputed.conflictIndexNoCorrect}</p>
+            </div>
+          }
         />
       </dl>
 
@@ -102,16 +109,16 @@ export default function InsightReportRoute() {
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <Tag tone="fault">
-                          {Math.abs(e.effect) === 2 ? 'strongly conflicting' : 'conflicting'}
+                          {Math.abs(e.effect) === 2 ? S.bits.stronglyConflicting : S.bits.conflicting}
                         </Tag>
-                        <Tag tone="fault">heat {e.heat}/10</Tag>
-                        {e.carried ? <Tag tone="carry">carried</Tag> : null}
+                        <Tag tone="fault">{S.bits.heatOf(e.heat)}</Tag>
+                        {e.carried ? <Tag tone="carry">{S.bits.carried}</Tag> : null}
                       </div>
                       <p className="mt-2 leading-snug">
                         <StrivingText text={labels.get(e.aId) ?? ''} />
                       </p>
                       <p className="my-1 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-fault-bright">
-                        against
+                        {S.bits.against}
                       </p>
                       <p className="leading-snug">
                         <StrivingText text={labels.get(e.bId) ?? ''} />
@@ -137,7 +144,9 @@ export default function InsightReportRoute() {
   );
 }
 
-function Headline({ label, value, suffix }: { label: string; value: number | null; suffix?: string }) {
+function Headline({ label, value, suffix, explain }: {
+  label: string; value: number | null; suffix?: string; explain?: React.ReactNode;
+}) {
   return (
     <div className="rounded-md border border-hairline bg-surface/60 px-3.5 py-3">
       <dt className="text-[0.68rem] uppercase tracking-[0.14em] text-muted">{label}</dt>
@@ -145,6 +154,7 @@ function Headline({ label, value, suffix }: { label: string; value: number | nul
         {value === null ? <span className="text-muted">—</span> : value}
         {value !== null && suffix ? <span className="text-base text-muted">{suffix}</span> : null}
       </dd>
+      {explain ? <dd className="mt-1.5"><Explain>{explain}</Explain></dd> : null}
     </div>
   );
 }

@@ -82,8 +82,7 @@ export default function Settings() {
     <Page title={S.settings.title}>
       {persistenceError ? (
         <p role="alert" className="mb-8 rounded-md border border-fault/50 bg-fault/10 p-4 text-sm leading-relaxed">
-          This browser refused to save to its local database, so changes may not survive a refresh.
-          Private-browsing modes and blocked site data are the usual cause. Details: {persistenceError}
+          {S.bits.persistenceError} {S.bits.errorDetails}: {persistenceError}
         </p>
       ) : null}
 
@@ -152,7 +151,7 @@ export default function Settings() {
         />
         <button
           type="button"
-          className="btn mt-4 bg-fault text-bone hover:bg-fault-bright"
+          className="btn mt-4 border border-fault bg-fault/15 text-fault-bright hover:bg-fault/25"
           disabled={deleteText !== 'DELETE'}
           onClick={() => void doDelete()}
         >
@@ -161,7 +160,7 @@ export default function Settings() {
       </section>
 
       <p className="mt-10 text-xs text-muted">
-        Access mode: <span className="numeral">{ACCESS_MODE}</span>. Schema version:{' '}
+        {S.bits.accessMode}: <span className="numeral">{ACCESS_MODE}</span>. {S.bits.schemaVersion}:{' '}
         <span className="numeral">{state.version}</span>.
       </p>
     </Page>
