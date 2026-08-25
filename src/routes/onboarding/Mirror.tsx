@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NetworkMap } from '../../components/NetworkMap';
+import { MapFrame, NetworkMap } from '../../components/NetworkMap';
 import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { useGraph, useStrivingLookup } from '../../store/selectors';
@@ -30,14 +30,14 @@ export default function Mirror() {
 
   return (
     <WizardFrame step="mirror" title={S.mirror.title} wide>
-      <div className="rounded-lg border border-hairline bg-[#0A0D13] p-2 sm:p-4">
+      <MapFrame>
         <NetworkMap
           graph={graph}
           labels={labels}
           reveal={!skipped && !reduced}
           key={skipped ? 'instant' : 'reveal'}
         />
-      </div>
+      </MapFrame>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {!skipped && !reduced ? (

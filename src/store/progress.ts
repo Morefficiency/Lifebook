@@ -34,12 +34,23 @@ export const WIZARD_STEPS: { step: OnboardingStep; label: string }[] = [
 
 export function onboardingStep(state: AppState): OnboardingStep {
   if (!state.profile.consent) return 'gate';
-  if (!state.values || state.values.chosen.length < 3) return 'values';
-  const active = state.strivings.filter((s) => s.status === 'active');
-  if (active.length < MIN_STRIVINGS) return 'strivings';
+
+  // The striving minimum is an elicitation rule, not a rule for the rest of the
+  // app's life. Releasing a goal is a first-class win (§6) and routinely takes
+  // the count below eight — that must never push someone back into onboarding.
+  // Once the Mirror has been completed, only an actually unanswered question
+  // (a pair added later and never rated) can send them back into the wizard.
+  const preMirror = !state.profile.mirrorCompletedTs;
+
+  if (preMirror) {
+    if (!state.values || state.values.chosen.length < 3) return 'values';
+    const active = state.strivings.filter((s) => s.status === 'active');
+    if (active.length < MIN_STRIVINGS) return 'strivings';
+  }
+
   if (nextUnratedIndex(state.strivings, state.pairRatings) >= 0) return 'duels';
   if (nextPairNeedingHeat(state.strivings, state.pairRatings) >= 0) return 'heat';
-  if (!state.profile.mirrorCompletedTs) return 'mirror';
+  if (preMirror) return 'mirror';
   return 'done';
 }
 

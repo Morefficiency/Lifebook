@@ -18,7 +18,7 @@
  * reveal, which is both the design intent (one orchestrated moment, then quiet)
  * and why 12 nodes / 66 edges stays smooth.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY,
   type SimulationLinkDatum, type SimulationNodeDatum,
@@ -51,6 +51,22 @@ export interface NetworkMapProps {
 
 function truncate(text: string, max = LABEL_MAX_CHARS): string {
   return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
+/**
+ * The map keeps a readable minimum width and scrolls inside its own box on a
+ * narrow screen. Shrinking the whole diagram to 360 px makes the labels
+ * unreadable, and letting the page scroll sideways is worse than letting the
+ * one wide element do it.
+ */
+export function MapFrame({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-hairline bg-[#0A0D13] p-2 sm:p-4">
+      <div className="overflow-x-auto">
+        <div className="min-w-[560px]">{children}</div>
+      </div>
+    </div>
+  );
 }
 
 export function NetworkMap({

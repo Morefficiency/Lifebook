@@ -56,7 +56,17 @@ export default function InsightReportRoute() {
           <section key={s.id}>
             <h2 className="text-sm uppercase tracking-[0.14em] text-instrument">{s.title}</h2>
             <div className="mt-3 max-w-measure space-y-3 leading-relaxed text-bone">
-              {s.body.map((p) => (
+              {s.body.slice(0, 1).map((p) => (
+                <p key={p} className={s.id === 'honesty' || s.id === 'positions' ? 'text-muted' : ''}>
+                  {p}
+                </p>
+              ))}
+              {s.items ? (
+                <ul className="space-y-1.5 border-l border-hairline pl-4">
+                  {s.items.map((it) => <li key={it}>{it}</li>)}
+                </ul>
+              ) : null}
+              {s.body.slice(1).map((p) => (
                 <p key={p} className={s.id === 'honesty' || s.id === 'positions' ? 'text-muted' : ''}>
                   {p}
                 </p>
@@ -75,6 +85,7 @@ export default function InsightReportRoute() {
         ) : (
           <>
             <p className="mt-2 max-w-measure text-sm text-muted">{S.report.preselected}</p>
+            <p className="mt-1 max-w-measure text-sm text-muted">{S.report.weightNote}</p>
             <ul className="mt-5 space-y-2">
               {faults.map((e) => {
                 const k = edgeKey(e.aId, e.bId);
@@ -90,6 +101,9 @@ export default function InsightReportRoute() {
                       }`}
                     >
                       <div className="flex flex-wrap items-center gap-2">
+                        <Tag tone="fault">
+                          {Math.abs(e.effect) === 2 ? 'strongly conflicting' : 'conflicting'}
+                        </Tag>
                         <Tag tone="fault">heat {e.heat}/10</Tag>
                         {e.carried ? <Tag tone="carry">carried</Tag> : null}
                       </div>

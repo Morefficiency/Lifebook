@@ -1,7 +1,7 @@
 /** §10 /map — the living map, the active-quest rail, and the three chips. */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { NetworkMap } from '../components/NetworkMap';
+import { MapFrame, NetworkMap } from '../components/NetworkMap';
 import { Explain, StatChip, StrivingText, Tag } from '../components/ui';
 import { S } from '../strings';
 import { edgeKey } from '../engine/graph';
@@ -10,6 +10,9 @@ import {
   useActiveQuests, useCoherence, useGraph, useStrivingLookup, useXpBreakdown,
 } from '../store/selectors';
 import { useStore } from '../store/useStore';
+
+/** Long lists bury the thing you came for; the rest are one tap away. */
+const FAULTS_SHOWN = 8;
 
 export default function MapView() {
   const navigate = useNavigate();
@@ -21,6 +24,7 @@ export default function MapView() {
   const initialLoad = useStore((s) => s.state.profile.initialConflictLoad);
 
   const [selected, setSelected] = useState<EdgeMetric | null>(null);
+  const [showAllFaults, setShowAllFaults] = useState(false);
 
   const faults = graph.edges
     .filter((e) => e.kind === 'conflict')
@@ -80,13 +84,15 @@ export default function MapView() {
           />
         </div>
 
-        <div className="mt-6 rounded-lg border border-hairline bg-[#0A0D13] p-2 sm:p-4">
-          <NetworkMap
-            graph={graph}
-            labels={labels}
-            onSelectEdge={setSelected}
-            selectedKey={selected ? edgeKey(selected.aId, selected.bId) : null}
-          />
+        <div className="mt-6">
+          <MapFrame>
+            <NetworkMap
+              graph={graph}
+              labels={labels}
+              onSelectEdge={setSelected}
+              selectedKey={selected ? edgeKey(selected.aId, selected.bId) : null}
+            />
+          </MapFrame>
         </div>
         <p className="mt-3 text-xs text-muted">{S.map.tapHint}</p>
         <p className="mt-1 max-w-measure text-xs text-muted">{S.mirror.legend[4]}</p>
@@ -125,7 +131,7 @@ export default function MapView() {
             <p className="mt-3 text-sm text-muted">No fault lines on the map right now.</p>
           ) : (
             <ul className="mt-3 space-y-2">
-              {faults.map((e) => (
+              {(showAllFaults ? faults : faults.slice(0, FAULTS_SHOWN)).map((e) => (
                 <li key={edgeKey(e.aId, e.bId)}>
                   <button
                     type="button"
@@ -133,6 +139,9 @@ export default function MapView() {
                     className="w-full rounded-md border border-hairline px-4 py-3 text-left hover:border-fault/50"
                   >
                     <div className="flex flex-wrap items-center gap-2">
+                      <Tag tone={e.carried ? 'carry' : 'fault'}>
+                        {Math.abs(e.effect) === 2 ? 'strongly conflicting' : 'conflicting'}
+                      </Tag>
                       <Tag tone={e.carried ? 'carry' : 'fault'}>heat {e.heat}/10</Tag>
                       {e.carried ? <Tag tone="carry">carried</Tag> : null}
                     </div>
@@ -146,6 +155,17 @@ export default function MapView() {
               ))}
             </ul>
           )}
+          {faults.length > FAULTS_SHOWN ? (
+            <button
+              type="button"
+              className="btn-quiet mt-3 px-0 text-sm"
+              onClick={() => setShowAllFaults((v) => !v)}
+            >
+              {showAllFaults
+                ? 'Show the hottest few'
+                : `Show all ${faults.length} fault lines`}
+            </button>
+          ) : null}
         </section>
       </div>
 

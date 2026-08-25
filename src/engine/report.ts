@@ -20,7 +20,14 @@ export const POSITION_DISCLAIMER =
 export type ReportSectionId =
   | 'headline' | 'load_bearing' | 'hottest' | 'cluster' | 'positions' | 'honesty';
 
-export interface ReportSection { id: ReportSectionId; title: string; body: string[] }
+export interface ReportSection {
+  id: ReportSectionId;
+  title: string;
+  body: string[];
+  /** Rendered as a list under the body — used where naming five things in one
+   *  sentence would be unreadable. */
+  items?: string[];
+}
 
 export interface InsightReport {
   headline: {
@@ -116,9 +123,12 @@ export function buildInsightReport(
       id: 'cluster',
       title: 'Your existing engine',
       body: [
-        `${joinList(names)} already feed each other in your ratings.`,
+        names.length <= 3
+          ? `${joinList(names)} already feed each other in your ratings.`
+          : `${names.length} of your strivings already feed each other in your ratings.`,
         'This part of the map is doing work for you without being asked. It is worth knowing what is already running before you go looking for what to change.',
       ],
+      ...(names.length > 3 ? { items: names } : {}),
     });
   }
 

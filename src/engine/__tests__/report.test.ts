@@ -36,9 +36,23 @@ describe('insight report — deterministic, template-driven, no inference (§7.6
   });
 
   it('names the largest facilitation cluster as an existing engine', () => {
-    const body = section('cluster')!.body.join(' ');
-    expect(body).toContain('already feed each other');
-    expect(body).toContain('save enough to stop worrying about money');
+    const s = section('cluster')!;
+    const all = [...s.body, ...(s.items ?? [])].join(' ');
+    expect(s.body.join(' ')).toContain('already feed each other');
+    expect(all).toContain('save enough to stop worrying about money');
+    // Three members here, so they read as one sentence rather than a list.
+    expect(s.items).toBeUndefined();
+  });
+
+  it('spills a large cluster into a list instead of one unreadable sentence', () => {
+    const many: Striving[] = Array.from({ length: 5 }, (_, i) => ({
+      id: `n${i}`, text: `thing number ${i}`, createdTs: TS, status: 'active' as const,
+    }));
+    const links = many.slice(1).map((n) => ({ aId: 'n0', bId: n.id, effect: 1 as const, ts: TS }));
+    const r = buildInsightReport(many, links, []);
+    const c = r.sections.find((s) => s.id === 'cluster')!;
+    expect(c.items).toHaveLength(5);
+    expect(c.body.join(' ')).toContain('5 of your strivings already feed each other');
   });
 
   it('carries the honesty paragraph verbatim', () => {

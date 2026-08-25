@@ -155,6 +155,7 @@ export const S = {
     title: 'What your ratings say',
     chooseFaultLine: 'Choose your first fault line',
     preselected: 'Pre-selected: the fault line your ratings weight most heavily. You can pick any other red line instead.',
+    weightNote: 'Ordered by weight, which combines how strong you rated the clash with how much it bothers you — so a strong clash you barely notice can outrank a mild one that stings.',
     noFaultLines: 'There is no red line to choose. You can go back and revise your ratings, or carry on and add a quest of your own.',
     regenerate: 'Recalculated from your current ratings',
   },

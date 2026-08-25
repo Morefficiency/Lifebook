@@ -3,14 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Coherence — a local-first map of your goals, the conflicts between them, and the experiments that test them.",
+  "description": "Coherence \u2014 a local-first map of your goals, the conflicts between them, and the experiments that test them.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false"
+    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false",
+    "audit:prohibitions": "node scripts/prohibitions.mjs",
+    "verify": "npm run test && npm run build && npm run audit:prohibitions",
+    "e2e": "node e2e/acceptance.mjs && node e2e/release-and-carry.mjs"
   },
   "dependencies": {
     "@fontsource/fraunces": "^5.1.0",
