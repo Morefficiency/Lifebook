@@ -22,14 +22,17 @@ npm run preview    # serve the built bundle
 Verification:
 
 ```bash
-npm run test                 # 106 unit tests over src/engine (Vitest)
+npm run test                 # 110 unit tests over src/engine (Vitest)
 npm run audit:prohibitions   # greps the built bundle for banned language (§13)
 npm run verify               # test + build + audit
 npm run e2e                  # browser acceptance suite (needs a running preview)
 ```
 
-The e2e suite drives a real production build in Chromium and covers the
-"definition of done" script in §16. It needs a preview server on port 4173:
+The e2e suite drives a real production build in Chromium — 55 checks covering
+the "definition of done" script in §16, in three parts: `acceptance.mjs` walks
+A0 through A7 and the export/delete/import round trip, `release-and-carry.mjs`
+checks the release and carry flows against hand-computed numbers, and
+`map-density.mjs` checks the map at its maximum size (12 nodes, 66 pairs). It needs a preview server on port 4173:
 
 ```bash
 npm run build
