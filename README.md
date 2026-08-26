@@ -1,12 +1,49 @@
-# Coherence — v1
+# Lifebook
 
-A local-first web app that maps the things you are actually trying to do, finds
-where they fight each other, turns the sharpest conflict into a small real-world
-experiment, and pays experience points only for evidence.
+A local-first web app. You describe the life you want, then the life you have;
+it works out what you would have to believe about yourself to already be living
+the first one, shows you the gap between that and what you appear to believe
+now, and hands you a programme for closing it.
 
-Built to `coherence-v1-build-spec.md`, which is the binding specification. This
-file records how to run it, the decisions the spec left open, and the
-simplifications it explicitly asked not to fix silently.
+**The primary journey is the six Lifebook stages** — see `lifebook-v2-spec.md`.
+
+The v1 machinery (`coherence-v1-build-spec.md`: a goal-conflict map, a quest
+forge, a forecast-and-evidence ledger) is still in the repo and still reachable.
+It is the natural execution layer for Stage 6 — testing whether a belief
+survives contact with reality is exactly what it does — and it is not deleted.
+
+## The six stages
+
+| # | Stage | Route | What it produces |
+|---|-------|-------|------------------|
+| 1 | Vision | `/vision` → `/board` | The life you want, across twelve areas, with an optional picture each — a vision board. Written first, because it is the part people want to do. |
+| 2 | Current | `/current` | Where each of those areas actually is now. |
+| 3 | Reflect | `/reflect` | Behaviour, history and environment probes. Never "what do you believe" — you cannot see that from inside. |
+| 4 | Self-image | `/self-image` | Candidate beliefs, *offered* from stages 1–3, that you confirm, reject or rewrite. |
+| 5 | Becoming | `/becoming` | The self-image of the person for whom your vision is ordinary. |
+| 6 | Blueprint | `/blueprint` | The programme: thought swaps, evidence behaviours, affirmations, a practice rhythm. |
+
+`/gap` is the standing dashboard once those are done.
+
+### Three rules this journey is built on
+
+**Nothing about the user is asserted.** Stage 4 offers candidates as questions,
+with reject and rewrite as first-class answers, and every candidate shows exactly
+which of the user's own answers put it on the list. The app proposes; the user
+decides. A rejected candidate is never raised again.
+
+**Identity statements, not trait affirmations.** "I am confident" is an empty
+claim with no way to settle it, and repeating one you do not believe measurably
+makes low-self-esteem readers feel worse. Every target is framed as conduct — "I
+am someone who ships before it is perfect" — and every affirmation is logged
+alongside a concrete instance from that day. Affirmations attach to evidence;
+they never float free.
+
+**AI slots in at one seam.** `inferBeliefs()` in `src/engine/beliefs.ts` takes the
+whole profile and returns scored candidates. It is a deterministic rule engine
+today. Replacing it with a model call means replacing that one function behind
+the same signature — everything downstream is unchanged, and the rule engine
+stays as the offline fallback.
 
 ---
 
@@ -22,17 +59,18 @@ npm run preview    # serve the built bundle
 Verification:
 
 ```bash
-npm run test                 # 110 unit tests over src/engine (Vitest)
+npm run test                 # 138 unit tests over src/engine (Vitest)
 npm run audit:prohibitions   # greps the built bundle for banned language (§13)
 npm run verify               # test + build + audit
 npm run e2e                  # browser acceptance suite (needs a running preview)
 ```
 
-The e2e suite drives a real production build in Chromium — 55 checks covering
-the "definition of done" script in §16, in three parts: `acceptance.mjs` walks
-A0 through A7 and the export/delete/import round trip, `release-and-carry.mjs`
-checks the release and carry flows against hand-computed numbers, and
-`map-density.mjs` checks the map at its maximum size (12 nodes, 66 pairs). It needs a preview server on port 4173:
+The e2e suite drives a real production build in Chromium — 79 checks in four
+parts. `lifebook.mjs` walks all six stages end to end and checks the gap figure
+against a hand computation. The other three cover the v1 machinery:
+`acceptance.mjs` walks its onboarding and the export/delete/import round trip,
+`release-and-carry.mjs` checks the release and carry flows against hand-computed
+numbers, and `map-density.mjs` checks the map at its maximum size. It needs a preview server on port 4173:
 
 ```bash
 npm run build

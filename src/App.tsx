@@ -25,6 +25,15 @@ import Support from './routes/Support';
 import Science from './routes/Science';
 import Settings from './routes/Settings';
 
+import Vision from './routes/lifebook/Vision';
+import Board from './routes/lifebook/Board';
+import Current from './routes/lifebook/Current';
+import Reflect from './routes/lifebook/Reflect';
+import SelfImage from './routes/lifebook/SelfImage';
+import Becoming from './routes/lifebook/Becoming';
+import Blueprint from './routes/lifebook/Blueprint';
+import Gap from './routes/lifebook/Gap';
+
 /** Blocks everything but the landing gate and the two static pages until unlocked (§12). */
 function RequireAccess({ children }: { children: ReactNode }) {
   const unlocked = useStore((s) => s.unlocked);
@@ -68,6 +77,17 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
 
+          {/* Lifebook v2 — the primary journey. */}
+          <Route path="/vision" element={<RequireAccess><Vision /></RequireAccess>} />
+          <Route path="/board" element={<RequireAccess><Board /></RequireAccess>} />
+          <Route path="/current" element={<RequireAccess><Current /></RequireAccess>} />
+          <Route path="/reflect" element={<RequireAccess><Reflect /></RequireAccess>} />
+          <Route path="/self-image" element={<RequireAccess><SelfImage /></RequireAccess>} />
+          <Route path="/becoming" element={<RequireAccess><Becoming /></RequireAccess>} />
+          <Route path="/blueprint" element={<RequireAccess><Blueprint /></RequireAccess>} />
+          <Route path="/gap" element={<RequireAccess><Gap /></RequireAccess>} />
+
+          {/* v1 — the goal-conflict map and the evidence loop. Still reachable. */}
           <Route path="/onboarding/values" element={<RequireAccess><Values /></RequireAccess>} />
           <Route path="/onboarding/strivings" element={<RequireAccess><Strivings /></RequireAccess>} />
           <Route path="/onboarding/duels" element={<RequireAccess><Duels /></RequireAccess>} />

@@ -57,3 +57,44 @@ export function onboardingStep(state: AppState): OnboardingStep {
 export function isOnboardingComplete(state: AppState): boolean {
   return onboardingStep(state) === 'done';
 }
+
+/* ========================================================================== *
+ * Lifebook v2 — where to send someone who has already started.
+ * ========================================================================== */
+
+import type { LifebookStage } from '../types';
+
+export const LIFEBOOK_PATH: Record<LifebookStage, string> = {
+  vision: '/vision',
+  current: '/current',
+  reflect: '/reflect',
+  self_image: '/self-image',
+  becoming: '/becoming',
+  blueprint: '/blueprint',
+};
+
+/**
+ * Where someone who has already started belongs.
+ *
+ * The first Lifebook stage with unfinished business, derived from the data
+ * rather than stored — so closing the tab and coming back lands on the same
+ * question. Once the blueprint exists, the standing home is the gap dashboard.
+ *
+ * Someone who has no Lifebook but does have a completed Mirror is sent to the
+ * map instead. They arrived through the v1 flow, or restored an export from
+ * before the Lifebook stages existed, and pushing them into a journey they
+ * never began would look like their work had been thrown away.
+ */
+export function resumePath(state: AppState): string {
+  const lb = state.lifebook;
+  const written = lb.visions.filter((v) => v.statement.trim().length > 0);
+
+  if (written.length === 0 && isOnboardingComplete(state)) return '/map';
+  if (written.length < 3) return LIFEBOOK_PATH.vision;
+  if (lb.currents.length < written.length) return LIFEBOOK_PATH.current;
+  if (lb.probes.length === 0 && !lb.stagesCompleted.reflect) return LIFEBOOK_PATH.reflect;
+  if (lb.beliefs.filter((b) => b.status === 'confirmed').length === 0) return LIFEBOOK_PATH.self_image;
+  if (lb.identities.filter((i) => i.text.trim().length > 0).length === 0) return LIFEBOOK_PATH.becoming;
+  if (lb.practices.length === 0) return LIFEBOOK_PATH.blueprint;
+  return '/gap';
+}

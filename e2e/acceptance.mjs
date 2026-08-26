@@ -1,5 +1,11 @@
 /**
- * §16 "Definition of done" — acceptance items 1, 2, 3, 4, 6, 7 and 8, driven
+ * v1 acceptance — the goal-conflict map and the evidence loop.
+ *
+ * The primary journey is now the Lifebook stages (see e2e/lifebook.mjs); this
+ * machinery is still in the app and still has to work, so the suite enters it
+ * directly at /onboarding/values rather than through the landing page.
+ *
+ * Covers §16 items 1, 2, 3, 4, 6, 7 and 8 of coherence-v1-build-spec.md, driven
  * against a real production build in a real browser.
  *
  *   npm run build
@@ -34,8 +40,11 @@ await page.goto(BASE, { waitUntil: 'networkidle' });
 await page.fill('#access-code', 'COHERENCE-V1');
 await page.locator('input[type=checkbox]').nth(0).check();
 await page.locator('input[type=checkbox]').nth(1).check();
-await page.getByRole('button', { name: 'Begin' }).click();
-await page.waitForURL('**/onboarding/values');
+await page.getByRole('button', { name: /^Start with the life you want/ }).click();
+// The gate now opens onto the Lifebook journey; step into the v1 flow directly.
+await page.waitForURL('**/vision');
+await page.goto(`${BASE}/#/onboarding/values`);
+await page.getByRole('heading', { name: 'Before the mirror' }).waitFor();
 check('A0 gate accepts code + consent', true);
 
 // ---- A1 values ----

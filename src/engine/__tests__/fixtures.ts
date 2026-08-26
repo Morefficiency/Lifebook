@@ -45,6 +45,7 @@
  *     {s1, s2, s4} via s1–s4 and s2–s4  → 3 nodes, summed effect 3   ← largest
  *     {s3}                              → 1 node,  summed effect 0
  */
+import { emptyLifebook } from '../../types';
 import type {
   AppState, FieldReport, PairRating, Quest, Striving,
 } from '../../types';
@@ -214,6 +215,7 @@ export const BRIER = {
 export function fixtureState(): AppState {
   return {
     version: 1,
+    lifebook: emptyLifebook(),
     profile: {
       xp: 0, badges: [],
       consent: { notTherapyAck: true, dataLocalAck: true, ts: TS },

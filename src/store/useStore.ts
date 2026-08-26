@@ -19,8 +19,8 @@ import { UNLOCK_KEY } from '../config';
 import { emptyState, loadState, saveState, scheduleSave, wipeEverything } from '../data/db';
 import { entry } from '../data/ledger';
 import type {
-  AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LifeArea, Quest,
-  QuestStep, Striving,
+  AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LifeArea, Lifebook,
+  LifebookStage, Quest, QuestStep, Striving,
 } from '../types';
 
 const now = () => new Date().toISOString();
@@ -79,6 +79,10 @@ interface Store {
   fileReport: (questId: string, draft: ReportDraft) => ReportResult | null;
 
   annotate: (targetId: string, text: string) => void;
+
+  /** Single write path for every Lifebook mutation (src/store/lifebookStore.ts). */
+  applyLifebook: (fn: (lb: Lifebook) => Lifebook) => void;
+  completeLifebookStage: (stage: LifebookStage) => void;
 
   replaceState: (next: AppState) => Promise<void>;
   deleteEverything: () => Promise<void>;
@@ -425,6 +429,23 @@ export const useStore = create<Store>((set, get) => {
       ...s,
       ledger: [...s.ledger, entry(nanoid(), now(), 'annotation', { targetId, text: text.trim() })],
     })),
+
+    applyLifebook: (fn) => commit((s) => ({ ...s, lifebook: fn(s.lifebook) })),
+
+    completeLifebookStage: (stage) => commit((s) => {
+      if (s.lifebook.stagesCompleted[stage]) return s;
+      const ts = now();
+      return {
+        ...s,
+        lifebook: {
+          ...s.lifebook,
+          stagesCompleted: { ...s.lifebook.stagesCompleted, [stage]: ts },
+        },
+        ledger: [...s.ledger, entry(nanoid(), ts, 'reassessment', {
+          type: 'remap', note: `Lifebook stage completed: ${stage}`,
+        })],
+      };
+    }),
 
     replaceState: async (next) => {
       const reconciled = reconcile(next, next);

@@ -10,8 +10,13 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export function Layout({ children }: { children: ReactNode }) {
-  const state = useStore((s) => s.state);
-  const complete = isOnboardingComplete(state);
+  // The nav shows what this person actually has, rather than assuming one
+  // route through the app: the Lifebook links appear once there is a vision,
+  // the map links once the Mirror is complete, and the ledger as soon as
+  // there is anything at all to have recorded.
+  const consented = useStore((s) => !!s.state.profile.consent);
+  const hasLifebook = useStore((s) => s.state.lifebook.visions.length > 0);
+  const hasMap = useStore((s) => isOnboardingComplete(s.state));
 
   return (
     <div className="min-h-dvh">
@@ -28,19 +33,29 @@ export function Layout({ children }: { children: ReactNode }) {
           className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-1 gap-y-2 px-4 py-3 sm:px-6"
         >
           <Link
-            to={complete ? '/map' : '/'}
+            to={hasLifebook ? '/gap' : hasMap ? '/map' : '/'}
             className="mr-2 font-display text-base font-semibold tracking-tight text-bone"
           >
             {S.app.name}
           </Link>
 
-          {complete ? (
+          {hasLifebook ? (
+            <>
+              <NavLink to="/board" className={linkClass}>{S.nav.board}</NavLink>
+              <NavLink to="/gap" className={linkClass}>{S.nav.gap}</NavLink>
+              <NavLink to="/blueprint" className={linkClass}>{S.nav.blueprint}</NavLink>
+            </>
+          ) : null}
+
+          {hasMap ? (
             <>
               <NavLink to="/map" className={linkClass}>{S.nav.map}</NavLink>
               <NavLink to="/quests" className={linkClass}>{S.nav.quests}</NavLink>
-              <NavLink to="/ledger" className={linkClass}>{S.nav.ledger}</NavLink>
-              <NavLink to="/stats" className={linkClass}>{S.nav.stats}</NavLink>
             </>
+          ) : null}
+
+          {consented ? (
+            <NavLink to="/ledger" className={linkClass}>{S.nav.ledger}</NavLink>
           ) : null}
 
           <div className="ml-auto flex items-center gap-1">

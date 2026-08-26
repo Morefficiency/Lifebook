@@ -55,8 +55,10 @@ p.once('dialog', d => d.accept());
 await p.setInputFiles('input[type=file]', file);
 await p.getByText('Imported.').waitFor({ timeout: 10000 });
 await p.evaluate(() => localStorage.setItem('coherence.unlocked','1'));
-await p.goto(`${BASE}/#/map`, { waitUntil: 'networkidle' });
+// Reload first so the store sees the unlock flag; only then move to the map,
+// or the access guard bounces the hash-only navigation.
 await p.reload({ waitUntil: 'networkidle' });
+await p.goto(`${BASE}/#/map`);
 await p.getByRole('heading', { name: 'Your map' }).waitFor();
 
 const read = async () => {

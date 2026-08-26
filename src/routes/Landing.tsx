@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { ACCESS_MODE, PURCHASE_URL, isValidAccessCode } from '../config';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
-import { ONBOARDING_PATH, onboardingStep } from '../store/progress';
+import { resumePath } from '../store/progress';
 import { FieldError } from '../components/ui';
 
 export default function Landing() {
@@ -20,11 +20,10 @@ export default function Landing() {
   const [localAck, setLocalAck] = useState(false);
   const [consentError, setConsentError] = useState(false);
 
-  const step = onboardingStep(state);
   const gateOpen = ACCESS_MODE === 'open' || unlocked;
 
-  // Someone who has already consented is mid-flow: send them back to it.
-  if (gateOpen && step !== 'gate') return <Navigate to={ONBOARDING_PATH[step]} replace />;
+  // Someone who has already started is sent back to where they stopped.
+  if (gateOpen && state.profile.consent) return <Navigate to={resumePath(state)} replace />;
 
   const begin = () => {
     if (!gateOpen) {
@@ -33,7 +32,7 @@ export default function Landing() {
     }
     if (!therapyAck || !localAck) { setConsentError(true); return; }
     acceptConsent();
-    navigate('/onboarding/values');
+    navigate('/vision');
   };
 
   return (

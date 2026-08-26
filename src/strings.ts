@@ -37,13 +37,16 @@ export const STRIVING_EXAMPLES = [
 
 export const S = {
   app: {
-    name: 'Coherence',
-    tagline: 'The mirror and the move.',
+    name: 'Lifebook',
+    tagline: 'Vision, mirror, becoming.',
     sentence:
-      'Coherence maps the things you are actually trying to do, finds where they fight each other, turns the sharpest conflict into a small real-world experiment, and pays you only for evidence.',
+      'Write the life you want. Then the life you have. Lifebook works out what you would have to believe about yourself to already be living the first one, shows you the gap between that and what you appear to believe now, and hands you the work that closes it.',
   },
 
   nav: {
+    board: 'Vision board',
+    gap: 'The gap',
+    blueprint: 'Blueprint',
     map: 'Map',
     quests: 'Quests',
     ledger: 'Ledger',
@@ -55,17 +58,19 @@ export const S = {
   },
 
   gate: {
-    next25: 'The next 25 minutes, in four steps',
+    next25: 'Six stages. Start with the good one',
     steps: [
-      'Name three things you stand for.',
-      'List the things you are actually trying to do right now.',
-      'Rate every pair: do these two help or hurt each other?',
-      'Look at the map that makes, and pick one fault line to test.',
+      'Describe the life you want, area by area. You leave this stage with a vision board.',
+      'Say where each of those areas actually is today.',
+      'Answer some questions about how you operate, what shaped you, and who is around you.',
+      'Look at what you appear to believe about yourself — and rule on every line of it.',
+      'Decide who you would have to be instead.',
+      'Take away the programme: what to catch, what to do, what to say.',
     ],
     neverTitle: 'What this will never do',
     never: [
-      'No feed.',
-      'No streaks.',
+      'No feed. No streaks. Nothing to check daily.',
+      'It never tells you what you are — it asks, and you decide.',
       'Your data never leaves this device.',
     ],
     consentTherapy: 'I understand this is a self-reflection tool, not therapy or medical care.',
@@ -74,7 +79,7 @@ export const S = {
     codePlaceholder: 'Enter your access code',
     codeBad: 'That code was not recognised. Check for stray spaces and try again.',
     purchase: 'Get an access code',
-    begin: 'Begin',
+    begin: 'Start with the life you want',
     consentRequired: 'Both boxes are required before you can start.',
   },
 

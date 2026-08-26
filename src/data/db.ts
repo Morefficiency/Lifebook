@@ -8,7 +8,7 @@
  * localStorage is used for exactly one thing, the access-gate flag (§12).
  */
 import Dexie, { type Table } from 'dexie';
-import { SCHEMA_VERSION, type AppState } from '../types';
+import { SCHEMA_VERSION, emptyLifebook, type AppState, type Lifebook } from '../types';
 
 interface KV { key: string; value: unknown }
 
@@ -28,6 +28,7 @@ const STATE_KEY = 'state';
 export function emptyState(): AppState {
   return {
     version: SCHEMA_VERSION,
+    lifebook: emptyLifebook(),
     profile: {
       xp: 0,
       badges: [],
@@ -155,6 +156,9 @@ export function validateState(input: unknown): ValidationResult {
 
   const state: AppState = {
     version: SCHEMA_VERSION,
+    // A file written before the Lifebook stages existed still loads; it simply
+    // starts those stages empty rather than failing the whole import.
+    lifebook: { ...emptyLifebook(), ...(isObj(input['lifebook']) ? (input['lifebook'] as unknown as Lifebook) : {}) },
     profile: {
       xp: typeof profile['xp'] === 'number' ? profile['xp'] : 0,
       badges: isArray(profile['badges']) ? (profile['badges'] as string[]) : [],
