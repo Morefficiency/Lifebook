@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LEVELS, computeXp, earnedBadges, levelFor } from '../xp';
+import { LEVELS, XP_UNITS, computeXp, earnedBadges, levelFor } from '../xp';
 import { QUESTS, REPORTS, TS, fixtureState, q1, q2, q3, r1, r2, r3 } from './fixtures';
 import type { AppState } from '../../types';
 
@@ -47,6 +47,94 @@ describe('computeXp over the worked example', () => {
     const units = xp.lines.map((l) => l.unit);
     expect(Math.max(...units)).toBe(50);
     expect(xp.lines.find((l) => l.source === 'prediction_broken')!.unit).toBe(50);
+  });
+});
+
+describe('computeXp over the Lifebook journey', () => {
+  const withLifebook = () => {
+    const s = fixtureState();
+    s.lifebook = {
+      ...s.lifebook,
+      visions: [
+        { area: 'work', statement: 'a', markers: [], importance: 5, ts: TS },
+        { area: 'health', statement: 'b', markers: [], importance: 4, ts: TS },
+        { area: 'money', statement: 'c', markers: [], importance: 3, ts: TS },
+      ],
+      beliefs: [{ id: 'b1', text: 'mine', source: 'own', status: 'confirmed', areas: ['work'], ts: TS }],
+      practiceLogs: [{ id: 'pl1', itemId: 'p1', evidence: 'sent it unfinished', ts: TS }],
+    };
+    s.ledger = [
+      ...s.ledger,
+      { id: 'x1', ts: TS, kind: 'lifebook_stage', payload: { stage: 'vision', label: 'v' } },
+      { id: 'x2', ts: TS, kind: 'lifebook_stage', payload: { stage: 'current', label: 'c' } },
+      { id: 'x3', ts: TS, kind: 'belief_owned', payload: { beliefId: 'b1', text: 'mine', source: 'own' } },
+      { id: 'x4', ts: TS, kind: 'identity_set', payload: { identityId: 'i1', text: 'x', replaces: 'b1' } },
+      { id: 'x5', ts: TS, kind: 'practice_logged', payload: { itemId: 'p1', kind: 'behaviour', text: 'x', evidence: 'y' } },
+    ];
+    return s;
+  };
+
+  const xp = computeXp(withLifebook());
+  const amount = (source: string) => xp.lines.find((l) => l.source === source)?.xp ?? 0;
+
+  it('pays 10 per completed stage: 2 stages = 20', () => expect(amount('lifebook_stage')).toBe(20));
+  it('pays 15 for taking ownership of a belief', () => expect(amount('belief_owned')).toBe(15));
+  it('pays 15 for settling an identity', () => expect(amount('identity_set')).toBe(15));
+  it('pays 20 per logged instance — the main earner of this journey', () => {
+    expect(amount('practice_logged')).toBe(20);
+  });
+  it('adds 70 on top of the 210 the v1 fixture already earned', () => {
+    expect(xp.total).toBe(210 + 70);
+  });
+
+  it('finishing all six stages is worth less than four logged instances', () => {
+    // Setup must never outweigh what actually happened in the world.
+    expect(6 * XP_UNITS.lifebook_stage).toBeLessThan(4 * XP_UNITS.practice_logged);
+  });
+  it('still pays nothing larger than a broken prediction (Design Law 3)', () => {
+    expect(Math.max(...xp.lines.map((l) => l.unit))).toBe(50);
+  });
+  it('rejecting a belief pays nothing — a no is a decision about a guess', () => {
+    const s = withLifebook();
+    s.lifebook.beliefs = [
+      { id: 'b2', candidateId: 'x', text: 'not me', source: 'offered', status: 'rejected', areas: [], ts: TS },
+    ];
+    s.ledger = s.ledger.filter((e) => e.kind !== 'belief_owned');
+    expect(computeXp(s).lines.find((l) => l.source === 'belief_owned')?.xp).toBe(0);
+  });
+});
+
+describe('Lifebook badges', () => {
+  it('First Vision needs three written areas, Named It needs a confirmed belief', () => {
+    const s = fixtureState();
+    expect(earnedBadges(s).map((b) => b.id)).not.toContain('first_vision');
+
+    s.lifebook.visions = ['work', 'health', 'money'].map((area) => ({
+      area: area as 'work', statement: 'x', markers: [], importance: 3 as const, ts: TS,
+    }));
+    expect(earnedBadges(s).map((b) => b.id)).toContain('first_vision');
+    expect(earnedBadges(s).map((b) => b.id)).not.toContain('named_it');
+
+    s.lifebook.beliefs = [{ id: 'b', text: 'x', source: 'own', status: 'confirmed', areas: [], ts: TS }];
+    expect(earnedBadges(s).map((b) => b.id)).toContain('named_it');
+  });
+
+  it('an empty vision statement does not count toward First Vision', () => {
+    const s = fixtureState();
+    s.lifebook.visions = ['work', 'health', 'money'].map((area) => ({
+      area: area as 'work', statement: '   ', markers: [], importance: 3 as const, ts: TS,
+    }));
+    expect(earnedBadges(s).map((b) => b.id)).not.toContain('first_vision');
+  });
+
+  it('Ten Instances needs ten logged instances', () => {
+    const s = fixtureState();
+    s.lifebook.practiceLogs = Array.from({ length: 9 }, (_, i) => ({
+      id: `l${i}`, itemId: 'p', evidence: 'did it', ts: TS,
+    }));
+    expect(earnedBadges(s).map((b) => b.id)).not.toContain('ten_instances');
+    s.lifebook.practiceLogs.push({ id: 'l9', itemId: 'p', evidence: 'did it', ts: TS });
+    expect(earnedBadges(s).map((b) => b.id)).toContain('ten_instances');
   });
 });
 

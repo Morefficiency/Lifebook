@@ -14,6 +14,15 @@ import type { AppState } from '../types';
 import { calibration, isPredictionBroken } from './scoring';
 
 export const XP_UNITS = {
+  // Lifebook. Stage completion is a one-time setup payment, deliberately small:
+  // finishing a stage is progress through the app, not evidence from the world,
+  // and six stages at a generous rate would have made setup outweigh everything
+  // that actually happened (Design Law 3).
+  lifebook_stage: 10,
+  belief_owned: 15,
+  identity_set: 15,
+  practice_logged: 20,
+  // v1 — the goal-conflict map and the evidence loop
   step_done: 10,
   field_report: 15,
   epistemic_bonus: 25,
@@ -42,6 +51,14 @@ export const FORK_NOTE_MIN = 20;
 
 const LINE_META = S.xpLines;
 
+/** Ledger kinds that are paid one unit per entry. */
+const LEDGER_PAID: Partial<Record<XpSource, string>> = {
+  lifebook_stage: 'lifebook_stage',
+  belief_owned: 'belief_owned',
+  identity_set: 'identity_set',
+  practice_logged: 'practice_logged',
+};
+
 /** Number of ledger entries recording a pair re-rating prompted by evidence. */
 function pairReratingCount(state: AppState): number {
   return state.ledger.filter(
@@ -54,7 +71,13 @@ function pairReratingCount(state: AppState): number {
 export function computeXp(state: AppState): XpBreakdown {
   const questById = new Map(state.quests.map((q) => [q.id, q]));
 
+  const ledgerCount = (kind: string) => state.ledger.filter((e) => e.kind === kind).length;
+
   const counts: Record<XpSource, number> = {
+    lifebook_stage: ledgerCount(LEDGER_PAID.lifebook_stage!),
+    belief_owned: ledgerCount(LEDGER_PAID.belief_owned!),
+    identity_set: ledgerCount(LEDGER_PAID.identity_set!),
+    practice_logged: ledgerCount(LEDGER_PAID.practice_logged!),
     mirror_completed: state.profile.mirrorCompletedTs ? 1 : 0,
     fork: state.forks.filter((f) => f.note.trim().length >= FORK_NOTE_MIN).length,
     step_done: state.quests.reduce((acc, q) => acc + q.steps.filter((s) => s.done).length, 0),
@@ -70,7 +93,8 @@ export function computeXp(state: AppState): XpBreakdown {
   };
 
   const order: XpSource[] = [
-    'prediction_broken', 'epistemic_bonus', 'field_report', 'fork',
+    'prediction_broken', 'epistemic_bonus', 'practice_logged', 'lifebook_stage',
+    'belief_owned', 'identity_set', 'field_report', 'fork',
     'mirror_completed', 'step_done', 'pair_rerating',
   ];
 
@@ -134,6 +158,7 @@ export interface Badge { id: string; name: string; description: string }
 
 /** Order is the order they are displayed in; the copy comes from the locale file. */
 const BADGE_IDS = [
+  'first_vision', 'named_it', 'first_instance', 'ten_instances',
   'first_light', 'first_contact', 'prediction_broken', 'serial_falsifier',
   'resistance_was_right', 'held_not_hidden', 'cold_reader', 'deep_breath',
 ] as const;
@@ -150,6 +175,13 @@ export function earnedBadgeIds(state: AppState): string[] {
     return !!q && isPredictionBroken(q, r);
   }).length;
   const cal = calibration(state.quests, state.reports);
+
+  const lb = state.lifebook;
+  const instances = lb.practiceLogs.length;
+  if (lb.visions.filter((v) => v.statement.trim().length > 0).length >= 3) ids.push('first_vision');
+  if (lb.beliefs.some((b) => b.status === 'confirmed')) ids.push('named_it');
+  if (instances >= 1) ids.push('first_instance');
+  if (instances >= 10) ids.push('ten_instances');
 
   if (state.profile.mirrorCompletedTs) ids.push('first_light');
   if (state.reports.length >= 1) ids.push('first_contact');

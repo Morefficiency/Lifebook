@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
+import { lifebook } from '../store/lifebookStore';
 import { validateState } from '../data/db';
 import { Page } from '../components/ui';
 import { ACCESS_MODE } from '../config';
@@ -26,6 +27,13 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null);
   const [deleteText, setDeleteText] = useState('');
   const [deleted, setDeleted] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const hasLifebook = state.lifebook.visions.length > 0;
+  const hasMirror = !!state.profile.mirrorCompletedTs;
+  // Vision-board images are the only thing here that gets large, so the size of
+  // the document is worth showing rather than discovering at export time.
+  const sizeKb = Math.round(new Blob([JSON.stringify(state)]).size / 1024);
 
   const exportJson = () => {
     // The blob is built and revoked in-page. Nothing is uploaded anywhere.
@@ -94,6 +102,12 @@ export default function Settings() {
       <section className="card mt-8">
         <h2 className="font-display text-lg">{S.settings.exportTitle}</h2>
         <p className="mt-2 max-w-measure text-sm leading-relaxed text-muted">{S.settings.exportBody}</p>
+        <p className="mt-2 numeral text-xs text-muted">
+          Currently {sizeKb} KB
+          {state.lifebook.visions.filter((v) => v.image).length > 0
+            ? `, including ${state.lifebook.visions.filter((v) => v.image).length} vision-board image(s)`
+            : ''}.
+        </p>
         <button type="button" className="btn-ghost mt-4" onClick={exportJson}>
           {S.settings.exportCta}
         </button>
@@ -122,16 +136,61 @@ export default function Settings() {
       {error ? <p role="alert" className="mt-4 text-sm text-fault-bright">{error}</p> : null}
 
       <section className="card mt-4">
-        <h2 className="font-display text-lg">{S.settings.resetBody ? S.settings.reset : ''}</h2>
-        <p className="mt-2 max-w-measure text-sm leading-relaxed text-muted">{S.settings.resetBody}</p>
-        <button
-          type="button"
-          className="btn-ghost mt-4"
-          onClick={() => { resetMirror(); navigate('/onboarding/duels'); }}
-        >
-          {S.settings.reset}
-        </button>
+        <h2 className="font-display text-lg">Your Lifebook</h2>
+        <p className="mt-2 max-w-measure text-sm leading-relaxed text-muted">
+          Reopening the belief stage clears what you ruled on and the programme
+          that came out of it, and keeps your vision and your current state — for
+          when the reflection questions would get a different answer from you than
+          they did six months ago. Starting again clears the whole Lifebook.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="btn-ghost"
+            disabled={!hasLifebook}
+            onClick={() => { lifebook.reopenBeliefs(); navigate('/reflect'); }}
+          >
+            Reopen the belief stage
+          </button>
+          {!confirmReset ? (
+            <button
+              type="button"
+              className="btn-quiet"
+              disabled={!hasLifebook}
+              onClick={() => setConfirmReset(true)}
+            >
+              Start the Lifebook again
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="btn-ghost border-fault/50 text-fault-bright"
+                onClick={() => { lifebook.resetAll(); setConfirmReset(false); navigate('/vision'); }}
+              >
+                Yes, clear all of it
+              </button>
+              <button type="button" className="btn-quiet" onClick={() => setConfirmReset(false)}>
+                {S.common.cancel}
+              </button>
+            </>
+          )}
+        </div>
       </section>
+
+      {hasMirror ? (
+        <section className="card mt-4">
+          <h2 className="font-display text-lg">{S.settings.reset}</h2>
+          <p className="mt-2 max-w-measure text-sm leading-relaxed text-muted">{S.settings.resetBody}</p>
+          <button
+            type="button"
+            className="btn-ghost mt-4"
+            onClick={() => { resetMirror(); navigate('/onboarding/duels'); }}
+          >
+            {S.settings.reset}
+          </button>
+        </section>
+      ) : null}
 
       <section className="card mt-4">
         <h2 className="font-display text-lg">{S.settings.motionTitle}</h2>

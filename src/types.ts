@@ -86,9 +86,13 @@ export interface FieldReport {
 }
 
 export type LedgerKind =
+  // v1 — the goal-conflict map and the evidence loop.
   | 'mirror_completed' | 'fork' | 'quest_created' | 'step_done' | 'field_report'
   | 'prediction_broken' | 'release_victory' | 'carry_marked' | 'reassessment'
-  | 'annotation' | 'quest_abandoned' | 'level_up' | 'badge_earned';
+  | 'annotation' | 'quest_abandoned' | 'level_up' | 'badge_earned'
+  // Lifebook — the six stages.
+  | 'lifebook_stage' | 'belief_owned' | 'identity_set' | 'practice_logged'
+  | 'lifebook_reset';
 
 export interface LedgerEntry {
   id: string;
@@ -168,7 +172,14 @@ export type BeliefStatus = 'confirmed' | 'rejected';
 /** Stage 4 — a belief the user has ruled on. Nothing is held that he did not confirm. */
 export interface HeldBelief {
   id: string;
-  /** The library candidate this came from, when it was offered rather than written. */
+  /**
+   * The catalogue entry this belief resolves to.
+   *
+   * Set when the belief was offered from the catalogue, and also when the user
+   * wrote his own and then said which of the known patterns it most resembles.
+   * That second case is what lets a self-written belief inherit a counterpart
+   * identity and a programme instead of dead-ending.
+   */
   candidateId?: string;
   text: string;
   source: BeliefSource;

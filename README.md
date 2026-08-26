@@ -30,7 +30,15 @@ survives contact with reality is exactly what it does — and it is not deleted.
 **Nothing about the user is asserted.** Stage 4 offers candidates as questions,
 with reject and rewrite as first-class answers, and every candidate shows exactly
 which of the user's own answers put it on the list. The app proposes; the user
-decides. A rejected candidate is never raised again.
+decides. A rejection takes a candidate out of the offering, and is listed
+underneath with a way back — a permanent consequence for a misclick is a trap,
+not a principle.
+
+**No path dead-ends.** A belief the user writes himself asks one extra question:
+which of the known patterns it resembles, if any. Saying so lets it inherit a
+counterpart identity and a programme; saying none is a real answer too, and he
+gets a generic scaffold rather than an empty page. Every confirmed belief ends
+up with an identity, and every identity ends up with work attached to it.
 
 **Identity statements, not trait affirmations.** "I am confident" is an empty
 claim with no way to settle it, and repeating one you do not believe measurably
@@ -39,11 +47,17 @@ am someone who ships before it is perfect" — and every affirmation is logged
 alongside a concrete instance from that day. Affirmations attach to evidence;
 they never float free.
 
-**AI slots in at one seam.** `inferBeliefs()` in `src/engine/beliefs.ts` takes the
-whole profile and returns scored candidates. It is a deterministic rule engine
-today. Replacing it with a model call means replacing that one function behind
-the same signature — everything downstream is unchanged, and the rule engine
-stays as the offline fallback.
+**The algorithm decides; nothing else does.** The whole inference is a
+deterministic rule engine — 63 weighted options across 14 probes, scored against
+a readable 14-belief catalogue. It runs offline, gives the same answer for the
+same input every time, shows its working line by line on every candidate, and
+cannot produce a belief that is not in the catalogue. No AI anywhere.
+
+If a model is ever added it goes at one seam only — `inferBeliefs()` in
+`src/engine/beliefs.ts` — and only to *translate into* the algorithm: matching a
+free-text belief onto the nearest catalogue entries, or rephrasing a practice in
+the user's own words. It would never score and never decide, and the rule engine
+would stay as the offline path.
 
 ---
 
@@ -59,13 +73,13 @@ npm run preview    # serve the built bundle
 Verification:
 
 ```bash
-npm run test                 # 138 unit tests over src/engine (Vitest)
+npm run test                 # 152 unit tests over src/engine (Vitest)
 npm run audit:prohibitions   # greps the built bundle for banned language (§13)
 npm run verify               # test + build + audit
 npm run e2e                  # browser acceptance suite (needs a running preview)
 ```
 
-The e2e suite drives a real production build in Chromium — 79 checks in four
+The e2e suite drives a real production build in Chromium — 98 checks in four
 parts. `lifebook.mjs` walks all six stages end to end and checks the gap figure
 against a hand computation. The other three cover the v1 machinery:
 `acceptance.mjs` walks its onboarding and the export/delete/import round trip,

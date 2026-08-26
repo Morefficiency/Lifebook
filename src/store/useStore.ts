@@ -17,10 +17,11 @@ import {
 } from '../engine';
 import { UNLOCK_KEY } from '../config';
 import { emptyState, loadState, saveState, scheduleSave, wipeEverything } from '../data/db';
+import { emptyLifebook } from '../types';
 import { entry } from '../data/ledger';
 import type {
-  AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LifeArea, Lifebook,
-  LifebookStage, Quest, QuestStep, Striving,
+  AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LedgerKind, LifeArea,
+  Lifebook, LifebookStage, Quest, QuestStep, Striving,
 } from '../types';
 
 const now = () => new Date().toISOString();
@@ -82,7 +83,14 @@ interface Store {
 
   /** Single write path for every Lifebook mutation (src/store/lifebookStore.ts). */
   applyLifebook: (fn: (lb: Lifebook) => Lifebook) => void;
-  completeLifebookStage: (stage: LifebookStage) => void;
+  /** Same, but records an entry in the ledger in the same commit. */
+  applyLifebookLogged: <K extends LedgerKind>(
+    fn: (lb: Lifebook) => Lifebook, kind: K, payload: unknown,
+  ) => void;
+  completeLifebookStage: (stage: LifebookStage, label: string) => void;
+  /** Clears the belief work so the offering can be re-run; keeps vision and current. */
+  reopenBeliefs: () => void;
+  resetLifebook: () => void;
 
   replaceState: (next: AppState) => Promise<void>;
   deleteEverything: () => Promise<void>;
@@ -432,7 +440,13 @@ export const useStore = create<Store>((set, get) => {
 
     applyLifebook: (fn) => commit((s) => ({ ...s, lifebook: fn(s.lifebook) })),
 
-    completeLifebookStage: (stage) => commit((s) => {
+    applyLifebookLogged: (fn, kind, payload) => commit((s) => ({
+      ...s,
+      lifebook: fn(s.lifebook),
+      ledger: [...s.ledger, { id: nanoid(), ts: now(), kind, payload }],
+    })),
+
+    completeLifebookStage: (stage, label) => commit((s) => {
       if (s.lifebook.stagesCompleted[stage]) return s;
       const ts = now();
       return {
@@ -441,11 +455,33 @@ export const useStore = create<Store>((set, get) => {
           ...s.lifebook,
           stagesCompleted: { ...s.lifebook.stagesCompleted, [stage]: ts },
         },
-        ledger: [...s.ledger, entry(nanoid(), ts, 'reassessment', {
-          type: 'remap', note: `Lifebook stage completed: ${stage}`,
-        })],
+        ledger: [...s.ledger, entry(nanoid(), ts, 'lifebook_stage', { stage, label })],
       };
     }),
+
+    /**
+     * Reopens the belief stage: the rulings go, the vision and the current
+     * state stay. Someone whose life has moved on should be able to answer the
+     * reflection questions again without throwing away everything they wrote.
+     */
+    reopenBeliefs: () => commit((s) => ({
+      ...s,
+      lifebook: {
+        ...s.lifebook,
+        beliefs: [], identities: [], practices: [], practiceLogs: [],
+        stagesCompleted: {
+          ...s.lifebook.stagesCompleted,
+          self_image: undefined, becoming: undefined, blueprint: undefined,
+        },
+      },
+      ledger: [...s.ledger, entry(nanoid(), now(), 'lifebook_reset', { what: 'beliefs' })],
+    })),
+
+    resetLifebook: () => commit((s) => ({
+      ...s,
+      lifebook: emptyLifebook(),
+      ledger: [...s.ledger, entry(nanoid(), now(), 'lifebook_reset', { what: 'everything' })],
+    })),
 
     replaceState: async (next) => {
       const reconciled = reconcile(next, next);

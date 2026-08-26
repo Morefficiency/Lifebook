@@ -67,9 +67,13 @@ export default function Ledger() {
             return (
               <li key={e.id} className="rounded-md border border-hairline bg-surface/50 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Tag tone={e.kind === 'prediction_broken' ? 'facil'
-                    : e.kind === 'release_victory' ? 'facil'
-                      : e.kind === 'carry_marked' ? 'carry' : 'neutral'}>
+                  <Tag tone={
+                    e.kind === 'prediction_broken' || e.kind === 'release_victory'
+                      || e.kind === 'practice_logged' ? 'facil'
+                      : e.kind === 'carry_marked' ? 'carry'
+                        : e.kind === 'belief_owned' || e.kind === 'identity_set'
+                          ? 'facil' : 'neutral'
+                  }>
                     {LEDGER_KIND_LABEL[e.kind]}
                   </Tag>
                   <time className="numeral text-xs text-muted" dateTime={e.ts}>{fmt(e.ts)}</time>
@@ -226,6 +230,35 @@ function EntryBody({ entry, labels }: { entry: LedgerEntry; labels: Map<string, 
           {p['type'] === 'pair_rerating'
             ? `Pair re-rated${p['from'] !== undefined ? ` from ${String(p['from'])} to ${String(p['to'])}` : ''}.`
             : p['type'] === 'remap' ? 'Started the rating flow again.' : 'Revised a striving.'}
+        </p>
+      );
+    case 'lifebook_stage':
+      return <p>{String(p['label'])}</p>;
+    case 'belief_owned':
+      return (
+        <>
+          <p className="leading-relaxed">“{String(p['text'])}”</p>
+          <p className="mt-1.5 text-sm text-muted">
+            {p['source'] === 'own' ? 'Written in your own words.' : 'Offered, and you said yes.'}
+            {p['resembles'] ? ' A version of a known pattern.' : ''}
+          </p>
+        </>
+      );
+    case 'identity_set':
+      return <p className="leading-relaxed">{String(p['text'])}</p>;
+    case 'practice_logged':
+      return (
+        <>
+          <p className="text-sm text-muted">{String(p['text'])}</p>
+          <p className="mt-1.5 leading-relaxed">{String(p['evidence'])}</p>
+        </>
+      );
+    case 'lifebook_reset':
+      return (
+        <p className="text-muted">
+          {p['what'] === 'everything'
+            ? 'Started the Lifebook again from the beginning.'
+            : 'Reopened the belief stage. The vision and the current state were kept.'}
         </p>
       );
     case 'level_up':

@@ -237,3 +237,38 @@ export const BELIEF_CATALOGUE: BeliefCandidate[] = [
 ];
 
 export const BELIEF_BY_ID = new Map(BELIEF_CATALOGUE.map((b) => [b.id, b]));
+
+/**
+ * The fallback programme, for a belief the user wrote himself that matches
+ * nothing in the catalogue.
+ *
+ * Deliberately generic and deliberately not empty. The catalogue is a list of
+ * common patterns, not a taxonomy of every way a person can get in their own
+ * way — so someone whose belief is genuinely their own must still leave this
+ * stage with something to do. The shape is identical to a catalogue programme:
+ * catch the thought, take an action that only the new identity would take, and
+ * say the sentence alongside something real. He fills in the specifics.
+ */
+export const GENERIC_PRACTICES: PracticeTemplate[] = [
+  {
+    kind: 'thought',
+    cue: 'Write the sentence you catch yourself thinking',
+    text: 'Write what you want to think instead — plainly, in words you would actually use.',
+    cadence: 'when_it_shows_up',
+  },
+  {
+    kind: 'behaviour',
+    text: 'Name one small thing that only the new version of you would do, and do it this week.',
+    cadence: 'weekly',
+  },
+  {
+    kind: 'affirmation',
+    text: 'Write the identity as one sentence, and say it only when you have an instance to attach.',
+    cadence: 'daily',
+  },
+];
+
+/** Every catalogue entry, as a picker for "which of these does yours resemble?". */
+export const RESEMBLANCE_OPTIONS = BELIEF_CATALOGUE.map((b) => ({
+  id: b.id, text: b.text, areas: b.areas,
+}));

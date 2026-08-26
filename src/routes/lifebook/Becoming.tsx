@@ -79,6 +79,7 @@ export default function Becoming() {
                   areas: d.areas,
                   edited: e.target.value !== d.text,
                 })}
+                onBlur={() => lifebook.commitIdentity(d.replacesBeliefId)}
               />
 
               <div className="mt-3 flex flex-wrap items-center gap-2">

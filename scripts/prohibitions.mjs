@@ -29,7 +29,9 @@ const ALLOWED = [
   'Coherence is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support.',
   // /science citation, §10-mandated. Verbatim journal-article title.
   'Maximizing exposure therapy: An inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.',
-  // /science — naming the mechanics deliberately left out.
+  // /science — naming the mechanics deliberately left out. The list has to be
+  // able to name what it is refusing to do.
+  'Personality types, profiles or diagnoses',
   'No streaks, no cash, no leaderboards',
   'Streaks, quotas and points that buy something outside the app all create a reason to report what keeps the reward coming rather than what actually happened.',
   'No streaks, no daily goals, no notifications, no time pressure, no randomised rewards.',

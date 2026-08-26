@@ -13,7 +13,7 @@
  * someone who does not believe it yet it tends to make things worse. Attached
  * to a real instance from that day, it is a label for something that happened.
  */
-import type { BeliefCandidate } from '../content/beliefs';
+import { GENERIC_PRACTICES, type BeliefCandidate, type PracticeTemplate } from '../content/beliefs';
 import type { HeldBelief, PracticeItem, PracticeLog, TargetIdentity } from '../types';
 
 export interface PracticeDraft {
@@ -22,8 +22,19 @@ export interface PracticeDraft {
   text: string;
   cue?: string;
   cadence: PracticeItem['cadence'];
+  /** True when this came from the generic fallback and needs the user's specifics. */
+  generic: boolean;
 }
 
+/**
+ * Every identity gets a programme.
+ *
+ * A belief that resolves to a catalogue entry — either because it was offered
+ * from there, or because the user said his own sentence resembles it — gets
+ * that entry's practices. Anything else gets the generic scaffold rather than
+ * nothing: an identity with no work attached to it is a dead end, and a dead
+ * end is worse than a rough starting point.
+ */
 export function buildProgramme(
   identities: TargetIdentity[],
   beliefs: HeldBelief[],
@@ -34,14 +45,17 @@ export function buildProgramme(
 
   return identities.flatMap((identity) => {
     const belief = identity.replacesBeliefId ? beliefById.get(identity.replacesBeliefId) : undefined;
-    const source = belief?.candidateId ? catalogueById.get(belief.candidateId) : undefined;
-    if (!source) return [];
-    return source.practices.map((p) => ({
+    if (!belief) return [];
+    const source = belief.candidateId ? catalogueById.get(belief.candidateId) : undefined;
+    const templates: PracticeTemplate[] = source ? source.practices : GENERIC_PRACTICES;
+
+    return templates.map((p) => ({
       identityId: identity.id,
       kind: p.kind,
       text: p.text,
       ...(p.cue ? { cue: p.cue } : {}),
       cadence: p.cadence,
+      generic: !source,
     }));
   });
 }

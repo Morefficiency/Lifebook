@@ -381,6 +381,41 @@ export const S = {
 
     items: [
       {
+        mechanic: 'Writing the life you want before auditing the life you have',
+        body: 'A representation of who you might become — a "possible self" — carries motivational force that an abstract goal does not, and works best when it is specific and vivid enough to picture. Putting it first is also a practical decision: someone who stops after one stage should leave with the picture, not with the audit.',
+        cite: 'Markus, H., & Nurius, P. (1986). Possible selves. American Psychologist, 41(9), 954–969.',
+      },
+      {
+        mechanic: 'Measuring the distance between the two',
+        body: 'The gap between how you see yourself now and how you want to be is not just a motivational fact — the size and kind of that gap is associated with distinct emotional consequences. Making it explicit and weighting it by what you said matters is what stops the work going into an area you were never really bothered about.',
+        cite: 'Higgins, E. T. (1987). Self-discrepancy: A theory relating self and affect. Psychological Review, 94(3), 319–340.',
+      },
+      {
+        mechanic: 'Asking what you do, not what you believe',
+        body: 'A self-image is a structured set of beliefs that shapes what you notice and how you read your own behaviour — and it is largely invisible from inside, which is exactly why it is not asked about directly. The reflection stage asks about conduct, history and environment, and the joining-up is offered back as a question.',
+        cite: 'Markus, H. (1977). Self-schemata and processing information about the self. Journal of Personality and Social Psychology, 35(2), 63–78.',
+      },
+      {
+        mechanic: 'Changing behaviour to change the belief, rather than the reverse',
+        body: 'People read their own attitudes off their own behaviour, particularly where the internal evidence is weak or ambiguous — which is the case for most beliefs about oneself. That is why the programme is built around actions that only the new identity would take: the action is the evidence, and the belief follows it.',
+        cite: 'Bem, D. J. (1972). Self-perception theory. Advances in Experimental Social Psychology, 6, 1–62.',
+      },
+      {
+        mechanic: 'Identity stated as conduct, not as a trait',
+        body: 'What a person does is shaped by which identity is salient at that moment and whether the action feels congruent with it. An identity phrased as something you do can be acted on today; a trait claim cannot be acted on at all, only asserted.',
+        cite: 'Oyserman, D., & Destin, M. (2010). Identity-based motivation: Implications for intervention. The Counseling Psychologist, 38(7), 1001–1043.',
+      },
+      {
+        mechanic: 'Affirmations that require an instance',
+        body: 'Repeating a favourable self-statement has been found to leave people who do not already believe it feeling worse, not better — the statement falls outside what they can accept and the contrast is what registers. This app never asks for a bare repetition: every affirmation is logged alongside a concrete thing that happened that day, which makes it a label for an event rather than a claim about a person.',
+        cite: 'Wood, J. V., Perunovic, W. Q. E., & Lee, J. W. (2009). Positive self-statements: Power for some, peril for others. Psychological Science, 20(7), 860–866.',
+      },
+      {
+        mechanic: 'Catching a thought and swapping it',
+        body: 'Reinterpreting a situation as it arises is one of the more effective ways of changing what it does to you, and it works better before the reaction has fully run than after. The thought swaps in the programme are written as a cue and a replacement for that reason.',
+        cite: 'Gross, J. J. (2015). Emotion regulation: Current status and future prospects. Psychological Inquiry, 26(1), 1–26.',
+      },
+      {
         mechanic: 'Listing strivings, then rating every pair',
         body: 'Personal strivings — the things a person is typically trying to do — can be laid out as a matrix in which each striving is rated against every other for whether it helps or hinders. Higher conflict in that matrix has been associated with more rumination about goals and less action on them. The matrix in this app is the same instrument, shortened.',
         cite: 'Emmons, R. A., & King, L. A. (1988). Conflict among personal strivings. Journal of Personality and Social Psychology, 54(6), 1040–1048.',
@@ -424,6 +459,18 @@ export const S = {
 
     leftOut: [
       {
+        thing: 'Telling you what you believe',
+        why: 'The app scores candidate beliefs against your own answers and offers the top few as questions. Nothing is held as yours until you confirm it, rejecting is an equal answer, and every candidate shows exactly which of your answers put it on the list. It is a weighted match, not a finding.',
+      },
+      {
+        thing: 'Personality types, profiles or diagnoses',
+        why: 'No type, no category, no condition, no score about the kind of person you are. Everything the app says describes answers you gave, on the day you gave them.',
+      },
+      {
+        thing: 'An AI reading your life and writing your beliefs back to you',
+        why: 'The whole inference is a deterministic rule engine. It runs offline, it produces the same result for the same answers every time, it can show its working line by line, and it cannot invent a belief that is not in a fixed, readable catalogue. A model can do none of those things.',
+      },
+      {
         thing: 'Trait affirmations ("I am confident", "I am enough")',
         why: 'The values step affirms something you did, not something you are. Repeating a positive self-statement you do not believe has been found to leave people with low self-esteem feeling worse, and this app never asks you to assert a trait about yourself.',
       },
@@ -446,6 +493,9 @@ export const S = {
     ],
 
     caveats: [
+      'The belief catalogue is a fixed list of common patterns, not a taxonomy of every way a person can get in their own way. If yours is not in it, write it — the app will take your sentence over its own.',
+      'The candidate scoring is a weighted match on your answers. It has no validation, no norms, and no evidence behind the specific weights beyond the reasoning above. Treat the order it produces as a starting point for a conversation with yourself, not as a measurement.',
+      'A self-image cannot be measured directly. Everything on these screens is a description of what you typed.',
       'Pair ratings here are symmetric — one number for "how do these two affect each other". The original method rates each direction separately. This halves the number of judgements and loses some information.',
       'The discomfort question is a single item, not the validated multi-item index.',
       'Coherence % is a descriptive index of your own ratings on two occasions. It is not a validated scale, it has no norms, and it cannot be compared with anyone else.',
@@ -460,14 +510,18 @@ export const S = {
 
   levels: [
     { name: 'Surveyor', meaning: 'You are taking the measurements. Nothing has been tested yet.' },
-    { name: 'Cartographer', meaning: 'You have a map of your own goals and you have started acting on it.' },
+    { name: 'Cartographer', meaning: 'You have written down what you want and what is in the way, and you have started acting on it.' },
     { name: 'Field Scientist', meaning: 'You are running experiments in the real world and filing what happened.' },
-    { name: 'Experimenter', meaning: 'You have enough reports that patterns in your own predictions are visible.' },
-    { name: 'Calibrated', meaning: 'Your forecasts now have a track record you can check them against.' },
+    { name: 'Experimenter', meaning: 'You have enough on the record that patterns in your own behaviour are visible.' },
+    { name: 'Calibrated', meaning: 'What you predict about yourself now has a track record you can check it against.' },
     { name: 'Cartographer of the Deep', meaning: 'You have mapped, tested and revised the same territory more than once.' },
   ],
 
   badges: {
+    first_vision: { name: 'First Vision', description: 'You wrote what you actually want in at least three areas of your life.' },
+    named_it: { name: 'Named It', description: 'You looked at a belief about yourself and said out loud that it was yours.' },
+    first_instance: { name: 'First Instance', description: 'You logged something you actually did, with the evidence attached.' },
+    ten_instances: { name: 'Ten Instances', description: 'Ten logged instances on the record. That is a track record, not an intention.' },
     first_light: { name: 'First Light', description: 'You rated every pair and looked at the result.' },
     first_contact: { name: 'First Contact', description: 'You filed your first field report from the real world.' },
     prediction_broken: { name: 'Prediction Broken', description: 'You forecast the feared outcome at 60% or more and it did not happen.' },
@@ -479,6 +533,22 @@ export const S = {
   },
 
   xpLines: {
+    lifebook_stage: {
+      label: 'Lifebook stages completed',
+      explain: 'Paid once per stage, for finishing a piece of the work rather than for opening it.',
+    },
+    belief_owned: {
+      label: 'Beliefs you took ownership of',
+      explain: 'Paid when you look at a sentence about yourself and say it is yours — whether it was offered to you or you wrote it. Saying no pays nothing, because a rejection is not a decision about you, it is a decision about a guess.',
+    },
+    identity_set: {
+      label: 'Identities settled',
+      explain: 'Paid once per identity, when you settle on the wording of who you would have to be instead.',
+    },
+    practice_logged: {
+      label: 'Instances logged',
+      explain: 'Paid per instance of a practice you actually did, with the concrete evidence written down. This is the main earner in the Lifebook journey, because it is the only part of it that happened in the real world.',
+    },
     mirror_completed: {
       label: 'Mirror completed',
       explain: 'Paid once, for rating every pair honestly enough to produce a map.',
@@ -523,10 +593,16 @@ export const S = {
     quest_abandoned: 'Quest shelved',
     level_up: 'Level',
     badge_earned: 'Badge',
+    lifebook_stage: 'Stage completed',
+    belief_owned: 'Belief owned',
+    identity_set: 'Identity set',
+    practice_logged: 'Instance logged',
+    lifebook_reset: 'Lifebook reopened',
   },
 
   ledgerFilters: {
     all: 'Everything',
+    lifebook: 'Lifebook',
     evidence: 'Evidence',
     decisions: 'Decisions',
     action: 'Action',

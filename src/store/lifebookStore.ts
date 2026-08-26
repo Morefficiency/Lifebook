@@ -6,15 +6,21 @@
  */
 import { nanoid } from 'nanoid';
 import { useStore } from './useStore';
+import { STAGE_LABEL } from '../content/stages';
 import type {
-  AreaVision, Cadence, HeldBelief, Importance, LifeArea, Lifebook, LifebookStage,
-  PracticeItem, PracticeKind, PracticeLog, ProbeAnswer, TargetIdentity,
+  AreaVision, Cadence, HeldBelief, Importance, LedgerKind, LifeArea, Lifebook,
+  LifebookStage, PracticeItem, PracticeKind, PracticeLog, ProbeAnswer, TargetIdentity,
 } from '../types';
 
 const now = () => new Date().toISOString();
 
 function mutate(fn: (lb: Lifebook) => Lifebook) {
   useStore.getState().applyLifebook(fn);
+}
+
+/** Same, but the change is recorded in the ledger in the same commit. */
+function mutateLogged(fn: (lb: Lifebook) => Lifebook, kind: LedgerKind, payload: unknown) {
+  useStore.getState().applyLifebookLogged(fn, kind, payload);
 }
 
 export const lifebook = {
@@ -79,32 +85,68 @@ export const lifebook = {
     candidateId: string; text: string; areas: LifeArea[];
     status: HeldBelief['status']; edited?: boolean;
   }) {
+    const id = nanoid();
+    const belief: HeldBelief = {
+      id,
+      candidateId: args.candidateId,
+      text: args.text.trim(),
+      source: 'offered',
+      status: args.status,
+      areas: args.areas,
+      ts: now(),
+    };
+    const apply = (lb: Lifebook): Lifebook => ({
+      ...lb,
+      beliefs: [...lb.beliefs.filter((b) => b.candidateId !== args.candidateId), belief],
+    });
+
+    // A rejection is a private decision, not a record about the person; only
+    // what he takes ownership of goes in the ledger.
+    if (args.status === 'confirmed') {
+      mutateLogged(apply, 'belief_owned', {
+        beliefId: id, text: belief.text, source: 'offered',
+      });
+    } else {
+      mutate(apply);
+    }
+  },
+
+  /** Undo a rejection, so a misclick is not permanent. */
+  unrejectCandidate(candidateId: string) {
     mutate((lb) => ({
       ...lb,
-      beliefs: [
-        ...lb.beliefs.filter((b) => b.candidateId !== args.candidateId),
-        {
-          id: nanoid(),
-          candidateId: args.candidateId,
-          text: args.text.trim(),
-          source: 'offered' as const,
-          status: args.status,
-          areas: args.areas,
-          ts: now(),
-        },
-      ],
+      beliefs: lb.beliefs.filter(
+        (b) => !(b.candidateId === candidateId && b.status === 'rejected'),
+      ),
     }));
   },
 
-  /** A belief he wrote himself. Always confirmed — he would not write one he rejects. */
-  addOwnBelief(text: string, areas: LifeArea[]) {
-    mutate((lb) => ({
-      ...lb,
-      beliefs: [...lb.beliefs, {
-        id: nanoid(), text: text.trim(), source: 'own' as const,
-        status: 'confirmed' as const, areas, ts: now(),
-      }],
-    }));
+  /**
+   * A belief he wrote himself. Always confirmed — he would not write one he
+   * rejects.
+   *
+   * `resembles` is the catalogue entry he said his sentence is a version of.
+   * Setting it lets everything downstream — the counterpart identity, the
+   * programme — treat it exactly like an offered belief. Leaving it unset is
+   * fine too: he then writes his own counterpart and gets the generic
+   * scaffold rather than nothing.
+   */
+  addOwnBelief(text: string, areas: LifeArea[], resembles?: string) {
+    const id = nanoid();
+    const belief: HeldBelief = {
+      id,
+      ...(resembles ? { candidateId: resembles } : {}),
+      text: text.trim(),
+      source: 'own',
+      status: 'confirmed',
+      areas,
+      ts: now(),
+    };
+    mutateLogged(
+      (lb) => ({ ...lb, beliefs: [...lb.beliefs, belief] }),
+      'belief_owned',
+      { beliefId: id, text: belief.text, source: 'own', ...(resembles ? { resembles } : {}) },
+    );
   },
 
   removeBelief(id: string) {
@@ -135,6 +177,21 @@ export const lifebook = {
           next,
         ],
       };
+    });
+  },
+
+  /** Recorded once, when he settles on the wording rather than on every keystroke. */
+  commitIdentity(replacesBeliefId: string) {
+    const lb = useStore.getState().state.lifebook;
+    const identity = lb.identities.find((i) => i.replacesBeliefId === replacesBeliefId);
+    if (!identity || identity.text.trim().length === 0) return;
+    const already = useStore.getState().state.ledger.some(
+      (e) => e.kind === 'identity_set'
+        && (e.payload as { identityId?: string }).identityId === identity.id,
+    );
+    if (already) return;
+    useStore.getState().applyLifebookLogged((x) => x, 'identity_set', {
+      identityId: identity.id, text: identity.text, replaces: replacesBeliefId,
     });
   },
 
@@ -171,14 +228,22 @@ export const lifebook = {
   /** An affirmation is never logged bare — the evidence is required by the type. */
   logPractice(itemId: string, evidence: string) {
     const log: PracticeLog = { id: nanoid(), itemId, evidence: evidence.trim(), ts: now() };
-    mutate((lb) => ({ ...lb, practiceLogs: [...lb.practiceLogs, log] }));
+    const item = useStore.getState().state.lifebook.practices.find((p) => p.id === itemId);
+    mutateLogged(
+      (lb) => ({ ...lb, practiceLogs: [...lb.practiceLogs, log] }),
+      'practice_logged',
+      { itemId, kind: item?.kind ?? 'behaviour', text: item?.text ?? '', evidence: log.evidence },
+    );
   },
 
   /* ------------------------------- stages -------------------------------- */
 
   completeStage(stage: LifebookStage) {
-    useStore.getState().completeLifebookStage(stage);
+    useStore.getState().completeLifebookStage(stage, STAGE_LABEL[stage]);
   },
+
+  reopenBeliefs() { useStore.getState().reopenBeliefs(); },
+  resetAll() { useStore.getState().resetLifebook(); },
 };
 
 export type LifebookActions = typeof lifebook;

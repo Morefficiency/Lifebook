@@ -10,6 +10,11 @@ import { S } from '../strings';
 import type { EdgeRef, ForkChoice, LedgerEntry, LedgerKind } from '../types';
 
 export interface LedgerPayloads {
+  lifebook_stage: { stage: string; label: string };
+  belief_owned: { beliefId: string; text: string; source: 'offered' | 'own'; resembles?: string };
+  identity_set: { identityId: string; text: string; replaces: string };
+  practice_logged: { itemId: string; kind: string; text: string; evidence: string };
+  lifebook_reset: { what: 'beliefs' | 'everything' };
   mirror_completed: { strivings: number; faultLines: number; helpLinks: number; conflictLoad: number };
   fork: { edge: EdgeRef; choice: ForkChoice; note: string };
   quest_created: { questId: string; wish: string; edge?: EdgeRef; forecastP: number; fearRating: number };
@@ -38,7 +43,8 @@ export const LEDGER_KIND_LABEL: Record<LedgerKind, string> = S.ledgerKinds;
 /** Filter groups offered in the ledger UI (§10). */
 export const LEDGER_FILTERS: { id: string; label: string; kinds: LedgerKind[] }[] = [
   { id: 'all', label: S.ledgerFilters.all, kinds: [] },
-  { id: 'evidence', label: S.ledgerFilters.evidence, kinds: ['field_report', 'prediction_broken'] },
+  { id: 'lifebook', label: S.ledgerFilters.lifebook, kinds: ['lifebook_stage', 'belief_owned', 'identity_set', 'practice_logged', 'lifebook_reset'] },
+  { id: 'evidence', label: S.ledgerFilters.evidence, kinds: ['field_report', 'prediction_broken', 'practice_logged'] },
   { id: 'decisions', label: S.ledgerFilters.decisions, kinds: ['fork', 'release_victory', 'carry_marked', 'reassessment'] },
   { id: 'action', label: S.ledgerFilters.action, kinds: ['quest_created', 'step_done', 'quest_abandoned'] },
   { id: 'milestones', label: S.ledgerFilters.milestones, kinds: ['mirror_completed', 'level_up', 'badge_earned'] },

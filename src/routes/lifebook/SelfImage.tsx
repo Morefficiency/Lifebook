@@ -2,15 +2,24 @@
  * Stage 4 — what he appears to believe about himself.
  *
  * The most important rule in the app lives on this screen: **nothing here is
- * asserted**. Each candidate is a question with three equal answers — yes,
- * no, and "not quite, here is the real version". A rejected candidate is never
- * raised again. Only what he confirms is ever held as his, and every candidate
- * shows exactly which of his own answers put it on the list.
+ * asserted**. Each candidate is a question with three equal answers — yes, no,
+ * and "not quite, here is the real version". Only what he confirms is ever held
+ * as his, and every candidate shows exactly which of his own answers put it on
+ * the list.
+ *
+ * A rejection takes the candidate out of the offering for good, but it is
+ * listed underneath with a way back: a permanent consequence for a misclick is
+ * a trap, not a principle.
+ *
+ * Writing his own belief asks one extra question — which of the known patterns
+ * it resembles, if any. Saying so lets it inherit a counterpart identity and a
+ * programme. Saying none is a real answer too: he then writes his own
+ * counterpart and gets a generic scaffold, rather than an empty page.
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AREA_BY_ID, AREAS } from '../../content/areas';
-import { BELIEF_CATALOGUE } from '../../content/beliefs';
+import { BELIEF_CATALOGUE, RESEMBLANCE_OPTIONS } from '../../content/beliefs';
 import { PROBES, PROBE_BY_ID } from '../../content/probes';
 import { inferBeliefs } from '../../engine/beliefs';
 import { tensionMap } from '../../engine/gap';
@@ -47,13 +56,14 @@ export default function SelfImage() {
   const [draft, setDraft] = useState('');
   const [ownText, setOwnText] = useState('');
   const [ownAreas, setOwnAreas] = useState<LifeArea[]>([]);
+  const [ownResembles, setOwnResembles] = useState<string | null>(null);
   const [showOwn, setShowOwn] = useState(false);
 
   return (
     <StageFrame
       stage="self_image"
       title="What you appear to believe"
-      lead="These are guesses, built from your own answers and nothing else. The app has no idea whether any of them are true — only you do. Say yes, say no, or rewrite it into the sentence that is actually yours. A no is deleted and never comes back."
+      lead="These are guesses, built from your own answers and nothing else. The app has no idea whether any of them are true — only you do. Say yes, say no, or rewrite it into the sentence that is actually yours. A no is set aside and not offered again, and you can put it back if you change your mind."
     >
       {offered.length === 0 && confirmed.length === 0 ? (
         <p className="text-muted">
@@ -190,7 +200,43 @@ export default function SelfImage() {
               value={ownText}
               onChange={(e) => setOwnText(e.target.value)}
             />
-            <p className="label mt-4">Where does it show up?</p>
+            <div className="mt-6">
+              <p className="label">Is it a version of one of these?</p>
+              <p className="hint max-w-measure">
+                Optional. If one of them is basically the same thing in different
+                words, saying so means you inherit its counterpart and its
+                programme instead of starting from nothing. If none fit, leave it —
+                you will get a blank scaffold to fill in yourself.
+              </p>
+              <div className="mt-3 max-h-64 space-y-1.5 overflow-y-auto pr-1">
+                {RESEMBLANCE_OPTIONS.map((o) => {
+                  const on = ownResembles === o.id;
+                  return (
+                    <button
+                      key={o.id}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setOwnResembles(on ? null : o.id)}
+                      className={`w-full rounded border px-3 py-2 text-left text-sm leading-relaxed ${
+                        on ? 'border-instrument bg-instrument/15 text-bone'
+                          : 'border-hairline text-muted hover:border-instrument-dim hover:text-bone'
+                      }`}
+                    >
+                      “{o.text}”
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                className="btn-quiet mt-2 px-0 text-xs"
+                onClick={() => setOwnResembles(null)}
+              >
+                None of these — mine is its own thing
+              </button>
+            </div>
+
+            <p className="label mt-6">Where does it show up?</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {AREAS.map((a) => {
                 const on = ownAreas.includes(a.id);
@@ -218,8 +264,8 @@ export default function SelfImage() {
                 className="btn-primary"
                 disabled={ownText.trim().length < 10}
                 onClick={() => {
-                  lifebook.addOwnBelief(ownText, ownAreas);
-                  setOwnText(''); setOwnAreas([]); setShowOwn(false);
+                  lifebook.addOwnBelief(ownText, ownAreas, ownResembles ?? undefined);
+                  setOwnText(''); setOwnAreas([]); setOwnResembles(null); setShowOwn(false);
                 }}
               >
                 Add it
@@ -255,9 +301,30 @@ export default function SelfImage() {
       ) : null}
 
       {rejected.length > 0 ? (
-        <p className="mt-6 text-xs text-muted">
-          {rejected.length} rejected and gone. They will not be offered again.
-        </p>
+        <section className="mt-8">
+          <h2 className="text-sm uppercase tracking-[0.14em] text-muted">
+            Ruled out
+          </h2>
+          <p className="hint">
+            These are not offered again. If one of them was a misclick, put it back.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {rejected.map((b) => (
+              <li key={b.id} className="flex items-start gap-3 text-sm text-muted">
+                <span className="flex-1 leading-relaxed line-through decoration-hairline">
+                  “{b.text}”
+                </span>
+                <button
+                  type="button"
+                  className="btn-quiet shrink-0 px-1 text-xs"
+                  onClick={() => b.candidateId && lifebook.unrejectCandidate(b.candidateId)}
+                >
+                  Put it back
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       <StageFooter>

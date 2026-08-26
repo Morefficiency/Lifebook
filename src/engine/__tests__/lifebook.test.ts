@@ -163,6 +163,15 @@ describe('target identities', () => {
     expect(a.why).toBe('because');
   });
 
+  it('proposes the counterpart for a self-written belief that resembles a known one', () => {
+    const resembling: HeldBelief[] = [{
+      id: 'r1', candidateId: 'beta', text: 'my own wording', source: 'own',
+      status: 'confirmed', areas: ['partner'], ts: TS,
+    }];
+    const [draft] = proposeIdentities(resembling, TEST_CATALOGUE);
+    expect(draft!.text).toBe('beta identity');
+  });
+
   it('leaves a self-written belief blank for the user to answer himself', () => {
     const own = proposed.find((d) => d.replacesBeliefId === 'h2')!;
     expect(own.text).toBe('');
@@ -185,10 +194,41 @@ describe('programme', () => {
   it('draws the practices from the belief the identity replaces', () => {
     const items = buildProgramme(identities, beliefs, TEST_CATALOGUE);
     expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ identityId: 'i1', kind: 'affirmation', text: 'alpha affirmation', cadence: 'daily' });
+    expect(items[0]).toMatchObject({
+      identityId: 'i1', kind: 'affirmation', text: 'alpha affirmation',
+      cadence: 'daily', generic: false,
+    });
   });
 
-  it('produces nothing for an identity the user wrote against their own belief', () => {
+  it('a self-written belief that matches nothing still gets a programme', () => {
+    const own: HeldBelief[] = [{
+      id: 'h2', text: 'a sentence the catalogue has never seen', source: 'own',
+      status: 'confirmed', areas: ['health'], ts: TS,
+    }];
+    const items = buildProgramme(
+      [{ ...identities[0]!, id: 'i2', replacesBeliefId: 'h2' }], own, TEST_CATALOGUE,
+    );
+    // Never empty — an identity with no work attached to it is a dead end.
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.every((i) => i.generic)).toBe(true);
+    expect(items.map((i) => i.kind).sort()).toEqual(['affirmation', 'behaviour', 'thought']);
+  });
+
+  it('a self-written belief the user says resembles a known one inherits that programme', () => {
+    // Saying "mine is basically alpha" sets candidateId, so everything
+    // downstream treats it exactly like an offered belief.
+    const resembling: HeldBelief[] = [{
+      id: 'h3', candidateId: 'alpha', text: 'my own wording of it', source: 'own',
+      status: 'confirmed', areas: ['work'], ts: TS,
+    }];
+    const items = buildProgramme(
+      [{ ...identities[0]!, id: 'i3', replacesBeliefId: 'h3' }], resembling, TEST_CATALOGUE,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ text: 'alpha affirmation', generic: false });
+  });
+
+  it('produces nothing for an identity whose belief has been deleted', () => {
     expect(buildProgramme(
       [{ ...identities[0]!, replacesBeliefId: 'h9' }], beliefs, TEST_CATALOGUE,
     )).toEqual([]);

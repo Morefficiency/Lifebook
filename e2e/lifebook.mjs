@@ -107,8 +107,27 @@ await p.waitForTimeout(200);
 await p.locator('button:text("No, not me")').first().click();
 await p.waitForTimeout(200);
 const after = await p.locator('main').innerText();
-check('A rejected candidate is gone for good', /rejected and gone/.test(after));
+check('A rejected candidate leaves the offered list', /ruled out/i.test(after));
 check('Confirmed beliefs are listed back', /what you have said is yours/i.test(after));
+
+// --- the path that used to dead-end: a belief he writes himself ---
+await p.getByRole('button',{name:'Add one it has not thought of'}).click();
+await p.fill('#own-belief','I assume the good version of this is for other people, not for me.');
+await p.getByRole('button',{name:'Health & Body'}).first().click();
+const resembleBtns = p.locator('button[aria-pressed]').filter({hasText:/^“/});
+check('Own belief offers the "is it a version of one of these?" picker', await resembleBtns.count() > 0,
+  `${await resembleBtns.count()} options`);
+await p.getByRole('button',{name:'Add it'}).click();
+await p.waitForTimeout(250);
+check('A self-written belief is added and owned', /assume the good version/.test(await p.locator('main').innerText()));
+
+// --- un-reject ---
+const beforeUnreject = await p.locator('main').innerText();
+check('Rejected candidates are listed with a way back', /ruled out/i.test(beforeUnreject) && /put it back/i.test(beforeUnreject));
+await p.getByRole('button',{name:'Put it back'}).first().click();
+await p.waitForTimeout(250);
+check('Putting one back returns it to the offered list',
+  !/ruled out/i.test(await p.locator('main').innerText()));
 
 await p.getByRole('button',{name:'Who would I have to be instead?'}).click();
 await p.waitForURL('**/becoming');
@@ -118,11 +137,25 @@ await p.waitForTimeout(400);
 const bec = await p.locator('main').innerText();
 // Textarea contents are not part of innerText, so read the values directly.
 const identityValues = await p.locator('textarea[id^="identity-"]').evaluateAll(ns=>ns.map(n=>n.value));
-check('Each confirmed belief gets a proposed counterpart',
-  identityValues.every(v=>/^I am someone who/.test(v)), identityValues.join(' | '));
+// Beliefs that resolve to a catalogue entry arrive with a proposal; a belief
+// he wrote himself that resembles nothing arrives blank, for him to answer.
+const proposed = identityValues.filter(v=>v.trim().length>0);
+check('Beliefs from the catalogue arrive with a proposed counterpart',
+  proposed.length>0 && proposed.every(v=>/^I am someone who/.test(v)), proposed.join(' | '));
+check('A belief the app has never seen arrives blank rather than guessed at',
+  identityValues.some(v=>v.trim().length===0), `${identityValues.length} boxes, ${proposed.length} pre-filled`);
 check('The old belief is shown struck through above it', /instead of/i.test(bec) && /become/i.test(bec));
 const identityBoxes = await p.locator('textarea[id^="identity-"]').count();
 check('Every identity is editable', identityBoxes>0, `${identityBoxes} boxes`);
+check('The self-written belief also gets an identity box, blank for him to fill',
+  identityBoxes >= 3, `${identityBoxes} boxes for 3 confirmed beliefs`);
+// Fill the blank one so it reaches the blueprint.
+const blanks = p.locator('textarea[id^="identity-"]');
+for (let i=0;i<await blanks.count();i++) {
+  const v = await blanks.nth(i).inputValue();
+  if (!v.trim()) { await blanks.nth(i).fill('I am someone who takes the good version for himself.'); await blanks.nth(i).blur(); }
+}
+await p.waitForTimeout(250);
 await p.screenshot({path:`${OUT}/lb-becoming.png`,fullPage:true});
 
 await p.getByRole('button',{name:'Build the programme'}).click();
@@ -133,6 +166,10 @@ await p.waitForTimeout(600);
 const bp = await p.locator('main').innerText();
 check('Programme seeds thought swaps, behaviours and affirmations',
   /thought swap/i.test(bp) && /evidence behaviour/i.test(bp) && /affirmation/i.test(bp));
+const sections = await p.locator('main section.rounded-lg').count();
+check('Every identity gets a programme — including the self-written one', sections >= 3, `${sections} sections`);
+const practiceCount = (bp.match(/log an instance/gi)||[]).length;
+check('No identity is left with nothing to do', practiceCount >= 9, `${practiceCount} practices`);
 await p.screenshot({path:`${OUT}/lb-blueprint.png`,fullPage:true});
 
 // affirmation cannot be logged bare
@@ -160,6 +197,39 @@ const g = await p.locator('main').innerText();
 check('Gap dashboard shows the hand-computed 67%', /\b67%/.test(g), (g.match(/\d+%/)||[])[0]);
 check('Gap shows from → to for each belief', /from, to/i.test(g));
 await p.screenshot({path:`${OUT}/lb-gap.png`,fullPage:true});
+
+// --- ledger reflects the Lifebook, not the old map ---
+await p.goto(`${BASE}/#/ledger`); await p.waitForTimeout(400);
+await p.getByRole('button',{name:'Lifebook'}).click(); await p.waitForTimeout(250);
+const led = await p.locator('main').innerText();
+check('Ledger has a Lifebook filter with real entries',
+  /stage completed/i.test(led) && /belief owned/i.test(led) && /instance logged/i.test(led));
+check('Stage entries read as stages, not as "started the rating flow again"',
+  !/started the rating flow again/i.test(led));
+
+// --- stats covers the Lifebook journey ---
+await p.goto(`${BASE}/#/stats`); await p.waitForTimeout(400);
+const st = await p.locator('main').innerText();
+check('Stats has a Lifebook section', /the lifebook/i.test(st));
+check('Stats shows distance, beliefs owned and instances',
+  /distance left/i.test(st) && /beliefs owned/i.test(st) && /instances logged/i.test(st));
+check('Lifebook work pays XP', /instances logged/i.test(st) && /\d+ × 20/.test(st));
+check('Lifebook badges exist', /first vision/i.test(st) && /named it/i.test(st));
+
+// --- science covers the new model ---
+await p.goto(`${BASE}/#/science`); await p.waitForTimeout(400);
+const sci = await p.locator('main').innerText();
+check('Science page explains the self-image model',
+  /possible selves/i.test(sci) && /self-discrepancy/i.test(sci) && /self-perception/i.test(sci));
+check('Science page justifies the affirmation design', /peril for others/i.test(sci));
+check('Science page states the catalogue is a fixed list, not a taxonomy',
+  /not a taxonomy/i.test(sci));
+
+// --- settings offers a way to redo the Lifebook ---
+await p.goto(`${BASE}/#/settings`); await p.waitForTimeout(400);
+const set = await p.locator('main').innerText();
+check('Settings can reopen the belief stage', /reopen the belief stage/i.test(set));
+check('Settings shows how big the saved document is', /currently \d+ KB/i.test(set));
 
 // resume + persistence
 await p.goto(BASE); await p.waitForTimeout(600);

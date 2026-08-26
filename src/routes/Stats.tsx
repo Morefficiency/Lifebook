@@ -1,6 +1,9 @@
 /** §10 /stats — three numbers, each with an honest one-line definition. */
 import { S } from '../strings';
+import { STAGE_LABEL, STAGE_ORDER } from '../content/stages';
 import { BADGES } from '../engine/xp';
+import { lifeGapPercent } from '../engine/gap';
+import { practiceProgress } from '../engine/programme';
 import {
   useBadges, useCalibration, useCoherence, useCourage, useGraph, useLevel, useXpBreakdown,
 } from '../store/selectors';
@@ -16,12 +19,90 @@ export default function Stats() {
   const earned = useBadges();
   const initial = useStore((s) => s.state.profile.initialConflictLoad);
   const graph = useGraph();
+  const lb = useStore((s) => s.state.lifebook);
+
+  const hasLifebook = lb.visions.length > 0;
+  const hasMap = useStore((s) => !!s.state.profile.mirrorCompletedTs);
+  const gap = lifeGapPercent(lb.visions, lb.currents);
+  const progress = practiceProgress(lb.practices, lb.practiceLogs);
+  const confirmed = lb.beliefs.filter((b) => b.status === 'confirmed').length;
 
   const earnedIds = new Set(earned.map((b) => b.id));
 
   return (
     <Page title={S.stats.title}>
-      <div className="grid gap-4 sm:grid-cols-3">
+      {hasLifebook ? (
+        <section className="mb-12">
+          <h2 className="text-sm uppercase tracking-[0.14em] text-muted">The Lifebook</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <StatCard
+              label="Distance left"
+              value={gap}
+              suffix="%"
+              definition="How far the life you have is from the life you wrote, weighted by how much you said each area matters. It is a description of two sets of your own answers, not a score."
+              explain={
+                <p>
+                  For each area: (10 − where it is) ÷ 9, times how much it matters,
+                  summed and divided by the total importance. Areas you have not
+                  rated on both sides are left out rather than counted as zero.
+                </p>
+              }
+            />
+            <StatCard
+              label="Beliefs owned"
+              value={confirmed}
+              definition="How many sentences about yourself you have looked at and said were yours. Nothing counts here that you did not confirm."
+              explain={
+                <p>
+                  A count of confirmed beliefs — offered ones you said yes to, plus
+                  any you wrote yourself. Rejections are not counted, in either
+                  direction.
+                </p>
+              }
+            />
+            <StatCard
+              label="Instances logged"
+              value={progress.logged}
+              definition="Times you did something from the programme and wrote down what actually happened. This is the only number here that came from outside the app."
+              footnote={progress.active > 0
+                ? `Across ${progress.practisedItems} of ${progress.active} active practices.`
+                : undefined}
+              explain={
+                <p>
+                  One per logged instance. An affirmation cannot be logged without
+                  the concrete thing it was true of, so every one of these has a
+                  real event behind it.
+                </p>
+              }
+            />
+          </div>
+
+          <ol className="mt-6 flex flex-wrap gap-2">
+            {STAGE_ORDER.map((stage) => {
+              const done = !!lb.stagesCompleted[stage];
+              return (
+                <li
+                  key={stage}
+                  className={`rounded border px-2.5 py-1.5 text-xs ${
+                    done ? 'border-facil/50 bg-facil/10 text-facil-bright'
+                      : 'border-hairline text-muted'
+                  }`}
+                >
+                  {done ? '✓ ' : ''}{STAGE_LABEL[stage]}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ) : null}
+
+      {hasMap ? (
+        <h2 className="mb-4 text-sm uppercase tracking-[0.14em] text-muted">
+          The conflict map
+        </h2>
+      ) : null}
+
+      <div className={`grid gap-4 sm:grid-cols-3 ${hasMap || !hasLifebook ? '' : 'hidden'}`}>
         <StatCard
           label={S.stats.calibration}
           value={cal.score}
