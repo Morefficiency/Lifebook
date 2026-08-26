@@ -43,8 +43,11 @@ for (const [name, text, imp] of areas) {
 }
 await page.getByRole('button', { name: 'See your vision board' }).click();
 await page.waitForURL('**/board');
-await page.getByRole('link', { name: 'Now the honest part' }).click();
+// The board leads into the short-form map now; go straight to the life audit,
+// which is all this suite needs before it starts pulling the plug.
+await page.goto(`${BASE}/#/current`);
 await page.waitForURL('**/current');
+await page.getByRole('heading', { name: 'The life you have' }).waitFor();
 for (let i = 0; i < 3; i++) {
   await page.locator('#current-score').fill(String([3, 4, 2][i]));
   await page.fill('#current-desc', 'Where this actually is, plainly stated for the record.');

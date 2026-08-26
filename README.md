@@ -12,18 +12,42 @@ forge, a forecast-and-evidence ledger) is still in the repo and still reachable.
 It is the natural execution layer for Stage 6 — testing whether a belief
 survives contact with reality is exactly what it does — and it is not deleted.
 
-## The six stages
+## Two acts
+
+**Act one is the product for most people.** Ten minutes, four steps, ending on a
+picture of their own life they have never seen and one sentence naming the goal
+every collision runs through. Someone who stops there has had a fair trade.
 
 | # | Stage | Route | What it produces |
 |---|-------|-------|------------------|
-| 1 | Vision | `/vision` → `/board` | The life you want, across twelve areas, with an optional picture each — a vision board. Written first, because it is the part people want to do. |
-| 2 | Current | `/current` | Where each of those areas actually is now. |
-| 3 | Reflect | `/reflect` | Behaviour, history and environment probes. Never "what do you believe" — you cannot see that from inside. |
-| 4 | Self-image | `/self-image` | Candidate beliefs, *offered* from stages 1–3, that you confirm, reject or rewrite. |
-| 5 | Becoming | `/becoming` | The self-image of the person for whom your vision is ordinary. |
-| 6 | Blueprint | `/blueprint` | The programme: thought swaps, evidence behaviours, affirmations, a practice rhythm. |
+| 1 | Vision | `/vision` → `/board` | The life you want, across twelve areas, three minimum, with an optional picture each. First, because it is the part people want to do — and someone who quits here still leaves with a vision board. |
+| 2 | Goals | `/goals` | Five to seven things you are *actually* trying to do, shown against what you just said you want. Where the two lists disagree is often the answer. |
+| 3 | Pairs | `/pairs` → `/friction` | Every pair rated for help or harm — fifteen judgements at six goals — then how much each collision costs you. |
+| 4 | Map | `/mirror` | The network, and the sentence: *everything runs through X*. Then two doors, neither of which is a funnel. |
 
-`/gap` is the standing dashboard once those are done.
+**Act two opens for whoever looks at that map and asks why it is that shape.**
+
+| # | Stage | Route | What it produces |
+|---|-------|-------|------------------|
+| 5 | Current | `/current` | Where each area of the vision actually is now. |
+| 6 | Reflect | `/reflect` | Behaviour, history and environment probes. Never "what do you believe" — you cannot see that from inside. |
+| 7 | Self-image | `/self-image` | Candidate beliefs, *offered* from what came before, that you confirm, reject or rewrite. |
+| 8 | Becoming | `/becoming` | The self-image of the person for whom your vision is ordinary. |
+| 9 | Blueprint | `/blueprint` | The programme: thought swaps, evidence behaviours, affirmations, a practice rhythm. |
+
+`/gap` is the standing dashboard for anyone who went through act two; `/map` is
+the standing home for anyone who stopped after act one.
+
+### Why the short form is six goals and not twelve
+
+Twelve goals is sixty-six pairwise judgements, which is a different product from
+the one a stranger will finish. Six is fifteen, which rates in about ninety
+seconds. The full matrix is still there — the v1 flow at `/onboarding/*` and
+everything at `/map` runs on exactly the same state — it is simply not what
+somebody meets on their first visit.
+
+The short form completes the Mirror, so the fork, the quest forge and the
+evidence ledger all work off it without any special casing.
 
 ### Three rules this journey is built on
 
@@ -73,14 +97,16 @@ npm run preview    # serve the built bundle
 Verification:
 
 ```bash
-npm run test                 # 202 unit tests over src/engine and src/store (Vitest)
+npm run test                 # 207 unit tests over src/engine and src/store (Vitest)
 npm run audit:prohibitions   # greps the built bundle for banned language (§13)
 npm run verify               # test + build + audit
 npm run e2e                  # browser acceptance suite (needs a running preview)
 ```
 
-The e2e suite drives a real production build in Chromium — 111 checks in five
-parts, plus a separate 28-check account suite (below). `lifebook.mjs` walks all six stages end to end and checks the gap figure
+The e2e suite drives a real production build in Chromium — 136 checks in six
+parts, plus a separate 28-check account suite (below). `shortform.mjs` walks the
+ten-minute path and counts the free-text entries in it, so the claim on the
+landing page stops passing if the flow gets heavier. `lifebook.mjs` walks all six stages end to end and checks the gap figure
 against a hand computation. The other three cover the v1 machinery:
 `acceptance.mjs` walks its onboarding and the export/delete/import round trip,
 `release-and-carry.mjs` checks the release and carry flows against hand-computed

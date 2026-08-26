@@ -63,9 +63,13 @@ export function isOnboardingComplete(state: AppState): boolean {
  * ========================================================================== */
 
 import type { LifebookStage } from '../types';
+import { MIN_GOALS } from '../content/stages';
 
 export const LIFEBOOK_PATH: Record<LifebookStage, string> = {
   vision: '/vision',
+  goals: '/goals',
+  pairs: '/pairs',
+  mirror: '/mirror',
   current: '/current',
   reflect: '/reflect',
   self_image: '/self-image',
@@ -88,13 +92,36 @@ export const LIFEBOOK_PATH: Record<LifebookStage, string> = {
 export function resumePath(state: AppState): string {
   const lb = state.lifebook;
   const written = lb.visions.filter((v) => v.statement.trim().length > 0);
+  const goals = state.strivings.filter((s) => s.status === 'active');
 
+  // Someone with no Lifebook but a completed Mirror came in through the v1
+  // flow, or restored an export from before the Lifebook stages existed.
   if (written.length === 0 && isOnboardingComplete(state)) return '/map';
   if (written.length < 3) return LIFEBOOK_PATH.vision;
-  if (lb.currents.length < written.length) return LIFEBOOK_PATH.current;
-  if (lb.probes.length === 0 && !lb.stagesCompleted.reflect) return LIFEBOOK_PATH.reflect;
-  if (lb.beliefs.filter((b) => b.status === 'confirmed').length === 0) return LIFEBOOK_PATH.self_image;
-  if (lb.identities.filter((i) => i.text.trim().length > 0).length === 0) return LIFEBOOK_PATH.becoming;
-  if (lb.practices.length === 0) return LIFEBOOK_PATH.blueprint;
-  return '/gap';
+
+  // Act two takes priority over act one. Never send somebody backwards past
+  // work they have already done: a profile that has been through the belief
+  // stages but has no short-form map — which is every profile from before the
+  // short form existed — must not be dropped back at the start of act one.
+  const startedActTwo = lb.currents.length > 0 || lb.probes.length > 0
+    || lb.beliefs.length > 0 || !!lb.stagesCompleted.current;
+
+  if (startedActTwo) {
+    if (lb.currents.length < written.length) return LIFEBOOK_PATH.current;
+    if (lb.probes.length === 0 && !lb.stagesCompleted.reflect) return LIFEBOOK_PATH.reflect;
+    if (lb.beliefs.filter((b) => b.status === 'confirmed').length === 0) return LIFEBOOK_PATH.self_image;
+    if (lb.identities.filter((i) => i.text.trim().length > 0).length === 0) return LIFEBOOK_PATH.becoming;
+    if (lb.practices.length === 0) return LIFEBOOK_PATH.blueprint;
+    return '/gap';
+  }
+
+  // Act one: goals, the pairs, the friction ratings, then the map.
+  if (goals.length < MIN_GOALS) return LIFEBOOK_PATH.goals;
+  if (nextUnratedIndex(state.strivings, state.pairRatings) >= 0) return LIFEBOOK_PATH.pairs;
+  if (nextPairNeedingHeat(state.strivings, state.pairRatings) >= 0) return '/friction';
+  if (!state.profile.mirrorCompletedTs) return LIFEBOOK_PATH.mirror;
+
+  // Finished the short form and stopped there. That is a complete outcome, not
+  // an abandoned funnel, and the map is where they belong on return.
+  return '/map';
 }

@@ -63,6 +63,7 @@ export default function Landing() {
             </li>
           ))}
         </ol>
+        <p className="mt-4 max-w-measure text-sm text-muted">{S.gate.afterMap}</p>
       </section>
 
       <section className="mt-10">

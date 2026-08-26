@@ -238,7 +238,10 @@ export interface Lifebook {
 }
 
 export type LifebookStage =
-  | 'vision' | 'current' | 'reflect' | 'self_image' | 'becoming' | 'blueprint';
+  // Act one — the short form. Ten minutes, ends on the map.
+  | 'vision' | 'goals' | 'pairs' | 'mirror'
+  // Act two — the depth. Opens for whoever asks why the map is that shape.
+  | 'current' | 'reflect' | 'self_image' | 'becoming' | 'blueprint';
 
 export function emptyLifebook(): Lifebook {
   return {

@@ -54,9 +54,13 @@ check('Vision board renders his own words', board.includes('I wake before the al
 check('Board sorts by what matters most', board.indexOf('Health & Body')<board.indexOf('Money'));
 await p.screenshot({path:`${OUT}/lb-board.png`,fullPage:true});
 
-// Stage 2 — current
-await p.getByRole('link',{name:'Now the honest part'}).click();
+// Stage 2 — current.
+// The board now leads into the short-form map (covered end to end by
+// e2e/shortform.mjs); act two is reached from that map. This suite is about
+// act two, so it goes straight there rather than repeating the short form.
+await p.goto(`${BASE}/#/current`);
 await p.waitForURL('**/current');
+await p.getByRole('heading',{name:'The life you have'}).waitFor();
 // The Current stage presents areas by importance, so drive it by name rather
 // than by position and keep an explicit record of what was entered.
 const SCORE_BY_AREA = { 'Health & Body':3, 'Work & Craft':3, 'Money':2, 'Love & Partnership':8 };

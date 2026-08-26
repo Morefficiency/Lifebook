@@ -189,7 +189,7 @@ export default function Vision() {
 {S.stages.vision.more(MIN_AREAS - filled.length)}
           </span>
         ) : (
-          <Link to="/current" className="btn-quiet">{S.stages.vision.skip}</Link>
+          <Link to="/goals" className="btn-quiet">{S.stages.vision.skip}</Link>
         )}
       </StageFooter>
     </StageFrame>

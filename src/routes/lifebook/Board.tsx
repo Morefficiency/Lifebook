@@ -102,7 +102,7 @@ export default function Board() {
       </div>
 
       <div className="mx-auto mt-12 flex w-full max-w-3xl flex-wrap gap-3 border-t border-hairline pt-6">
-        <Link to="/current" className="btn-primary">{S.stages.board.next}</Link>
+        <Link to="/goals" className="btn-primary">{S.stages.board.next}</Link>
         <Link to="/vision" className="btn-quiet">{S.stages.board.keepWriting}</Link>
       </div>
     </div>

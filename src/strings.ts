@@ -40,7 +40,7 @@ export const S = {
     name: 'Lifebook',
     tagline: 'Vision, mirror, becoming.',
     sentence:
-      'Write the life you want. Then the life you have. Lifebook works out what you would have to believe about yourself to already be living the first one, shows you the gap between that and what you appear to believe now, and hands you the work that closes it.',
+      'Write the life you want. Then list what you are actually trying to do, and rate every pair against every other. Ten minutes later you get a map of where your own goals collide — and the one that sits inside more of those collisions than anything else. Most people have never seen it.',
   },
 
   nav: {
@@ -58,14 +58,12 @@ export const S = {
   },
 
   gate: {
-    next25: 'Six stages. Start with the good one',
+    next25: 'Ten minutes, four steps',
     steps: [
-      'Describe the life you want, area by area. You leave this stage with a vision board.',
-      'Say where each of those areas actually is today.',
-      'Answer some questions about how you operate, what shaped you, and who is around you.',
-      'Look at what you appear to believe about yourself — and rule on every line of it.',
-      'Decide who you would have to be instead.',
-      'Take away the programme: what to catch, what to do, what to say.',
+      'Describe the life you want, area by area. You leave this step with a vision board.',
+      'List five to seven things you are actually trying to do right now.',
+      'Rate every pair: do these two help each other, or fight?',
+      'See the map that makes — and the goal every collision runs through.',
     ],
     neverTitle: 'What this will never do',
     never: [
@@ -80,6 +78,7 @@ export const S = {
     codeBad: 'That code was not recognised. Check for stray spaces and try again.',
     purchase: 'Get an access code',
     begin: 'Start with the life you want',
+    afterMap: 'There is more after that, for whoever wants it. Nothing pushes you into it.',
     consentRequired: 'Both boxes are required before you can start.',
   },
 
@@ -663,7 +662,7 @@ export const S = {
       clear: 'Clear this area',
       cta: 'See your vision board',
       more: (n: number) => `${n} more area${n === 1 ? '' : 's'} to go.`,
-      skip: 'Skip to the current state',
+      skip: 'Skip ahead',
     },
     board: {
       title: 'Your vision board',
@@ -672,9 +671,52 @@ export const S = {
       emptyCta: 'Start with the life you want',
       addPicture: 'Add a picture for this one',
       toWrite: (n: number) => `${n} more area${n === 1 ? '' : 's'} to write`,
-      next: 'Now the honest part',
+      next: 'Now the ten-minute part',
       keepWriting: 'Keep writing',
       matters: (n: number) => `Matters ${n} out of 5`,
+    },
+    goals: {
+      title: 'What you are actually doing',
+      lead: 'Not what you want — you have just written that. This is the list of efforts already running in your life, the things you are genuinely spending days on. Five to seven of them.',
+      youWant: 'What you said you want',
+      nudge: 'Look at that, then write what you are actually trying to do. Where the two lists do not match is often the answer on its own.',
+      placeholder: '…build my business to replace my salary',
+      examplesLabel: 'Tap to add — then rewrite it in your own words',
+      tally: 'listed',
+      atMax: 'That is enough. More than seven and the next step stops being ten minutes.',
+      needMore: (n: number) => `${n} more to go.`,
+      pairCount: (n: number) => `${n} pairs to rate — about ninety seconds.`,
+      cta: 'Rate how they interact',
+    },
+    pairs: {
+      title: 'Where they collide',
+      lead: 'One pair at a time. There is no right answer and no clock — the only thing that matters is that it is true for you.',
+    },
+    friction: {
+      title: 'How much it costs you',
+      lead: 'Only the pairs you said conflict. Strength of clash and how much it bothers you are different facts, and the map needs both.',
+      last: 'Show me the map',
+    },
+    mirror: {
+      title: 'Your map',
+      headline: 'What your ratings add up to',
+      loadBearing: (name: string) => `Everything runs through “${name}”.`,
+      loadBearingWhy: (degree: number, total: number) =>
+        `It sits on ${degree} of your ${total} collisions — more than anything else you listed. That does not make it wrong, or something to drop. It means any change you make here moves more than a change made anywhere else.`,
+      noConflict: 'Nothing on your map is fighting anything else.',
+      noConflictBody: 'That is a real result, and an unusual one. If it reads as wrong to you, the ratings are the thing to look at again rather than the map — go back and be harder on the pairs you rushed.',
+      faultNote: 'pairs pulling against each other',
+      helpNote: 'pairs feeding each other',
+      indexNote: 'of the force in this map is working against itself',
+      hottest: 'The one that costs most',
+      whatNow: 'What now?',
+      doorTest: 'Test the sharpest one',
+      doorTestBody: 'Turn the collision that costs you most into one small experiment in the real world, with a prediction attached. Fifteen minutes.',
+      doorWhy: 'Ask why it is that shape',
+      doorWhyBody: 'The longer path: where each area actually is, what you appear to believe about yourself, and who you would have to be instead.',
+      keepMap: 'Just keep the map',
+      noRush: 'Nothing expires. Come back whenever.',
+      honesty: 'This map is made entirely of your own answers on one day. It is a mirror, not a verdict — mirrors update. Nothing here measures your worth, your personality, or your future.',
     },
     current: {
       title: 'The life you have',

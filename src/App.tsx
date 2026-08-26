@@ -31,6 +31,10 @@ import SignIn from './routes/SignIn';
 
 import Vision from './routes/lifebook/Vision';
 import Board from './routes/lifebook/Board';
+import Goals from './routes/lifebook/Goals';
+const Pairs = lazy(() => import('./routes/lifebook/Pairs'));
+const Friction = lazy(() => import('./routes/lifebook/Friction'));
+const MirrorStage = lazy(() => import('./routes/lifebook/MirrorStage'));
 import Current from './routes/lifebook/Current';
 import Reflect from './routes/lifebook/Reflect';
 import SelfImage from './routes/lifebook/SelfImage';
@@ -127,6 +131,10 @@ export default function App() {
           {/* Lifebook v2 — the primary journey. */}
           <Route path="/vision" element={<RequireAccess><Vision /></RequireAccess>} />
           <Route path="/board" element={<RequireAccess><Board /></RequireAccess>} />
+          <Route path="/goals" element={<RequireAccess><Goals /></RequireAccess>} />
+          <Route path="/pairs" element={<RequireAccess><Pairs /></RequireAccess>} />
+          <Route path="/friction" element={<RequireAccess><Friction /></RequireAccess>} />
+          <Route path="/mirror" element={<RequireAccess><MirrorStage /></RequireAccess>} />
           <Route path="/current" element={<RequireAccess><Current /></RequireAccess>} />
           <Route path="/reflect" element={<RequireAccess><Reflect /></RequireAccess>} />
           <Route path="/self-image" element={<RequireAccess><SelfImage /></RequireAccess>} />

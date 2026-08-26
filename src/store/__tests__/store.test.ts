@@ -12,6 +12,7 @@ import { db, emptyState, loadState, saveState, setStorageScope, whenSaved, wipeC
 import { useStore } from '../useStore';
 import { lifebook } from '../lifebookStore';
 import { XP_UNITS } from '../../engine/xp';
+import { resumePath } from '../progress';
 
 async function reset() {
   setStorageScope(null);
@@ -306,5 +307,71 @@ describe('persistence', () => {
     lifebook.setVision('work', { statement: 'a' });
     lifebook.setVision('health', { statement: 'b' });
     expect(seen).toEqual([1, 2]);
+  });
+});
+
+describe('where a returning user lands', () => {
+  const withVisions = (n: number) => {
+    const st = emptyState();
+    st.profile.consent = { notTherapyAck: true, dataLocalAck: true, ts: 't' };
+    st.lifebook.visions = ['work', 'health', 'money', 'mind'].slice(0, n).map((area) => ({
+      area: area as 'work', statement: 'something', markers: [], importance: 3 as const, ts: 't',
+    }));
+    return st;
+  };
+
+  it('an unfinished vision goes back to the vision stage', () => {
+    expect(resumePath(withVisions(2))).toBe('/vision');
+  });
+
+  it('a finished vision with no goals starts act one', () => {
+    expect(resumePath(withVisions(3))).toBe('/goals');
+  });
+
+  it('finishing the short form and stopping lands on the map, not deeper in', () => {
+    const st = withVisions(3);
+    st.strivings = Array.from({ length: 5 }, (_, i) => ({
+      id: `s${i}`, text: 'x', createdTs: 't', status: 'active' as const,
+    }));
+    for (let i = 0; i < 5; i++) {
+      for (let j = i + 1; j < 5; j++) st.pairRatings.push({ aId: `s${i}`, bId: `s${j}`, effect: 1, ts: 't' });
+    }
+    st.profile.mirrorCompletedTs = 't';
+    expect(resumePath(st)).toBe('/map');
+  });
+
+  it('act two beats act one, so nobody is sent backwards past finished work', () => {
+    // Every profile from before the short form existed looks exactly like this:
+    // visions and belief work, and no goals at all.
+    const st = withVisions(3);
+    st.lifebook.currents = st.lifebook.visions.map((v) => ({
+      area: v.area, score: 5, description: 'x', ts: 't',
+    }));
+    st.lifebook.probes = [{ probeId: 'p', optionIds: ['a'], ts: 't' }];
+    st.lifebook.beliefs = [{
+      id: 'b', text: 'x', source: 'own', status: 'confirmed', areas: ['work'], ts: 't',
+    }];
+    st.lifebook.identities = [{
+      id: 'i', text: 'I am someone who ships', replacesBeliefId: 'b', areas: ['work'], edited: false, ts: 't',
+    }];
+    st.lifebook.practices = [{
+      id: 'p1', identityId: 'i', kind: 'behaviour', text: 'x', cadence: 'weekly', active: true, ts: 't',
+    }];
+
+    expect(resumePath(st)).toBe('/gap');
+    expect(resumePath(st)).not.toBe('/goals');
+  });
+
+  it('a v1-only profile keeps its map', () => {
+    const st = emptyState();
+    st.profile.consent = { notTherapyAck: true, dataLocalAck: true, ts: 't' };
+    st.profile.mirrorCompletedTs = 't';
+    st.strivings = Array.from({ length: 8 }, (_, i) => ({
+      id: `s${i}`, text: 'x', createdTs: 't', status: 'active' as const,
+    }));
+    for (let i = 0; i < 8; i++) {
+      for (let j = i + 1; j < 8; j++) st.pairRatings.push({ aId: `s${i}`, bId: `s${j}`, effect: 1, ts: 't' });
+    }
+    expect(resumePath(st)).toBe('/map');
   });
 });
