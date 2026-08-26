@@ -9,3 +9,4 @@ e2e/.out/
 .env.local
 dist-account/
 *.tsbuildinfo
+e2e/.shots/
