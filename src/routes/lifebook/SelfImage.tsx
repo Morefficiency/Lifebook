@@ -24,6 +24,7 @@ import { PROBES, PROBE_BY_ID } from '../../content/probes';
 import { inferBeliefs } from '../../engine/beliefs';
 import { tensionMap } from '../../engine/gap';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFooter, StageFrame } from '../../components/lifebook';
 import { Explain, Tag } from '../../components/ui';
@@ -62,14 +63,11 @@ export default function SelfImage() {
   return (
     <StageFrame
       stage="self_image"
-      title="What you appear to believe"
-      lead="These are guesses, built from your own answers and nothing else. The app has no idea whether any of them are true — only you do. Say yes, say no, or rewrite it into the sentence that is actually yours. A no is set aside and not offered again, and you can put it back if you change your mind."
+      title={S.stages.selfImage.title}
+      lead={S.stages.selfImage.lead}
     >
       {offered.length === 0 && confirmed.length === 0 ? (
-        <p className="text-muted">
-          Nothing to offer yet — go back and answer a few of the reflection questions,
-          and this fills in.
-        </p>
+<p className="text-muted">{S.stages.selfImage.empty}</p>
       ) : null}
 
       {offered.length > 0 ? (
@@ -86,9 +84,9 @@ export default function SelfImage() {
               </div>
 
               <div className="mt-3">
-                <Explain label="Why is this being asked?">
+                <Explain label={S.stages.selfImage.why}>
                   <div className="space-y-2">
-                    <p>Because of what you answered here:</p>
+                    <p>{S.stages.selfImage.whyBecause}</p>
                     <ul className="space-y-1.5">
                       {c.becauseProbes.map((r) => {
                         const probe = PROBE_BY_ID.get(r.probeId);
@@ -103,15 +101,9 @@ export default function SelfImage() {
                       })}
                     </ul>
                     {c.becauseAreas.length > 0 ? (
-                      <p>
-                        And because the gap is widest in{' '}
-                        {c.becauseAreas.slice(0, 2).map((a) => AREA_BY_ID.get(a.area)?.name).join(' and ')}.
-                      </p>
+<p>{S.stages.selfImage.whyGap(c.becauseAreas.slice(0, 2).map((a) => AREA_BY_ID.get(a.area)?.name).join(' and '))}</p>
                     ) : null}
-                    <p className="text-muted">
-                      That is the whole basis for it. It is a pattern-match on your answers,
-                      not a finding about you.
-                    </p>
+<p className="text-muted">{S.stages.selfImage.whyCaveat}</p>
                   </div>
                 </Explain>
               </div>
@@ -119,7 +111,7 @@ export default function SelfImage() {
               {editing === c.id ? (
                 <div className="mt-5">
                   <label htmlFor={`edit-${c.id}`} className="label">
-                    Say it the way it actually sounds in your head
+                    {S.stages.selfImage.rewriteLabel}
                   </label>
                   <textarea
                     id={`edit-${c.id}`}
@@ -140,7 +132,7 @@ export default function SelfImage() {
                         setEditing(null);
                       }}
                     >
-                      That is the one
+                      {S.stages.selfImage.rewriteSave}
                     </button>
                     <button type="button" className="btn-quiet" onClick={() => setEditing(null)}>
                       Cancel
@@ -157,14 +149,14 @@ export default function SelfImage() {
                       areas: c.candidate.areas, status: 'confirmed',
                     })}
                   >
-                    Yes, that is mine
+                    {S.stages.selfImage.yes}
                   </button>
                   <button
                     type="button"
                     className="btn-ghost"
                     onClick={() => { setEditing(c.id); setDraft(c.candidate.text); }}
                   >
-                    Nearly — let me rewrite it
+                    {S.stages.selfImage.rewrite}
                   </button>
                   <button
                     type="button"
@@ -174,7 +166,7 @@ export default function SelfImage() {
                       areas: c.candidate.areas, status: 'rejected',
                     })}
                   >
-                    No, not me
+                    {S.stages.selfImage.no}
                   </button>
                 </div>
               )}
@@ -186,14 +178,14 @@ export default function SelfImage() {
       <section className="mt-8">
         {!showOwn ? (
           <button type="button" className="btn-ghost" onClick={() => setShowOwn(true)}>
-            Add one it has not thought of
+            {S.stages.selfImage.addOwn}
           </button>
         ) : (
           <div className="rounded-lg border border-instrument/40 bg-instrument/[0.04] p-5">
             <label htmlFor="own-belief" className="label">
-              In your own words — a sentence you catch yourself living by
+              {S.stages.selfImage.ownLabel}
             </label>
-            <p className="hint">Write it in the first person, the way it sounds inside.</p>
+            <p className="hint">{S.stages.selfImage.ownHint}</p>
             <textarea
               id="own-belief"
               className="field mt-2 min-h-[5rem] resize-y"
@@ -201,13 +193,8 @@ export default function SelfImage() {
               onChange={(e) => setOwnText(e.target.value)}
             />
             <div className="mt-6">
-              <p className="label">Is it a version of one of these?</p>
-              <p className="hint max-w-measure">
-                Optional. If one of them is basically the same thing in different
-                words, saying so means you inherit its counterpart and its
-                programme instead of starting from nothing. If none fit, leave it —
-                you will get a blank scaffold to fill in yourself.
-              </p>
+              <p className="label">{S.stages.selfImage.resembles}</p>
+<p className="hint max-w-measure">{S.stages.selfImage.resemblesHint}</p>
               <div className="mt-3 max-h-64 space-y-1.5 overflow-y-auto pr-1">
                 {RESEMBLANCE_OPTIONS.map((o) => {
                   const on = ownResembles === o.id;
@@ -232,11 +219,11 @@ export default function SelfImage() {
                 className="btn-quiet mt-2 px-0 text-xs"
                 onClick={() => setOwnResembles(null)}
               >
-                None of these — mine is its own thing
+                {S.stages.selfImage.resemblesNone}
               </button>
             </div>
 
-            <p className="label mt-6">Where does it show up?</p>
+            <p className="label mt-6">{S.stages.selfImage.whereShows}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {AREAS.map((a) => {
                 const on = ownAreas.includes(a.id);
@@ -268,7 +255,7 @@ export default function SelfImage() {
                   setOwnText(''); setOwnAreas([]); setOwnResembles(null); setShowOwn(false);
                 }}
               >
-                Add it
+                {S.stages.selfImage.ownAdd}
               </button>
               <button type="button" className="btn-quiet" onClick={() => setShowOwn(false)}>
                 Cancel
@@ -281,7 +268,7 @@ export default function SelfImage() {
       {confirmed.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-sm uppercase tracking-[0.14em] text-muted">
-            What you have said is yours
+            {S.stages.selfImage.yoursTitle}
           </h2>
           <ul className="mt-3 space-y-2">
             {confirmed.map((b) => (
@@ -292,7 +279,7 @@ export default function SelfImage() {
                   className="btn-quiet shrink-0 px-1 text-xs"
                   onClick={() => lifebook.removeBelief(b.id)}
                 >
-                  Undo
+                  {S.stages.selfImage.undo}
                 </button>
               </li>
             ))}
@@ -303,11 +290,9 @@ export default function SelfImage() {
       {rejected.length > 0 ? (
         <section className="mt-8">
           <h2 className="text-sm uppercase tracking-[0.14em] text-muted">
-            Ruled out
+            {S.stages.selfImage.ruledOutTitle}
           </h2>
-          <p className="hint">
-            These are not offered again. If one of them was a misclick, put it back.
-          </p>
+<p className="hint">{S.stages.selfImage.ruledOutHint}</p>
           <ul className="mt-3 space-y-1.5">
             {rejected.map((b) => (
               <li key={b.id} className="flex items-start gap-3 text-sm text-muted">
@@ -319,7 +304,7 @@ export default function SelfImage() {
                   className="btn-quiet shrink-0 px-1 text-xs"
                   onClick={() => b.candidateId && lifebook.unrejectCandidate(b.candidateId)}
                 >
-                  Put it back
+                  {S.stages.selfImage.putBack}
                 </button>
               </li>
             ))}
@@ -334,10 +319,10 @@ export default function SelfImage() {
           disabled={confirmed.length === 0}
           onClick={() => { lifebook.completeStage('self_image'); navigate('/becoming'); }}
         >
-          Who would I have to be instead?
+          {S.stages.selfImage.cta}
         </button>
         {confirmed.length === 0 ? (
-          <span className="text-sm text-muted">Confirm or write at least one first.</span>
+          <span className="text-sm text-muted">{S.stages.selfImage.needOne}</span>
         ) : null}
       </StageFooter>
     </StageFrame>

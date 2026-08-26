@@ -13,14 +13,11 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PROBES } from '../../content/probes';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFooter, StageFrame, Tally } from '../../components/lifebook';
 
-const KIND_LABEL = {
-  behaviour: 'How you operate',
-  history: 'What shaped it',
-  environment: 'What is around you now',
-} as const;
+const KIND_LABEL = S.stages.reflect.kinds;
 
 export default function Reflect() {
   const navigate = useNavigate();
@@ -59,10 +56,10 @@ export default function Reflect() {
   return (
     <StageFrame
       stage="reflect"
-      title="How you actually operate"
-      lead="None of this asks what you believe — you cannot see that from inside, which is rather the point. It asks what you do, what got rewarded when you were young, and what the people around you expect. Skip anything that does not have a true answer."
+      title={S.stages.reflect.title}
+      lead={S.stages.reflect.lead}
     >
-      <Tally done={byId.size} total={PROBES.length} noun="answered" />
+      <Tally done={byId.size} total={PROBES.length} noun={S.stages.reflect.tally} />
 
       <div className="mt-6">
         <p className="text-xs uppercase tracking-[0.14em] text-instrument">
@@ -71,7 +68,7 @@ export default function Reflect() {
         <h2 className="mt-3 text-xl leading-snug sm:text-2xl">{probe.question}</h2>
         {probe.help ? <p className="mt-2 max-w-measure text-sm text-muted">{probe.help}</p> : null}
         {probe.multi ? (
-          <p className="mt-2 text-xs text-muted">Choose as many as are true.</p>
+          <p className="mt-2 text-xs text-muted">{S.stages.reflect.multi}</p>
         ) : null}
       </div>
 
@@ -114,14 +111,14 @@ export default function Reflect() {
           className="btn-quiet"
           onClick={() => { lifebook.skipProbe(probe.id); advance(); }}
         >
-          Skip this one
+          {S.stages.reflect.skipOne}
         </button>
         <button
           type="button"
           className="btn-quiet ml-auto"
           onClick={() => { lifebook.completeStage('reflect'); navigate('/self-image'); }}
         >
-          I have answered enough
+          {S.stages.reflect.enough}
         </button>
       </StageFooter>
     </StageFrame>

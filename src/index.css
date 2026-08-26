@@ -102,3 +102,34 @@
 }
 
 @keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* ---------------------------------------------------------------------------
+ * Print.
+ *
+ * The observatory palette is right for a screen at night and wrong for paper:
+ * nobody wants to spend a cartridge on an ink-blue background, and bone-on-
+ * black prints as grey mush. Printed output is plain black on white.
+ * ------------------------------------------------------------------------- */
+@media print {
+  .no-print, header nav, footer a { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  body { background-image: none !important; }
+
+  main { max-width: none !important; padding: 0 !important; }
+
+  .print-sheet, .print-sheet * {
+    color: #111 !important;
+    background: transparent !important;
+    border-color: #bbb !important;
+  }
+  .print-sheet .text-muted,
+  .print-sheet .italic { color: #555 !important; }
+
+  .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+
+  @page { margin: 18mm 16mm; }
+}

@@ -1,6 +1,8 @@
-import { useEffect, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, type ReactNode } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { UpdatePrompt } from './components/UpdatePrompt';
 import { ACCESS_MODE, isCloudEnabled } from './config';
 import { useStore } from './store/useStore';
 import { initAccounts, flushPush } from './store/account';
@@ -8,22 +10,22 @@ import { ONBOARDING_PATH, isOnboardingComplete, onboardingStep } from './store/p
 import { S } from './strings';
 
 import Landing from './routes/Landing';
-import Values from './routes/onboarding/Values';
-import Strivings from './routes/onboarding/Strivings';
-import Duels from './routes/onboarding/Duels';
-import HeatRatings from './routes/onboarding/Heat';
-import Mirror from './routes/onboarding/Mirror';
-import InsightReportRoute from './routes/onboarding/Report';
-import ForkRoute from './routes/Fork';
-import Forge from './routes/Forge';
-import Rerate from './routes/Rerate';
-import MapView from './routes/MapView';
-import Quests from './routes/Quests';
-import QuestDetail from './routes/QuestDetail';
+const Values = lazy(() => import('./routes/onboarding/Values'));
+const Strivings = lazy(() => import('./routes/onboarding/Strivings'));
+const Duels = lazy(() => import('./routes/onboarding/Duels'));
+const HeatRatings = lazy(() => import('./routes/onboarding/Heat'));
+const Mirror = lazy(() => import('./routes/onboarding/Mirror'));
+const InsightReportRoute = lazy(() => import('./routes/onboarding/Report'));
+const ForkRoute = lazy(() => import('./routes/Fork'));
+const Forge = lazy(() => import('./routes/Forge'));
+const Rerate = lazy(() => import('./routes/Rerate'));
+const MapView = lazy(() => import('./routes/MapView'));
+const Quests = lazy(() => import('./routes/Quests'));
+const QuestDetail = lazy(() => import('./routes/QuestDetail'));
 import Ledger from './routes/Ledger';
 import Stats from './routes/Stats';
 import Support from './routes/Support';
-import Science from './routes/Science';
+const Science = lazy(() => import('./routes/Science'));
 import Settings from './routes/Settings';
 import SignIn from './routes/SignIn';
 
@@ -35,6 +37,7 @@ import SelfImage from './routes/lifebook/SelfImage';
 import Becoming from './routes/lifebook/Becoming';
 import Blueprint from './routes/lifebook/Blueprint';
 import Gap from './routes/lifebook/Gap';
+const Print = lazy(() => import('./routes/lifebook/Print'));
 
 /**
  * Everything behind this needs an account when there is one to have, and the
@@ -112,6 +115,11 @@ export default function App() {
     <HashRouter>
       <ScrollToTop />
       <Layout>
+        <ErrorBoundary>
+        {/* The conflict-map machinery and its force-layout library are split
+            out: someone who only ever uses the Lifebook stages should not
+            download them. */}
+        <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/sign-in" element={<SignIn />} />
@@ -125,6 +133,7 @@ export default function App() {
           <Route path="/becoming" element={<RequireAccess><Becoming /></RequireAccess>} />
           <Route path="/blueprint" element={<RequireAccess><Blueprint /></RequireAccess>} />
           <Route path="/gap" element={<RequireAccess><Gap /></RequireAccess>} />
+          <Route path="/print" element={<RequireAccess><Print /></RequireAccess>} />
 
           {/* v1 — the goal-conflict map and the evidence loop. Still reachable. */}
           <Route path="/onboarding/values" element={<RequireAccess><Values /></RequireAccess>} />
@@ -150,7 +159,10 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
+        </ErrorBoundary>
       </Layout>
+      <UpdatePrompt />
     </HashRouter>
   );
 }

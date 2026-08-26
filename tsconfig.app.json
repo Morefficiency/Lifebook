@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vitest/globals", "vite-plugin-pwa/react"]
   },
   "include": ["src"]
 }

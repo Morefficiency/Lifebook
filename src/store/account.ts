@@ -16,7 +16,7 @@ import {
 } from '../data/db';
 import { emptyState } from '../data/db';
 import { supabaseRemote } from '../data/remote';
-import { supabase } from '../data/supabase';
+import { initSupabase, supabase } from '../data/supabase';
 import { pullAndMerge, push, type SyncOutcome } from '../data/sync';
 import { useStore, type Session } from './useStore';
 import type { AppState } from '../types';
@@ -30,7 +30,7 @@ let dirty = false;
 /* ------------------------------------------------------------- session --- */
 
 export async function initAccounts(): Promise<void> {
-  const sb = supabase();
+  const sb = await initSupabase();
   if (!sb) {
     // Local-only build: the app is fully usable, there is just nowhere to sync.
     useStore.getState().setAuthReady(true);

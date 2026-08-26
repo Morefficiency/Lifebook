@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { AREA_BY_ID } from '../../content/areas';
 import { areaGap, lifeGapPercent, rankedTensions } from '../../engine/gap';
 import { practiceProgress } from '../../engine/programme';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { Explain, Page, StatChip, Tag } from '../../components/ui';
 
@@ -20,12 +21,12 @@ export default function Gap() {
 
   return (
     <Page
-      title="The gap"
-      lead="On the left, what you told us you believe. On the right, who you would have to be for the life you described to be ordinary. Everything in between is the work."
+      title={S.stages.gap.title}
+      lead={S.stages.gap.lead}
     >
       <div className="flex flex-wrap gap-3">
         <StatChip
-          label="Distance left"
+          label={S.stages.gap.distance}
           value={gap}
           suffix="%"
           explain={
@@ -49,14 +50,14 @@ export default function Gap() {
             </div>
           }
         />
-        <StatChip label="Beliefs you own" value={confirmed.length} />
-        <StatChip label="Instances logged" value={progress.logged} />
+        <StatChip label={S.stages.gap.beliefs} value={confirmed.length} />
+        <StatChip label={S.stages.gap.instances} value={progress.logged} />
       </div>
 
       {ranked.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-sm uppercase tracking-[0.14em] text-muted">
-            Where the distance actually is
+            {S.stages.gap.whereTitle}
           </h2>
           <ul className="mt-4 space-y-2">
             {ranked.map((r) => (
@@ -64,7 +65,7 @@ export default function Gap() {
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span>{AREA_BY_ID.get(r.area)?.name}</span>
                   <span className="numeral text-xs text-muted">
-                    at {r.current}/10 · matters {r.importance}/5
+{S.stages.gap.whereRow(r.current, r.importance)}
                   </span>
                 </div>
                 <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded bg-hairline">
@@ -81,14 +82,13 @@ export default function Gap() {
       ) : null}
 
       <section className="mt-12">
-        <h2 className="text-sm uppercase tracking-[0.14em] text-muted">From, to</h2>
+        <h2 className="text-sm uppercase tracking-[0.14em] text-muted">{S.stages.gap.fromTo}</h2>
         {confirmed.length === 0 ? (
           <p className="mt-3 text-muted">
-            Nothing yet.{' '}
+{S.stages.gap.emptyPre}
             <Link to="/reflect" className="text-instrument underline underline-offset-4">
-              Answer the reflection questions
-            </Link>{' '}
-            and this fills in.
+              {S.stages.gap.emptyLink}
+</Link>{S.stages.gap.emptyPost}
           </p>
         ) : (
           <ul className="mt-4 space-y-3">
@@ -106,7 +106,7 @@ export default function Gap() {
                         ? identity.text
                         : (
                           <Link to="/becoming" className="text-instrument underline underline-offset-4">
-                            Not answered yet
+                            {S.stages.gap.notAnswered}
                           </Link>
                         )}
                     </p>
@@ -123,13 +123,11 @@ export default function Gap() {
       </section>
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-hairline pt-6">
-        <Link to="/blueprint" className="btn-primary">The programme</Link>
-        <Link to="/board" className="btn-ghost">The vision board</Link>
-        <Explain label="What this number is not">
-          <p>
-            It is a description of two sets of your own answers on one day. It is not a
-            score, it has no norms, and it cannot be compared with anybody else&apos;s.
-          </p>
+        <Link to="/blueprint" className="btn-primary">{S.stages.gap.programme}</Link>
+        <Link to="/board" className="btn-ghost">{S.stages.gap.board}</Link>
+        <Link to="/print" className="btn-ghost">{S.stages.gap.print}</Link>
+        <Explain label={S.stages.gap.notWhat}>
+<p>{S.stages.gap.notWhatBody}</p>
         </Explain>
       </div>
     </Page>

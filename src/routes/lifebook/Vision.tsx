@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AREAS } from '../../content/areas';
 import { fileToDataUrl } from '../../lib/image';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFooter, StageFrame, Tally } from '../../components/lifebook';
 import { FieldError } from '../../components/ui';
@@ -41,10 +42,10 @@ export default function Vision() {
   return (
     <StageFrame
       stage="vision"
-      title="The life you want"
-      lead="Write it in the present tense, as if it is already true — that produces something concrete, where “one day I'd like to” produces a wish. Do the areas you have an opinion about and leave the rest. Three is enough to carry on with."
+      title={S.stages.vision.title}
+      lead={S.stages.vision.lead}
     >
-      <Tally done={filled.length} total={AREAS.length} noun="areas written" />
+      <Tally done={filled.length} total={AREAS.length} noun={S.stages.vision.tally} />
 
       <ul className="mt-5 space-y-2">
         {AREAS.map((area) => {
@@ -103,11 +104,8 @@ export default function Vision() {
                   <Markers area={area.id} vision={v} placeholder={area.markerPlaceholder} />
 
                   <div className="mt-6">
-                    <span className="label">How much does this one matter to you?</span>
-                    <p className="hint">
-                      This decides what the app treats as urgent later. A big gap in
-                      something you rated a 1 is not a problem to solve.
-                    </p>
+                    <span className="label">{S.stages.vision.matters}</span>
+<p className="hint">{S.stages.vision.mattersHint}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {([1, 2, 3, 4, 5] as Importance[]).map((n) => (
                         <button
@@ -124,21 +122,16 @@ export default function Vision() {
                           {n}
                         </button>
                       ))}
-                      <span className="self-center pl-2 text-xs text-muted">
-                        1 = barely · 5 = this is the point
-                      </span>
+<span className="self-center pl-2 text-xs text-muted">{S.stages.vision.mattersScale}</span>
                     </div>
                   </div>
 
                   <div className="mt-6">
-                    <span className="label">A picture, if you have one</span>
-                    <p className="hint">
-                      Optional. It is resized and stored in this browser — it is not
-                      uploaded anywhere.
-                    </p>
+                    <span className="label">{S.stages.vision.picture}</span>
+<p className="hint">{S.stages.vision.pictureHint}</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <label className="btn-ghost cursor-pointer">
-                        {v?.image ? 'Replace image' : 'Choose an image'}
+                        {v?.image ? S.stages.vision.pictureReplace : S.stages.vision.pictureChoose}
                         <input
                           type="file"
                           accept="image/*"
@@ -156,7 +149,7 @@ export default function Vision() {
                           className="btn-quiet text-xs"
                           onClick={() => lifebook.setVision(area.id, { image: '' })}
                         >
-                          Remove
+                          {S.stages.vision.pictureRemove}
                         </button>
                       ) : null}
                     </div>
@@ -169,7 +162,7 @@ export default function Vision() {
                       className="btn-quiet mt-6 px-0 text-xs"
                       onClick={() => lifebook.clearVision(area.id)}
                     >
-                      Clear this area
+                      {S.stages.vision.clear}
                     </button>
                   ) : null}
                 </div>
@@ -189,14 +182,14 @@ export default function Vision() {
             navigate('/board');
           }}
         >
-          See your vision board
+          {S.stages.vision.cta}
         </button>
         {!ready ? (
           <span className="text-sm text-muted">
-            {MIN_AREAS - filled.length} more area{MIN_AREAS - filled.length === 1 ? '' : 's'} to go.
+{S.stages.vision.more(MIN_AREAS - filled.length)}
           </span>
         ) : (
-          <Link to="/current" className="btn-quiet">Skip to the current state</Link>
+          <Link to="/current" className="btn-quiet">{S.stages.vision.skip}</Link>
         )}
       </StageFooter>
     </StageFrame>
@@ -218,8 +211,8 @@ function Markers({ area, vision, placeholder }: {
 
   return (
     <div className="mt-6">
-      <span className="label">How would you know it was true?</span>
-      <p className="hint">Up to five concrete markers. Optional, but they make it real.</p>
+      <span className="label">{S.stages.vision.markers}</span>
+      <p className="hint">{S.stages.vision.markersHint}</p>
 
       {markers.length > 0 ? (
         <ul className="mt-3 space-y-1.5">
@@ -232,7 +225,7 @@ function Markers({ area, vision, placeholder }: {
                 className="btn-quiet px-1 text-xs"
                 onClick={() => lifebook.setVision(area, { markers: markers.filter((_, j) => j !== i) })}
               >
-                Remove
+                {S.stages.vision.markerRemove}
               </button>
             </li>
           ))}
@@ -251,7 +244,7 @@ function Markers({ area, vision, placeholder }: {
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
           />
           <button type="button" className="btn-ghost" onClick={add} disabled={!draft.trim()}>
-            Add
+            {S.stages.vision.markerAdd}
           </button>
         </div>
       ) : null}

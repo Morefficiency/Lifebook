@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { AREA_BY_ID } from '../../content/areas';
 import { areaGap, lifeGapPercent, rankedTensions } from '../../engine/gap';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFooter, StageFrame, Tally } from '../../components/lifebook';
 import { Explain, Slider } from '../../components/ui';
@@ -51,8 +52,8 @@ export default function Current() {
 
   if (!vision || !area) {
     return (
-      <StageFrame stage="current" title="The life you have">
-        <p className="text-muted">Write a vision for at least one area first.</p>
+      <StageFrame stage="current" title={S.stages.current.title}>
+        <p className="text-muted">{S.stages.current.needVision}</p>
       </StageFrame>
     );
   }
@@ -71,15 +72,15 @@ export default function Current() {
   return (
     <StageFrame
       stage="current"
-      title="The life you have"
-      lead="Against what you just wrote, not against anyone else, and not against where you think you ought to be."
+      title={S.stages.current.title}
+      lead={S.stages.current.lead}
     >
-      <Tally done={rated.length} total={written.length} noun="areas rated" />
+      <Tally done={rated.length} total={written.length} noun={S.stages.current.tally} />
 
       <article className="card mt-5">
         <h2 className="font-display text-xl">{area.name}</h2>
         <p className="mt-3 leading-relaxed text-muted">
-          <span className="text-xs uppercase tracking-[0.14em] text-instrument">You wrote</span>
+          <span className="text-xs uppercase tracking-[0.14em] text-instrument">{S.stages.current.youWrote}</span>
           <br />
           {vision.statement}
         </p>
@@ -94,8 +95,8 @@ export default function Current() {
             min={1}
             max={10}
             onChange={setScore}
-            lowLabel="Nowhere near it"
-            highLabel="Already living it"
+            lowLabel={S.stages.current.low}
+            highLabel={S.stages.current.high}
             ariaLabel={area.currentPrompt}
           />
         </div>
@@ -103,13 +104,13 @@ export default function Current() {
 
       <div className="mt-8">
         <label htmlFor="current-desc" className="label">
-          What is actually going on here, in a sentence or two?
+          {S.stages.current.describe}
         </label>
         <textarea
           id="current-desc"
           className="field mt-2 min-h-[6rem] resize-y"
           value={description}
-          placeholder="Plainly. Not a verdict on yourself — just what is true."
+          placeholder={S.stages.current.describeHint}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
@@ -124,19 +125,15 @@ export default function Current() {
           Back
         </button>
         <button type="button" className="btn-primary" onClick={next}>
-          {index + 1 < written.length ? 'Next area' : 'Done — what shapes this?'}
+{index + 1 < written.length ? S.stages.current.next : S.stages.current.done}
         </button>
 
         {gap !== null ? (
           <div className="ml-auto text-right">
-            <p className="numeral text-sm text-bone">{gap}% of the distance left</p>
+            <p className="numeral text-sm text-bone">{S.stages.current.distanceLeft(gap)}</p>
             <Explain>
               <div className="space-y-2">
-                <p>
-                  For each area: how far it is from your vision, multiplied by how much
-                  you said it matters. Added up across every area you have rated, then
-                  divided by the total importance.
-                </p>
+<p>{S.stages.current.distanceHow}</p>
                 {ranked.length > 0 ? (
                   <ul className="space-y-1">
                     {ranked.map((r) => (
@@ -149,7 +146,7 @@ export default function Current() {
                     ))}
                   </ul>
                 ) : null}
-                <p>It is a description of your own two sets of answers, nothing more.</p>
+                <p>{S.stages.current.distanceCaveat}</p>
               </div>
             </Explain>
           </div>

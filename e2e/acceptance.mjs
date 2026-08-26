@@ -127,8 +127,8 @@ check('A5 map renders nodes and edges', nodes >= 20 && edges > 0, `${nodes} circ
 await page.screenshot({ path: `${OUT}/shot-mirror.png`, fullPage: false });
 await page.getByRole('button', { name: 'Read what this says' }).click();
 await page.waitForURL('**/onboarding/report');
-
-// ---- A6 report ----
+// Route chunks are lazy-loaded, so wait for the screen rather than the URL.
+await page.getByRole('heading', { name: 'What your ratings say' }).waitFor();
 const reportText = await page.locator('main').innerText();
 check('A6 report has the verbatim honesty paragraph',
   reportText.includes('It is a mirror, not a verdict — mirrors update.'));

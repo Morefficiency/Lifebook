@@ -19,22 +19,15 @@ import { AREA_BY_ID } from '../../content/areas';
 import { BELIEF_CATALOGUE } from '../../content/beliefs';
 import { buildProgramme, practiceProgress } from '../../engine/programme';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFrame } from '../../components/lifebook';
 import { Tag } from '../../components/ui';
 import type { Cadence, PracticeItem, PracticeKind } from '../../types';
 
-const KIND_LABEL: Record<PracticeKind, string> = {
-  thought: 'Thought swap',
-  behaviour: 'Evidence behaviour',
-  affirmation: 'Affirmation',
-};
+const KIND_LABEL: Record<PracticeKind, string> = S.stages.blueprint.kinds;
 
-const CADENCE_LABEL: Record<Cadence, string> = {
-  daily: 'daily',
-  weekly: 'weekly',
-  when_it_shows_up: 'when it shows up',
-};
+const CADENCE_LABEL: Record<Cadence, string> = S.stages.blueprint.cadences;
 
 const KIND_ORDER: PracticeKind[] = ['thought', 'behaviour', 'affirmation'];
 
@@ -66,18 +59,18 @@ export default function Blueprint() {
   return (
     <StageFrame
       stage="blueprint"
-      title="The work"
-      lead="One page per identity: what to catch and what to say instead, what to actually go and do, and the sentence — which only counts alongside something real that happened. Come back and log the instances; that is the whole mechanism."
+      title={S.stages.blueprint.title}
+      lead={S.stages.blueprint.lead}
     >
       <div className="flex flex-wrap gap-3">
-        <Stat label="Identities" value={identities.length} />
-        <Stat label="Practices" value={progress.active} />
-        <Stat label="Instances logged" value={progress.logged} />
+        <Stat label={S.stages.blueprint.identities} value={identities.length} />
+        <Stat label={S.stages.blueprint.practices} value={progress.active} />
+        <Stat label={S.stages.blueprint.instances} value={progress.logged} />
       </div>
 
       {identities.length === 0 ? (
         <p className="mt-8 text-muted">
-          Nothing here yet. <Link to="/becoming" className="text-instrument underline underline-offset-4">Write who you would have to be</Link> and the programme builds itself.
+          {S.stages.blueprint.emptyPre}<Link to="/becoming" className="text-instrument underline underline-offset-4">{S.stages.blueprint.emptyLink}</Link>{S.stages.blueprint.emptyPost}
         </p>
       ) : null}
 
@@ -91,7 +84,7 @@ export default function Blueprint() {
               <h2 className="font-display text-xl leading-snug">{identity.text}</h2>
               {belief ? (
                 <p className="mt-1.5 text-sm text-muted">
-                  in place of “{belief.text}”
+                  {S.stages.blueprint.inPlaceOf(belief.text)}
                 </p>
               ) : null}
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -147,18 +140,18 @@ function PracticeRow({ item, count, logs }: {
             className="numeral ml-auto text-xs text-instrument underline underline-offset-4"
             onClick={() => setShowHistory((v) => !v)}
           >
-            {count} logged
+            {S.stages.blueprint.logged(count)}
           </button>
         ) : null}
       </div>
 
       {item.cue ? (
         <p className="mt-3 text-sm text-muted">
-          <span className="text-carry-bright">Catch:</span> “{item.cue}”
+          <span className="text-carry-bright">{S.stages.blueprint.catch}</span> “{item.cue}”
         </p>
       ) : null}
       <p className="mt-1.5 leading-relaxed">
-        {item.cue ? <span className="text-facil-bright">Say instead: </span> : null}
+        {item.cue ? <span className="text-facil-bright">{S.stages.blueprint.sayInstead}</span> : null}
         {item.text}
       </p>
 
@@ -178,13 +171,13 @@ function PracticeRow({ item, count, logs }: {
         <div className="mt-4">
           <label htmlFor={`ev-${item.id}`} className="label">
             {item.kind === 'affirmation'
-              ? 'What happened today that this is true of?'
-              : 'What actually happened?'}
+? S.stages.blueprint.evidenceAffirmation
+              : S.stages.blueprint.evidenceOther}
           </label>
           <p className="hint">
             {item.kind === 'affirmation'
-              ? 'The sentence on its own does nothing. Attached to a real instance it is a name for something that happened.'
-              : 'One line is enough. This is the evidence, not a diary.'}
+? S.stages.blueprint.evidenceHintAffirmation
+              : S.stages.blueprint.evidenceHintOther}
           </p>
           <textarea
             id={`ev-${item.id}`}
@@ -202,7 +195,7 @@ function PracticeRow({ item, count, logs }: {
                 setEvidence(''); setLogging(false);
               }}
             >
-              Log it
+              {S.stages.blueprint.logIt}
             </button>
             <button type="button" className="btn-quiet" onClick={() => setLogging(false)}>
               Cancel
@@ -212,14 +205,14 @@ function PracticeRow({ item, count, logs }: {
       ) : (
         <div className="mt-4 flex flex-wrap gap-2">
           <button type="button" className="btn-ghost" onClick={() => setLogging(true)}>
-            Log an instance
+            {S.stages.blueprint.logCta}
           </button>
           <button
             type="button"
             className="btn-quiet text-xs"
             onClick={() => lifebook.updatePractice(item.id, { active: !item.active })}
           >
-            {item.active ? 'Set aside' : 'Bring back'}
+{item.active ? S.stages.blueprint.setAside : S.stages.blueprint.bringBack}
           </button>
         </div>
       )}
@@ -237,7 +230,7 @@ function AddPractice({ identityId }: { identityId: string }) {
   if (!open) {
     return (
       <button type="button" className="btn-quiet mt-4 px-0 text-sm" onClick={() => setOpen(true)}>
-        Add your own
+        {S.stages.blueprint.addOwn}
       </button>
     );
   }
@@ -263,12 +256,12 @@ function AddPractice({ identityId }: { identityId: string }) {
 
       {kind === 'thought' ? (
         <div className="mt-4">
-          <label htmlFor={`cue-${identityId}`} className="label">The thought to catch</label>
+          <label htmlFor={`cue-${identityId}`} className="label">{S.stages.blueprint.newCue}</label>
           <input
             id={`cue-${identityId}`}
             className="field mt-2"
             value={cue}
-            placeholder="It is not ready yet"
+            placeholder={S.stages.blueprint.newCuePlaceholder}
             onChange={(e) => setCue(e.target.value)}
           />
         </div>
@@ -276,7 +269,7 @@ function AddPractice({ identityId }: { identityId: string }) {
 
       <div className="mt-4">
         <label htmlFor={`text-${identityId}`} className="label">
-          {kind === 'thought' ? 'What to say instead' : kind === 'behaviour' ? 'The action' : 'The sentence'}
+{kind === 'thought' ? S.stages.blueprint.newThought : kind === 'behaviour' ? S.stages.blueprint.newBehaviour : S.stages.blueprint.newAffirmation}
         </label>
         <input
           id={`text-${identityId}`}
@@ -315,7 +308,7 @@ function AddPractice({ identityId }: { identityId: string }) {
             setText(''); setCue(''); setOpen(false);
           }}
         >
-          Add
+          {S.stages.blueprint.add}
         </button>
         <button type="button" className="btn-quiet" onClick={() => setOpen(false)}>Cancel</button>
       </div>

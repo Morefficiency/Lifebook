@@ -13,6 +13,7 @@ import { AREA_BY_ID } from '../../content/areas';
 import { BELIEF_CATALOGUE } from '../../content/beliefs';
 import { proposeIdentities } from '../../engine/identity';
 import { lifebook } from '../../store/lifebookStore';
+import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
 import { StageFooter, StageFrame } from '../../components/lifebook';
 import { Explain, Tag } from '../../components/ui';
@@ -50,8 +51,8 @@ export default function Becoming() {
   return (
     <StageFrame
       stage="becoming"
-      title="Who you would have to be"
-      lead="Not a better mood or a nicer opinion of yourself — a way of behaving. Each of these is the person for whom your vision is simply normal. Change any of them into your own words; the sentence has to be one you would actually say."
+      title={S.stages.becoming.title}
+      lead={S.stages.becoming.lead}
     >
       <ul className="space-y-4">
         {drafts.map((d) => {
@@ -59,20 +60,20 @@ export default function Becoming() {
           const value = current?.text ?? d.text;
           return (
             <li key={d.replacesBeliefId} className="rounded-lg border border-hairline bg-surface/50 p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-fault-bright">Instead of</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-fault-bright">{S.stages.becoming.insteadOf}</p>
               <p className="mt-1.5 leading-relaxed text-muted line-through decoration-fault/60">
                 “{d.belief.text}”
               </p>
 
-              <p className="mt-5 text-xs uppercase tracking-[0.14em] text-facil-bright">Become</p>
+              <p className="mt-5 text-xs uppercase tracking-[0.14em] text-facil-bright">{S.stages.becoming.become}</p>
               <label className="sr-only" htmlFor={`identity-${d.replacesBeliefId}`}>
-                The identity that replaces it
+                {S.stages.becoming.srLabel}
               </label>
               <textarea
                 id={`identity-${d.replacesBeliefId}`}
                 className="field mt-1.5 min-h-[4.5rem] resize-y text-lg"
                 value={value}
-                placeholder="I am someone who…"
+                placeholder={S.stages.becoming.placeholder}
                 onChange={(e) => lifebook.setIdentity({
                   replacesBeliefId: d.replacesBeliefId,
                   text: e.target.value,
@@ -84,23 +85,17 @@ export default function Becoming() {
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {d.areas.map((a) => <Tag key={a}>{AREA_BY_ID.get(a)?.name ?? a}</Tag>)}
-                {current?.edited ? <Tag tone="facil">your words</Tag> : null}
+                {current?.edited ? <Tag tone="facil">{S.stages.becoming.yourWords}</Tag> : null}
                 {d.why ? (
-                  <Explain label="Why this one?">
+                  <Explain label={S.stages.becoming.whyThis}>
                     <div className="space-y-2">
                       <p>{d.why}</p>
-                      <p className="text-muted">
-                        Notice it describes something you do, not something you are.
-                        A claim about conduct can be settled this week; a claim about
-                        character cannot be settled at all.
-                      </p>
+<p className="text-muted">{S.stages.becoming.whyCaveat}</p>
                     </div>
                   </Explain>
                 ) : null}
                 {!d.text ? (
-                  <span className="text-xs text-muted">
-                    You wrote this belief yourself, so this one is yours to answer.
-                  </span>
+<span className="text-xs text-muted">{S.stages.becoming.ownBelief}</span>
                 ) : null}
               </div>
             </li>
@@ -109,7 +104,7 @@ export default function Becoming() {
       </ul>
 
       {drafts.length === 0 ? (
-        <p className="text-muted">Confirm a belief in the previous stage and it appears here.</p>
+        <p className="text-muted">{S.stages.becoming.empty}</p>
       ) : null}
 
       <StageFooter>
@@ -119,11 +114,11 @@ export default function Becoming() {
           disabled={answered.length === 0}
           onClick={() => { lifebook.completeStage('becoming'); navigate('/blueprint'); }}
         >
-          Build the programme
+          {S.stages.becoming.cta}
         </button>
         {answered.length < drafts.length ? (
           <span className="text-sm text-muted">
-            {drafts.length - answered.length} still blank — you can leave them and come back.
+{S.stages.becoming.blanks(drafts.length - answered.length)}
           </span>
         ) : null}
       </StageFooter>
