@@ -15,9 +15,10 @@ import {
   computeGraph, computeXp, coolEdgeHeat, earnedBadgeIds, edgeKey, levelFor,
   badgeById, isPredictionBroken, shouldPromptRerating,
 } from '../engine';
-import { UNLOCK_KEY } from '../config';
+import { UNLOCK_KEY, isCloudEnabled } from '../config';
 import { emptyState, loadState, saveState, scheduleSave, wipeEverything } from '../data/db';
 import { emptyLifebook } from '../types';
+import type { SyncStatus } from '../data/sync';
 import { entry } from '../data/ledger';
 import type {
   AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LedgerKind, LifeArea,
@@ -46,11 +47,25 @@ export interface ReportDraft {
 
 export interface ReportResult { reportId: string; broken: boolean; promptRerating: boolean }
 
+export interface Session { userId: string; email: string | null }
+
 interface Store {
   state: AppState;
   hydrated: boolean;
   unlocked: boolean;
   persistenceError: string | null;
+
+  /* Accounts. All null / 'off' when no backend is configured. */
+  session: Session | null;
+  authReady: boolean;
+  syncStatus: SyncStatus;
+  syncError: string | null;
+  setSession: (session: Session | null) => void;
+  setAuthReady: (ready: boolean) => void;
+  setSync: (status: SyncStatus, error?: string | null) => void;
+  /** Called after every local mutation so the account layer can queue a push. */
+  onLocalChange: ((state: AppState) => void) | null;
+  setOnLocalChange: (fn: ((state: AppState) => void) | null) => void;
 
   hydrate: () => Promise<void>;
   setUnlocked: (v: boolean) => void;
@@ -129,6 +144,9 @@ export const useStore = create<Store>((set, get) => {
     void scheduleSave(next).catch((err: unknown) => {
       set({ persistenceError: err instanceof Error ? err.message : String(err) });
     });
+    // The account layer, when there is one, queues a push. Local storage is
+    // never made to wait for the network.
+    get().onLocalChange?.(next);
   };
 
   return {
@@ -136,6 +154,16 @@ export const useStore = create<Store>((set, get) => {
     hydrated: false,
     unlocked: false,
     persistenceError: null,
+
+    session: null,
+    authReady: !isCloudEnabled(),
+    syncStatus: isCloudEnabled() ? 'idle' : 'off',
+    syncError: null,
+    onLocalChange: null,
+    setSession: (session) => set({ session }),
+    setAuthReady: (authReady) => set({ authReady }),
+    setSync: (syncStatus, syncError = null) => set({ syncStatus, syncError }),
+    setOnLocalChange: (onLocalChange) => set({ onLocalChange }),
 
     hydrate: async () => {
       let unlocked = false;

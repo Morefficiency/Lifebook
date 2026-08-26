@@ -37,7 +37,7 @@ page.on('pageerror', e => consoleErrors.push('pageerror: ' + e.message));
 await page.goto(BASE, { waitUntil: 'networkidle' });
 
 // ---- A0 gate ----
-await page.fill('#access-code', 'COHERENCE-V1');
+if (await page.locator('#access-code').count()) await page.fill('#access-code', 'COHERENCE-V1');
 await page.locator('input[type=checkbox]').nth(0).check();
 await page.locator('input[type=checkbox]').nth(1).check();
 await page.getByRole('button', { name: /^Start with the life you want/ }).click();

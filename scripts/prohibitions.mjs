@@ -26,7 +26,9 @@ const DIST = 'dist/assets';
 const ALLOWED = [
   // Consent checkbox and /support — both must be able to say the word.
   'I understand this is a self-reflection tool, not therapy or medical care.',
-  'Coherence is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support.',
+  'Lifebook is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support.',
+  // The sign-up consent block, which must be able to say what this is not.
+  'This is a self-reflection tool. It is not therapy, not diagnosis, and not crisis support.',
   // /science citation, §10-mandated. Verbatim journal-article title.
   'Maximizing exposure therapy: An inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.',
   // /science — naming the mechanics deliberately left out. The list has to be

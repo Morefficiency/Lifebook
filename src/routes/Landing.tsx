@@ -1,7 +1,7 @@
 /** §5 A0 — landing, access gate, consent. */
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { ACCESS_MODE, PURCHASE_URL, isValidAccessCode } from '../config';
+import { ACCESS_MODE, PURCHASE_URL, isCloudEnabled, isValidAccessCode } from '../config';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
 import { resumePath } from '../store/progress';
@@ -20,10 +20,19 @@ export default function Landing() {
   const [localAck, setLocalAck] = useState(false);
   const [consentError, setConsentError] = useState(false);
 
-  const gateOpen = ACCESS_MODE === 'open' || unlocked;
+  const session = useStore((s) => s.session);
+  const authReady = useStore((s) => s.authReady);
+  const cloud = isCloudEnabled();
+  // With accounts on, the account is the gate; the code (if any) guards sign-up.
+  const gateOpen = cloud || ACCESS_MODE === 'open' || unlocked;
 
-  // Someone who has already started is sent back to where they stopped.
-  if (gateOpen && state.profile.consent) return <Navigate to={resumePath(state)} replace />;
+  // Someone already signed in and already started goes back to where they were.
+  if (cloud && authReady && session && state.profile.consent) {
+    return <Navigate to={resumePath(state)} replace />;
+  }
+  if (!cloud && gateOpen && state.profile.consent) {
+    return <Navigate to={resumePath(state)} replace />;
+  }
 
   const begin = () => {
     if (!gateOpen) {
@@ -32,7 +41,8 @@ export default function Landing() {
     }
     if (!therapyAck || !localAck) { setConsentError(true); return; }
     acceptConsent();
-    navigate('/vision');
+    // With accounts on, there is somewhere for this to be saved to first.
+    navigate(cloud && !session ? '/sign-in' : '/vision');
   };
 
   return (
@@ -68,7 +78,7 @@ export default function Landing() {
       </section>
 
       <section className="card mt-10">
-        {!gateOpen ? (
+        {!gateOpen && !cloud ? (
           <div className="mb-6">
             <label htmlFor="access-code" className="label">{S.gate.codeLabel}</label>
             <input

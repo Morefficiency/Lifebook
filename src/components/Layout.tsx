@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
 import { isOnboardingComplete } from '../store/progress';
+import { isCloudEnabled } from '../config';
+import { SyncChip } from './SyncChip';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded px-2.5 py-1.5 text-sm transition-colors ${
@@ -17,6 +19,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const consented = useStore((s) => !!s.state.profile.consent);
   const hasLifebook = useStore((s) => s.state.lifebook.visions.length > 0);
   const hasMap = useStore((s) => isOnboardingComplete(s.state));
+  const session = useStore((s) => s.session);
 
   return (
     <div className="min-h-dvh">
@@ -59,6 +62,10 @@ export function Layout({ children }: { children: ReactNode }) {
           ) : null}
 
           <div className="ml-auto flex items-center gap-1">
+            {isCloudEnabled() ? <SyncChip /> : null}
+            {isCloudEnabled() && !session ? (
+              <NavLink to="/sign-in" className={linkClass}>{S.account.signIn}</NavLink>
+            ) : null}
             <NavLink to="/science" className={linkClass}>{S.nav.science}</NavLink>
             {/* §10 — present in the persistent nav on every screen, always. */}
             <NavLink to="/support" className={linkClass}>{S.nav.support}</NavLink>
@@ -73,7 +80,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <footer className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 text-xs text-muted sm:px-6">
         <p>
-          {S.bits.footer}{' '}
+          {session || !isCloudEnabled() ? S.bits.footer : S.bits.footerLocal}{' '}
           <Link to="/support" className="underline decoration-hairline underline-offset-4 hover:text-bone">
             {S.nav.support}
           </Link>

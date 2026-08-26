@@ -71,10 +71,10 @@ export const S = {
     never: [
       'No feed. No streaks. Nothing to check daily.',
       'It never tells you what you are — it asks, and you decide.',
-      'Your data never leaves this device.',
+      'Nothing is sold, shared or advertised against. Ever.',
     ],
     consentTherapy: 'I understand this is a self-reflection tool, not therapy or medical care.',
-    consentLocal: 'I understand my data is stored only on this device.',
+    consentLocal: 'I understand my answers are saved to my account so they follow me between devices, and that the people who run this service can read them.',
     codeLabel: 'Access code',
     codePlaceholder: 'Enter your access code',
     codeBad: 'That code was not recognised. Check for stray spaces and try again.',
@@ -335,7 +335,9 @@ export const S = {
     title: 'Settings',
     dataTitle: 'Your data',
     dataBody:
-      'Everything in this app is stored in this browser, on this device, in IndexedDB. There is no account and no server. Clearing your browser data deletes it, and nobody — including us — has a copy.',
+      'Your answers are kept in this browser and, when you are signed in, in your account so they follow you between devices. They are encrypted in transit and at rest, and the database is set up so that no other account can read your row. They are not encrypted from us: the people who run this service can read what you write. Nothing is sold, shared, advertised against, or used to train anything.',
+    dataBodyLocal:
+      'You are not signed in, so everything is in this browser and nowhere else. Clearing your browser data deletes it, and nobody — including us — has a copy.',
     exportTitle: 'Export',
     exportBody: 'One JSON file with everything: strivings, ratings, forks, quests, reports and the full ledger.',
     exportCta: 'Export JSON',
@@ -360,7 +362,7 @@ export const S = {
   support: {
     title: 'Support',
     body: [
-      'Coherence is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support. It cannot see you and it does not know anything about you beyond what you typed into it.',
+      'Lifebook is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support. It cannot see you and it does not know anything about you beyond what you typed into it.',
       'If this work stirs up more than you expected, or things feel heavy, that is a signal to talk to a human professional — not to push harder. Nothing here rewards pushing through.',
       'Every exercise in this app can be skipped, at any point, without consequence. There is no progress to lose.',
     ],
@@ -370,7 +372,7 @@ export const S = {
     helplineBlurb: 'Free, confidential support worldwide.',
     emergency:
       'If you are in immediate danger, contact your local emergency services.',
-    externalNote: 'That link opens an external website in a new tab. It is the only outbound link in this app, and it carries nothing about you.',
+    externalNote: 'That link opens an external website in a new tab. It carries nothing about you, and the site it opens is not told that you came from here.',
   },
 
   science: {
@@ -649,6 +651,34 @@ export const S = {
     releaseTarget: 'Which striving to release',
   },
 
+  account: {
+    signIn: 'Sign in',
+    signOut: 'Sign out',
+    account: 'Account',
+    signedInAs: 'Signed in as',
+    notSignedIn: 'Not signed in',
+    consentStored:
+      'What you write here — your vision, where your life actually is, your childhood, what you believe about yourself — is saved to your account so it follows you between devices. It is encrypted in transit and at rest, and no other account can read it. It is not encrypted from us: the people who run this service can read it. Nothing is sold, shared, advertised against, or used to train anything.',
+    consentNotTherapy:
+      'This is a self-reflection tool. It is not therapy, not diagnosis, and not crisis support.',
+    consentAck: 'I have read both of those and I want to create an account.',
+    signInFooter:
+      'Trouble signing in, or want to know what happens to what you write?',
+    syncIdle: 'Everything is saved to your account',
+    syncSyncing: 'Saving to your account…',
+    syncOffline: 'Offline — saved here, and it will go up when you are back',
+    syncError: 'Could not reach your account',
+    syncOff: 'Saved on this device only',
+    syncNow: 'Sync now',
+    deleteAccountTitle: 'Delete your account',
+    deleteAccountBody:
+      'Removes your account and everything in it, from this device and from the server. There is no undo and no backup anywhere. Export first if you want a copy.',
+    deleteAccountCta: 'Delete my account',
+    deletedAccount: 'Your account and everything in it are gone.',
+    localCarriedIn:
+      'The work you did in this browser before signing in has been added to your account.',
+  },
+
   /** Small shared fragments used across screens. */
   bits: {
     errorDetails: 'Details',
@@ -671,7 +701,8 @@ export const S = {
     showFewerFaults: 'Show the hottest few',
     yourForecast: 'Your forecast',
     whatHappened: 'What happened',
-    footer: 'Everything you enter stays in this browser. No account, no server, no analytics.',
+    footer: 'Your own words, kept for you and nobody else. No feed, no ads, no analytics.',
+    footerLocal: 'Everything you enter stays in this browser. Not signed in, so nothing is synced.',
     accessMode: 'Access mode',
     schemaVersion: 'Schema version',
     persistenceError:

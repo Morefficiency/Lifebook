@@ -19,7 +19,9 @@ const reqs=[]; p.on('request',r=>reqs.push(r.url()));
 const errs=[]; p.on('pageerror',e=>errs.push(e.message)); p.on('console',m=>{if(m.type()==='error')errs.push(m.text());});
 
 await p.goto(BASE,{waitUntil:'networkidle'});
-await p.fill('#access-code','COHERENCE-V1');
+// The access code now gates sign-up only, and is off by default; fill it if
+// this build still shows the field.
+if (await p.locator('#access-code').count()) await p.fill('#access-code','COHERENCE-V1');
 await p.locator('input[type=checkbox]').nth(0).check();
 await p.locator('input[type=checkbox]').nth(1).check();
 await p.getByRole('button',{name:'Start with the life you want'}).click();

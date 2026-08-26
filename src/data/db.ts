@@ -23,7 +23,41 @@ class CoherenceDb extends Dexie {
 
 export const db = new CoherenceDb();
 
-const STATE_KEY = 'state';
+/**
+ * Which account's data this browser is currently working with.
+ *
+ * Two people signing in on the same laptop must never see each other's
+ * Lifebook, so the row key carries the account id. Signed out — or with no
+ * backend configured at all — the key is the plain local one the app used
+ * before accounts existed, which is also what makes an existing local profile
+ * survive the upgrade.
+ */
+let scope: string | null = null;
+const LOCAL_KEY = 'state';
+const stateKey = () => (scope ? `state:${scope}` : LOCAL_KEY);
+
+export function setStorageScope(userId: string | null): void {
+  if (scope === userId) return;
+  // Anything queued for the previous account must not land in the new one.
+  pendingState = null;
+  scope = userId;
+}
+
+export function storageScope(): string | null {
+  return scope;
+}
+
+/** The pre-accounts document, if this browser has one to carry into an account. */
+export async function loadLocalOnlyState(): Promise<AppState | null> {
+  const row = await db.kv.get(LOCAL_KEY);
+  if (!row) return null;
+  const parsed = validateState(row.value);
+  return parsed.ok ? parsed.state : null;
+}
+
+export async function clearLocalOnlyState(): Promise<void> {
+  await db.kv.delete(LOCAL_KEY);
+}
 
 export function emptyState(): AppState {
   return {
@@ -47,14 +81,41 @@ export function emptyState(): AppState {
 }
 
 export async function loadState(): Promise<AppState | null> {
-  const row = await db.kv.get(STATE_KEY);
+  const row = await db.kv.get(stateKey());
   if (!row) return null;
   const parsed = validateState(row.value);
   return parsed.ok ? parsed.state : null;
 }
 
 export async function saveState(state: AppState): Promise<void> {
-  await db.kv.put({ key: STATE_KEY, value: state });
+  await db.kv.put({ key: stateKey(), value: state });
+}
+
+/* ------------------------------------------------------------ sync marks ---
+ * What this device believes the server last had. Kept beside the document so a
+ * refresh does not turn every first save into a conflict.
+ * -------------------------------------------------------------------------- */
+
+export interface SyncMark { revision: number; updatedAt: string }
+
+const markKey = () => `sync:${scope ?? 'local'}`;
+
+export async function loadSyncMark(): Promise<SyncMark | null> {
+  const row = await db.kv.get(markKey());
+  return (row?.value as SyncMark | undefined) ?? null;
+}
+
+export async function saveSyncMark(mark: SyncMark | null): Promise<void> {
+  if (mark === null) await db.kv.delete(markKey());
+  else await db.kv.put({ key: markKey(), value: mark });
+}
+
+/** Removes only this account's rows, leaving any other account on this browser alone. */
+export async function wipeCurrentScope(): Promise<void> {
+  pendingState = null;
+  await whenSaved();
+  await db.kv.delete(stateKey());
+  await db.kv.delete(markKey());
 }
 
 /**

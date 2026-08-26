@@ -1,8 +1,9 @@
 import { useEffect, type ReactNode } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { ACCESS_MODE } from './config';
+import { ACCESS_MODE, isCloudEnabled } from './config';
 import { useStore } from './store/useStore';
+import { initAccounts, flushPush } from './store/account';
 import { ONBOARDING_PATH, isOnboardingComplete, onboardingStep } from './store/progress';
 import { S } from './strings';
 
@@ -24,6 +25,7 @@ import Stats from './routes/Stats';
 import Support from './routes/Support';
 import Science from './routes/Science';
 import Settings from './routes/Settings';
+import SignIn from './routes/SignIn';
 
 import Vision from './routes/lifebook/Vision';
 import Board from './routes/lifebook/Board';
@@ -34,11 +36,33 @@ import Becoming from './routes/lifebook/Becoming';
 import Blueprint from './routes/lifebook/Blueprint';
 import Gap from './routes/lifebook/Gap';
 
-/** Blocks everything but the landing gate and the two static pages until unlocked (§12). */
+/**
+ * Everything behind this needs an account when there is one to have, and the
+ * access code when the build is gated. The two static pages stay open.
+ */
 function RequireAccess({ children }: { children: ReactNode }) {
   const unlocked = useStore((s) => s.unlocked);
+  const session = useStore((s) => s.session);
+  const authReady = useStore((s) => s.authReady);
+
+  if (isCloudEnabled()) {
+    // Waiting on the session check — showing the sign-in screen here would
+    // flash it at someone who is already signed in.
+    if (!authReady) return <Loading />;
+    if (!session) return <Navigate to="/sign-in" replace />;
+    return <>{children}</>;
+  }
+
   if (ACCESS_MODE === 'code' && !unlocked) return <Navigate to="/" replace />;
   return <>{children}</>;
+}
+
+function Loading() {
+  return (
+    <div className="grid min-h-[50dvh] place-items-center text-muted">
+      <p className="animate-pulse-soft">{S.common.loading}</p>
+    </div>
+  );
 }
 
 /** Sends the user to the first unanswered question of the Mirror (§5). */
@@ -60,7 +84,21 @@ export default function App() {
   const hydrate = useStore((s) => s.hydrate);
   const hydrated = useStore((s) => s.hydrated);
 
-  useEffect(() => { void hydrate(); }, [hydrate]);
+  useEffect(() => {
+    void hydrate().then(() => initAccounts());
+  }, [hydrate]);
+
+  // A tab being closed or hidden is the last chance to get the most recent
+  // work up to the account before the page goes away.
+  useEffect(() => {
+    const flush = () => { void flushPush(); };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', flush);
+    };
+  }, []);
 
   if (!hydrated) {
     return (
@@ -76,6 +114,7 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/sign-in" element={<SignIn />} />
 
           {/* Lifebook v2 — the primary journey. */}
           <Route path="/vision" element={<RequireAccess><Vision /></RequireAccess>} />

@@ -5,3 +5,7 @@ dist/
 coverage/
 .vite/
 e2e/.out/
+.env
+.env.local
+dist-account/
+*.tsbuildinfo

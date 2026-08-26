@@ -73,14 +73,14 @@ npm run preview    # serve the built bundle
 Verification:
 
 ```bash
-npm run test                 # 152 unit tests over src/engine (Vitest)
+npm run test                 # 181 unit tests over src/engine (Vitest)
 npm run audit:prohibitions   # greps the built bundle for banned language (§13)
 npm run verify               # test + build + audit
 npm run e2e                  # browser acceptance suite (needs a running preview)
 ```
 
 The e2e suite drives a real production build in Chromium — 98 checks in four
-parts. `lifebook.mjs` walks all six stages end to end and checks the gap figure
+parts, plus a separate 24-check account suite (below). `lifebook.mjs` walks all six stages end to end and checks the gap figure
 against a hand computation. The other three cover the v1 machinery:
 `acceptance.mjs` walks its onboarding and the export/delete/import round trip,
 `release-and-carry.mjs` checks the release and carry flows against hand-computed
@@ -92,6 +92,19 @@ npm run preview -- --port 4173 &
 npm run e2e                        # CHROMIUM_PATH=… to point at a browser binary
 ```
 
+The account suite needs a build with a project configured, and stubs Supabase's
+HTTP surface rather than talking to a real one — the sync and merge *logic* is
+covered by unit tests against an in-memory server, and this covers the browser
+wiring those cannot reach, above all that two accounts on one browser stay
+separate:
+
+```bash
+VITE_SUPABASE_URL=https://stub.supabase.co VITE_SUPABASE_ANON_KEY=stub \
+  npm run build:account
+npm run preview:account &
+npm run e2e:accounts
+```
+
 ### Deploying
 
 `npm run build` produces a fully static `dist/`. Upload it anywhere — Cloudflare
@@ -101,22 +114,88 @@ subdirectory without configuration.
 
 ---
 
+## Accounts
+
+Sign-in and per-user storage are optional at build time. With no Supabase
+project configured the app behaves exactly as it did before accounts existed:
+everything in IndexedDB, no sign-in screen, nothing synced. Configure a project
+and the app requires an account and syncs to it.
+
+```bash
+cp .env.example .env      # then fill in the two values
+```
+
+Both values are public by design — the anon key ships in the bundle, and every
+table it can reach is behind row-level security, so it grants nothing beyond
+"act as whoever is signed in". **The service_role key must never appear in this
+repository.**
+
+### Setting up the project
+
+1. Create a Supabase project.
+2. Run `supabase/migrations/0001_init.sql` in the SQL editor (or
+   `supabase db push`). It creates one table, its RLS policies, and two
+   functions — a compare-and-set save, and account deletion.
+3. Authentication → Providers: enable Email, and Google if you want the button
+   (otherwise set `VITE_ENABLE_GOOGLE=false`).
+4. Authentication → URL Configuration: add your deployed origin to the redirect
+   allow-list, or Google sign-in and password reset will bounce.
+
+### How sync works
+
+The local copy is what the app reads and writes; sync is a background job that
+never sits between a keystroke and the screen.
+
+- **Local-first.** IndexedDB is the working copy, keyed by account id so two
+  people on one laptop never see each other's Lifebook.
+- **Compare-and-set.** Each save sends the revision it last saw. A write from
+  another device in the meantime comes back as a conflict rather than being
+  silently overwritten.
+- **Conflicts merge, they do not pick a winner.** `src/engine/merge.ts` combines
+  the two copies per collection: append-only logs (the ledger, field reports,
+  practice instances) are unioned so nothing is lost; items carrying their own
+  timestamp resolve on it; items without one fall back to whichever document is
+  newer; and "when did this happen" facts take the earliest. The merge is
+  order-independent, so it is safe to run on whichever device notices first.
+- **Offline is normal.** Pushes queue and go up when the connection returns. The
+  session persists, so a returning user is still signed in with no network.
+- **Signing in merges, it never overwrites.** Work done in the browser before
+  creating an account is carried into it once, then cleared locally so the next
+  person to sign in on that browser does not inherit it.
+
+### What this changed about privacy
+
+The app used to promise that data never left the device, on the landing page,
+the consent checkbox, the footer and the Settings page. That is no longer true
+when an account is configured, and all of that copy has been rewritten rather
+than left standing. What the app now says, and what is actually the case:
+
+- Answers are saved to the account so they follow the user between devices.
+- Encrypted in transit and at rest; no other account can read the row.
+- **Not** encrypted from the operator — you can read what people write.
+- Nothing is sold, shared, advertised against, or used to train anything.
+
+Read `src/strings.ts` → `account.consentStored` before deploying. You are the
+custodian of people's childhood, their relationships and their beliefs about
+themselves, and the sign-up screen says so in as many words.
+
 ## Operator notes
 
-### The access gate (§12)
+### The access gate
 
-`src/config.ts`:
+Since accounts arrived this is no longer the front door — it is an optional gate
+on *sign-up*, so that only people with a code can create an account. Signing in
+to an existing account never asks for one: someone who paid and then cleared
+their browser must not be locked out by a code they no longer have.
 
 ```ts
-export const ACCESS_MODE: 'open' | 'code' = 'code';
+export const ACCESS_MODE: AccessMode = 'open';   // 'code' to gate sign-up
 export const ACCESS_CODES: string[] = ['COHERENCE-V1'];
 export const PURCHASE_URL = 'https://example.com/coherence';
 ```
 
-**Ship with `code` mode on for strangers.** The willingness-to-pay gate from the
-product plan stands: the app asks for a deliberate act before it asks anyone to
-spend twenty-five minutes being honest with themselves, and the people who pay
-for it are the people who use it.
+**Set `code` before opening sign-up to strangers** if the willingness-to-pay
+gate from the product plan still stands.
 
 Replace `PURCHASE_URL` with your payment link (a Stripe Payment Link is enough) and
 `ACCESS_CODES` with real codes before shipping. No payment is processed in the
@@ -125,19 +204,17 @@ app, and no code leaves the browser.
 Codes are checked client-side. Anyone who reads the bundle can find them. That is
 accepted for v1 (§14.3) — the gate is honest, not cryptographic.
 
-### Privacy
+### Network traffic
 
-There are no network requests at runtime. No API, no analytics, no CDN, no
-fonts fetched from a third party, no error reporting. The whole state lives in
-one IndexedDB row in the visitor's browser.
+With no account configured there are still zero runtime requests — no API, no
+analytics, no CDN, no third-party fonts, no error reporting — and the e2e suite
+asserts it.
 
-To check: open devtools → Network → hard reload. You should see the HTML, one
-JS chunk, one CSS file and the woff2 faces, all from your own origin, and
-nothing after that no matter what you click. The e2e suite asserts this too.
-
-Consequences worth putting in your own copy: clearing site data deletes
-everything, there is no recovery, and you cannot help a user restore anything
-because you never had it. The Settings page says all of this.
+With an account configured the only outbound traffic is to your own Supabase
+project: the session check on load, a pull on sign-in, and a debounced push
+after changes. Nothing else. There is no analytics or error-reporting service in
+the bundle, and adding one would need a deliberate decision about content that
+includes people's childhood and their beliefs about themselves.
 
 ---
 
