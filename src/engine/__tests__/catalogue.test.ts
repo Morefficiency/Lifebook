@@ -166,3 +166,55 @@ describe('the bank can actually carry the corroboration rule', () => {
     expect(median).toBeLessThanOrEqual(Math.ceil(BELIEF_CATALOGUE.length * 0.6));
   });
 });
+
+describe('no belief is allowed to become the catch-all', () => {
+  /**
+   * The horoscope failure has a specific shape: one broad belief accumulates a
+   * little weight on options all over the bank, and ends up leading for most
+   * people regardless of what they answered. It reads as insight and is
+   * actually just the most-mentioned item winning.
+   *
+   * Two limits, because either alone can be gamed. The first bounds how much
+   * of the bank a single belief may touch. The second measures the thing we
+   * actually care about — how often it comes out on top for a simulated
+   * population — because a belief can span little and still dominate if its
+   * weights are heavy where they land.
+   */
+  const SPREAD_LIMIT = 1 / 3;
+  const LEAD_LIMIT = 0.25;
+
+  it('no belief is reachable from more than a third of the probes', () => {
+    const over = BELIEF_CATALOGUE
+      .map((c) => ({ id: c.id, share: probesEvidencing(c.id).length / PROBES.length }))
+      .filter((r) => r.share > SPREAD_LIMIT)
+      .map((r) => `${r.id} ${(r.share * 100).toFixed(0)}%`);
+    expect(over, `too widely spread: ${over.join(', ')}`).toEqual([]);
+  });
+
+  it('no belief leads for more than a quarter of simulated people', () => {
+    let seed = 12345;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    const leads = new Map<string, number>();
+    const N = 400;
+    for (let trial = 0; trial < N; trial++) {
+      const answers = [];
+      for (const probe of PROBES) {
+        if (rnd() < 0.15) continue;
+        if (probe.multi) {
+          const picks = probe.options.filter(() => rnd() < 0.35).map((o) => o.id);
+          if (picks.length) answers.push({ probeId: probe.id, optionIds: picks, ts: 'T' });
+        } else {
+          const o = probe.options[Math.floor(rnd() * probe.options.length)]!;
+          answers.push({ probeId: probe.id, optionIds: [o.id], ts: 'T' });
+        }
+      }
+      const top = inferBeliefs({
+        answers, probes: PROBES, catalogue: BELIEF_CATALOGUE, tensions: new Map(),
+      })[0];
+      if (top) leads.set(top.id, (leads.get(top.id) ?? 0) + 1);
+    }
+    const worst = [...leads.entries()].sort((a, b) => b[1] - a[1])[0]!;
+    expect(worst[1] / N, `${worst[0]} leads ${((worst[1] / N) * 100).toFixed(0)}% of the time`)
+      .toBeLessThanOrEqual(LEAD_LIMIT);
+  });
+});

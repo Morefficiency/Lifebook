@@ -234,6 +234,298 @@ export const BELIEF_CATALOGUE: BeliefCandidate[] = [
       { kind: 'affirmation', text: 'I ask directly, and a no is just an answer.', cadence: 'daily' },
     ],
   },
+  /* ---- Control, trust and other people ---------------------------------- */
+  {
+    id: 'must_control',
+    text: 'If I let go of it, it will be done badly, and I will be the one who pays.',
+    cost: 'You are the bottleneck in your own life, and nobody around you ever gets better at anything.',
+    areas: ['work', 'family', 'character', 'emotions'],
+    identity: 'I am someone who hands work over whole and lets it come back different.',
+    identityWhy:
+      'The belief is not really about standards — it is about what happens to you if somebody else falls short. So the counterpart is not "I trust people"; it is the repeated experience of handing something over, watching it come back not quite how you would have done it, and finding that nothing collapsed.',
+    practices: [
+      { kind: 'thought', cue: 'It is faster if I just do it', text: 'Faster today, and I am still the only one who can do it in a year.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Hand one whole thing to somebody this week — the outcome, not the task list — and do not check it until they bring it back.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I hand work over whole and let it come back different.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'must_be_needed',
+    text: 'I am safe here as long as I am the one they cannot do without.',
+    cost: 'You build a life you are not allowed to rest in, and quietly resent the people you built it for.',
+    areas: ['work', 'partner', 'family', 'character'],
+    identity: 'I am someone who lets people want him rather than need him.',
+    identityWhy:
+      'Indispensability feels like security and works like a hostage arrangement — it has to be maintained, and it cannot be put down. The counterpart is finding out, in small doses, that the room still wants you there when it does not require you.',
+    practices: [
+      { kind: 'thought', cue: 'If they can manage without me, what am I for?', text: 'Being wanted and being required are different things. I am testing which one is true.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Be unavailable for one thing you would normally cover, and let it be handled without you.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I let people want me rather than need me.', cadence: 'daily' },
+    ],
+  },
+
+  /* ---- Closeness, exposure and anger ------------------------------------ */
+  {
+    id: 'closeness_costs',
+    text: 'If someone gets close enough, they will find the thing that makes them go.',
+    cost: 'You keep a version of yourself in reserve, and then wonder why nobody knows you.',
+    areas: ['partner', 'social', 'emotions', 'character'],
+    identity: 'I am someone who says the unflattering true thing early rather than late.',
+    identityWhy:
+      'The belief protects a secret it has never actually tested. The counterpart cannot be "people will accept me" — nobody can promise that. It is the practice of putting the real thing on the table sooner, so that what happens next is information instead of a fear.',
+    practices: [
+      { kind: 'thought', cue: 'They would think differently if they knew', text: 'Then they can know it now, while it is small, instead of in year three.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Tell one person one true thing about yourself you would normally hold back a while longer.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say the unflattering true thing early rather than late.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'being_seen_is_risk',
+    text: 'Standing out is how you get taken down.',
+    cost: 'You do the work and then make sure nobody notices it was you.',
+    areas: ['work', 'social', 'character', 'vision'],
+    identity: 'I am someone who puts his name on his own work in public.',
+    identityWhy:
+      'This is not the impostor worry, which is about being found out. It is older and simpler: visibility itself was once unsafe. The counterpart is claiming authorship in small, survivable amounts until being seen stops predicting a cost.',
+    practices: [
+      { kind: 'thought', cue: 'Better not to make a thing of it', text: 'Who is it protecting, exactly, if nobody knows I did it?', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Say "I did this" once this week, out loud, to somebody who did not already know.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I put my name on my own work in public.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'anger_is_dangerous',
+    text: 'If I let myself be properly angry, I will turn into someone I do not want to be.',
+    cost: 'Nothing gets said until it has gone cold, and then it comes out sideways.',
+    areas: ['emotions', 'partner', 'family', 'character'],
+    identity: 'I am someone who says he is annoyed on the day it happens, in ordinary words.',
+    identityWhy:
+      'The fear is of the extreme version, so the counterpart has to be the ordinary version — anger expressed early and small, at the size of the actual grievance, which is the thing that stops it arriving later at the wrong size.',
+    practices: [
+      { kind: 'thought', cue: 'It is not worth making a scene over', text: 'Saying it today at this size is what stops it being a scene in a month.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Name one irritation on the day it happens, plainly, without building a case first.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say I am annoyed on the day, in ordinary words.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'feelings_are_indulgent',
+    text: 'Having feelings about it is a waste of everybody’s time, mine included.',
+    cost: 'You are efficient and unreachable, and the people close to you are talking to a spokesman.',
+    areas: ['emotions', 'partner', 'social', 'spirit'],
+    identity: 'I am someone who says how something landed before he says what he plans to do about it.',
+    identityWhy:
+      'The belief treats feeling as an obstacle to handling things. The counterpart is not "I am in touch with my emotions" — that is a claim nobody can act on. It is a sequencing habit: the reaction first, in one sentence, then the plan.',
+    practices: [
+      { kind: 'thought', cue: 'Never mind how I feel, what do we do', text: 'One sentence on how it landed. Then the plan.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Once this week, answer "how was that?" with how it actually was rather than with what happened next.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say how something landed before I say what I will do about it.', cadence: 'daily' },
+    ],
+  },
+
+  /* ---- Comparison, deserving and belonging ------------------------------ */
+  {
+    id: 'everyone_else_knows',
+    text: 'Everybody else got a manual for this that I did not get.',
+    cost: 'You never ask the basic question, so the gap you are worried about stays exactly where it is.',
+    areas: ['mind', 'work', 'social', 'money'],
+    identity: 'I am someone who asks the obvious question in the room rather than after it.',
+    identityWhy:
+      'The belief survives on never checking. Everyone competent asks basic questions constantly; you cannot see it because they do it in the rooms you go quiet in. The counterpart is asking in the room, which is also the only way to find out how normal it is.',
+    practices: [
+      { kind: 'thought', cue: 'Everyone here already knows this', text: 'Then it costs them four seconds to tell me. Ask.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Ask one question you think is too basic, in front of people, without prefacing it with an apology.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I ask the obvious question in the room rather than after it.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'not_for_me',
+    text: 'Things like that happen, but they happen to other people.',
+    cost: 'You do not apply, do not ask, and do not go — so the evidence never changes.',
+    areas: ['vision', 'work', 'money', 'partner'],
+    identity: 'I am someone who puts his name in for things he is not sure he will get.',
+    identityWhy:
+      'The belief is unfalsifiable while you never enter. It is not fixed by deciding you deserve things; it is fixed by generating outcomes, including refusals, that it has to account for.',
+    practices: [
+      { kind: 'thought', cue: 'They are not going to pick someone like me', text: 'Possibly not. Enter anyway and let them be the ones who decide.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Put your name in for one thing this month you would normally assume was not for you.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I put my name in for things I am not sure I will get.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'dont_belong',
+    text: 'Wherever I am, I am there slightly as a guest.',
+    cost: 'You behave like a visitor, which is how rooms learn to treat you as one.',
+    areas: ['social', 'work', 'character', 'spirit'],
+    identity: 'I am someone who acts like a member of the rooms he is in.',
+    identityWhy:
+      'Belonging is not conferred and then felt; it is behaved and then noticed. The counterpart is the set of small proprietary acts a member does and a guest does not — starting the conversation, disagreeing, taking up the space.',
+    practices: [
+      { kind: 'thought', cue: 'I am the odd one here', text: 'A member would say the next thing. Say it.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'In one room this week, start something rather than joining it — the conversation, the plan, the invitation.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I act like a member of the rooms I am in.', cadence: 'daily' },
+    ],
+  },
+
+  /* ---- Choosing, and what effort is supposed to feel like ---------------- */
+  {
+    id: 'wrong_choice_is_fatal',
+    text: 'If I pick wrong, that is it — I do not get to recover from it.',
+    cost: 'You research instead of deciding, and the not-deciding quietly becomes the decision.',
+    areas: ['vision', 'work', 'money', 'partner'],
+    identity: 'I am someone who decides on a deadline and treats the choice as revisable.',
+    identityWhy:
+      'Almost no decision is actually one-way, but the belief makes every decision feel like one. The counterpart is a habit that assumes reversibility and tests it: choose by a date, then find out how much of it you could in fact undo.',
+    practices: [
+      { kind: 'thought', cue: 'I need more information before I decide', text: 'What would I do if I had to answer today? And what part of this is actually irreversible?', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Take one decision you have been circling, give it a date this week, and decide on it.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I decide on a deadline and treat the choice as revisable.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'struggle_is_proof',
+    text: 'If it is not hard, I am not taking it seriously.',
+    cost: 'You pick the difficult route on purpose and call the exhaustion integrity.',
+    areas: ['work', 'character', 'health', 'lifestyle'],
+    identity: 'I am someone who takes the easier route when the easier route works.',
+    identityWhy:
+      'The belief measures seriousness by cost rather than by result, so it quietly selects for waste. The counterpart is deliberately taking the cheap path where one exists, and noticing that the outcome did not get worse.',
+    practices: [
+      { kind: 'thought', cue: 'That feels like cheating', text: 'Is it worse, or is it just easier? Those are different objections.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Find one thing you do the hard way out of habit and do it the easy way once. Note what actually changed.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I take the easier route when the easier route works.', cadence: 'daily' },
+    ],
+  },
+  /* ---- Endings, praise and being held ----------------------------------- */
+  {
+    id: 'cant_quit',
+    text: 'Stopping something means I failed at it.',
+    cost: 'You are still carrying things you chose at twenty-five, and there is no room for anything new.',
+    areas: ['work', 'character', 'lifestyle', 'vision'],
+    identity: 'I am someone who closes things on purpose and says why.',
+    identityWhy:
+      'The belief cannot tell the difference between abandoning something and finishing with it. The counterpart supplies the missing category: an ending you choose, announce, and give a reason for is not a failure, and doing it once teaches the difference better than any argument.',
+    practices: [
+      { kind: 'thought', cue: 'I should not give up on this', text: 'Am I giving up, or am I done? Those are not the same, and only one of them is a failure.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'End one thing you have been carrying out of duty. Say out loud that you are ending it, and why.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I close things on purpose and say why.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'praise_is_pity',
+    text: 'When people say something good about me, they are being kind.',
+    cost: 'Nothing good gets in, so the account never goes up however much you put into it.',
+    areas: ['emotions', 'character', 'work', 'social'],
+    identity: 'I am someone who says thank you and stops talking.',
+    identityWhy:
+      'Deflecting is not modesty, it is a filter — and while it runs, no amount of evidence can accumulate. The counterpart is deliberately not deflecting, which is uncomfortable and is the entire mechanism: the compliment has to be left standing long enough to land.',
+    practices: [
+      { kind: 'thought', cue: 'They are just being nice', text: 'Maybe. Take it anyway and see what it feels like to keep one.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Receive one compliment with "thank you" and nothing after it. No qualifier, no returning it.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say thank you, and I stop talking.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'commitment_traps',
+    text: 'If I commit to it properly, I lose the ability to get out.',
+    cost: 'You keep one foot outside everything, and never find out what any of it could have been.',
+    areas: ['partner', 'work', 'vision', 'lifestyle'],
+    identity: 'I am someone who commits for a stated period and reviews it on the date.',
+    identityWhy:
+      'The belief treats commitment and imprisonment as the same act. The counterpart separates them by putting a review date on it: a real commitment, entered fully, with a known point at which it is reconsidered — which is what makes going all in survivable.',
+    practices: [
+      { kind: 'thought', cue: 'What if I want out later', text: 'Then I review it on the date. Until then I am actually in.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Take one thing you are half-in on, commit to it fully for a fixed period, and put the review in the calendar.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I commit for a stated period and review it on the date.', cadence: 'daily' },
+    ],
+  },
+
+  /* ---- Money, capability and worth -------------------------------------- */
+  {
+    id: 'money_is_dirty',
+    text: 'Caring about money says something ugly about a person.',
+    cost: 'You will not name a price, so you are paid what other people decide to offer.',
+    areas: ['money', 'work', 'character', 'spirit'],
+    identity: 'I am someone who says his number without softening it.',
+    identityWhy:
+      'The belief attaches a moral cost to the asking, not to the money, so the fix is not a view about wealth — it is the act of stating a figure and leaving it there. That is where the discomfort actually lives.',
+    practices: [
+      { kind: 'thought', cue: 'It feels grabby to ask for that', text: 'A number is a fact about the work. Say it and stop explaining it.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'State one price or rate this month without a discount, an apology, or a reason attached.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say my number without softening it.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'im_slow',
+    text: 'I am not quick, and the people around me can tell.',
+    cost: 'You hide the working, so nobody ever sees that you get there.',
+    areas: ['mind', 'work', 'social', 'character'],
+    identity: 'I am someone who thinks out loud at his own pace in front of people.',
+    identityWhy:
+      'Quickness is visible and depth is not, so the comparison is rigged before it starts. The counterpart is making your actual process visible rather than presenting only the finished answer — which is both how the work gets better and how the comparison stops being with a performance.',
+    practices: [
+      { kind: 'thought', cue: 'They will think I am slow', text: 'They will think I am careful, or they will not think about it at all.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Say "let me think about that for a second" out loud once this week instead of filling the silence.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I think out loud at my own pace in front of people.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'appearance_is_worth',
+    text: 'What I look like is the first thing about me and mostly the main thing.',
+    cost: 'A bad day in the mirror decides what you are willing to do that week.',
+    areas: ['health', 'emotions', 'social', 'character'],
+    identity: 'I am someone who goes anyway on the days he does not like how he looks.',
+    identityWhy:
+      'Arguing with the belief goes nowhere; what breaks it is the day you went, and it was fine, and it turned out not to be the main thing about you after all. So the counterpart is attendance, not self-image.',
+    practices: [
+      { kind: 'thought', cue: 'Not today, I look wrong', text: 'Go anyway. Find out how much of the day it actually decides.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Keep one plan this week you would normally cancel on a bad-mirror day.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I go anyway on the days I do not like how I look.', cadence: 'daily' },
+    ],
+  },
+
+  /* ---- The people who depend on you, and what it is all for -------------- */
+  {
+    id: 'failing_them',
+    text: 'The people who depend on me are getting a worse version of me than they deserve.',
+    cost: 'The guilt eats the time it is supposedly about, and they get less of you, not more.',
+    areas: ['family', 'partner', 'character', 'emotions'],
+    identity: 'I am someone who gives a real hour rather than a guilty week.',
+    identityWhy:
+      'Guilt at this size does not convert into presence; it converts into avoidance and then into more guilt. The counterpart is a small, actual, undivided amount of time — which is the only thing the people involved would recognise as the difference.',
+    practices: [
+      { kind: 'thought', cue: 'I should be doing more for them', text: 'More is not available today. One real hour is. Take the hour.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Give one person one undivided hour this week — phone elsewhere, nothing else running.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I give a real hour rather than a guilty week.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'im_too_much',
+    text: 'Whole, I am more than most people want to deal with.',
+    cost: 'You arrive pre-shrunk, and then the relationship is with the smaller version.',
+    areas: ['social', 'partner', 'emotions', 'character'],
+    identity: 'I am someone who says the whole sentence and lets it sit there.',
+    identityWhy:
+      'The belief is enforced by pre-emptive editing, which means it is never tested — the full version has not been in the room to be responded to. The counterpart is letting it be, unedited, and finding out what actually happens.',
+    practices: [
+      { kind: 'thought', cue: 'That is too much, tone it down', text: 'Say the whole thing once and let the room answer for itself.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Once this week, say the thing at full length — the enthusiasm, the objection, the ask — without trimming it first.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I say the whole sentence and let it sit there.', cadence: 'daily' },
+    ],
+  },
+  {
+    id: 'nothing_matters',
+    text: 'None of it really adds up to anything, so the effort is a bit of a performance.',
+    cost: 'You start nothing that takes years, which guarantees the thing you suspect.',
+    areas: ['vision', 'spirit', 'work', 'emotions'],
+    identity: 'I am someone who works on one thing that outlasts the week.',
+    identityWhy:
+      'Meaning is not concluded and then acted on; it accrues from sustained investment in something particular. The counterpart is therefore not a belief about purpose — it is having one live thing with a horizon longer than a fortnight, which is the condition under which the question can be answered at all.',
+    practices: [
+      { kind: 'thought', cue: 'What is the point of any of it', text: 'Unanswerable in the abstract. Go and put an hour into the long thing.', cadence: 'when_it_shows_up' },
+      { kind: 'behaviour', text: 'Put one hour into the thing with the longest horizon you have, before anything urgent gets it.', cadence: 'weekly' },
+      { kind: 'affirmation', text: 'I work on one thing that outlasts the week.', cadence: 'daily' },
+    ],
+  },
 ];
 
 export const BELIEF_BY_ID = new Map(BELIEF_CATALOGUE.map((b) => [b.id, b]));

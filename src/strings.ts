@@ -797,7 +797,12 @@ export const S = {
       lead: 'None of this asks what you believe — you cannot see that from inside, which is rather the point. It asks what you do, what got rewarded when you were young, and what the people around you expect. Skip anything that does not have a true answer.',
       tally: 'answered',
       multi: 'Choose as many as are true.',
-      skipOne: 'Skip this one',
+      enoughTitle: 'That is enough for a first read',
+    enoughBody:
+      'You have answered the questions that between them touch nearly everything the app knows how to look for. More would sharpen it rather than change it — so it is your call, not a step.',
+    enoughGo: 'See what it makes of that',
+    enoughMore: (n: number) => (n === 1 ? 'Answer the last one first' : `Answer ${n} more first`),
+    skipOne: 'Skip this one',
       enough: 'I have answered enough',
       kinds: {
         behaviour: 'How you operate',

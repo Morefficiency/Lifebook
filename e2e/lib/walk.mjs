@@ -93,8 +93,12 @@ export async function actTwo(page, { visions = DEFAULT_VISIONS, scores = DEFAULT
   }
 
   await page.waitForURL('**/reflect', { timeout: 10000 });
+  // The stage asks a first pass and then offers the rest as a choice, so the
+  // walk answers the core round and takes the offer to move on.
   let k = 0;
-  while (page.url().includes('/reflect') && k < 22) {
+  while (page.url().includes('/reflect') && k < 40) {
+    const done = page.getByRole('button', { name: 'See what it makes of that' });
+    if (await done.count()) { await done.click(); break; }
     const multi = await page.getByText('Choose as many as are true.').count();
     const opts = page.locator('main button[aria-pressed]');
     const n = await opts.count();

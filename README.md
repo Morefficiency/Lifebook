@@ -451,6 +451,36 @@ matrix into the running app through its own import feature and checks that the
 UI reports the hand-computed 66% conflict index and the 0% → 61% → 78% Coherence
 sequence as goals are released and carried.
 
+### The catalogue tests the content, not just the formula
+
+`src/engine/__tests__/catalogue.test.ts` runs against the real beliefs and
+probes, because the failure mode of a growing catalogue is not a crash — it is
+a catalogue that still runs and quietly stops meaning anything. It asserts that
+every belief is reachable from at least two probes (one question agreeing with
+itself is not corroboration), that every probe has an answer carrying no weight,
+that no option points at a belief that does not exist, that every target
+identity is stated as conduct rather than as a trait, and — over four hundred
+seeded synthetic answer sets — that the corroboration rule still leaves the
+median person several offers and that **no single belief leads for more than a
+quarter of them**. That last one is the horoscope guard: before it existed,
+`not_enough` spanned 52% of the bank and came top for 42% of simulated people.
+
+### Why the stage asks sixteen questions and not thirty-three
+
+The bank is sized to cover a catalogue; a person is not obliged to exhaust it.
+`src/engine/probeSelection.ts` orders the bank by greedy maximum coverage
+against the gate the scorer actually applies — the next probe worth asking is
+the one that moves the most beliefs closer to being answerable at all — and the
+stage asks the first sixteen, then offers the rest as a choice rather than as a
+remaining step.
+
+It earns the ordering: after those sixteen questions **31 of the 34 beliefs are
+still answerable, against 15 for the same number of probes taken in the order
+they happen to be written**. This is the honest, boring version of adaptive item
+selection. It adapts to the shape of the bank, deterministically, not to the
+answers as they arrive — that is a real improvement and a much larger one, and
+it needs a measurement model rather than a heuristic.
+
 `src/engine/__tests__/overview-fixtures.ts` does the same job for the standing
 view, and was likewise written first: five areas written, four of them placed,
 seven untouched, with every sector angle worked out on paper. The suite checks

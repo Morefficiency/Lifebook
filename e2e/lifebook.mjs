@@ -81,7 +81,10 @@ check('Current stage walks every area he wrote a vision for', true);
 
 // Stage 3 — probes
 let n=0;
-while (p.url().includes('/reflect') && n<20) {
+let sawOffer=false;
+while (p.url().includes('/reflect') && n<40) {
+  const done = p.getByRole('button',{name:'See what it makes of that'});
+  if (await done.count()) { sawOffer=true; await done.click(); break; }
   const multi = await p.getByText('Choose as many as are true.').count();
   const opts = p.locator('main button[aria-pressed]');
   const count = await opts.count();
@@ -89,6 +92,7 @@ while (p.url().includes('/reflect') && n<20) {
   if (multi>0) { const nx=p.getByRole('button',{name:/^(Next|Done)$/}); if (await nx.count()) await nx.first().click(); }
   n++; await p.waitForTimeout(80);
 }
+check('Reflect asks a first pass rather than the whole bank', sawOffer && n < 20, `${n} questions`);
 await p.waitForURL('**/self-image',{timeout:10000});
 check('Reflect stage completes and hands over to self-image', true, `${n} probes`);
 await p.screenshot({path:`${OUT}/lb-selfimage.png`,fullPage:true});
