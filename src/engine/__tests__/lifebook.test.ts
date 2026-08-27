@@ -7,7 +7,7 @@ import {
   CURRENTS, EXPECTED_BELIEFS, EXPECTED_GAP, TEST_ANSWERS, TEST_CATALOGUE,
   TEST_PROBES, TS, VISIONS,
 } from './lifebook-fixtures';
-import type { HeldBelief, PracticeItem, PracticeLog, TargetIdentity } from '../../types';
+import type { HeldBelief, LifeArea, PracticeItem, PracticeLog, TargetIdentity } from '../../types';
 
 describe('area gap — (10 − current) / 9', () => {
   it('current 3 → 7/9', () => expect(areaGap(3)).toBeCloseTo(EXPECTED_GAP.work, 10));
@@ -103,10 +103,12 @@ describe('belief scoring', () => {
     });
     const alpha = out.find((r) => r.id === 'alpha')!;
     const w = out.find((r) => r.id === 'wide')!;
-    // Identical probe evidence on both, so the probe term is 1.0 for each.
-    // alpha: rawArea 6.55556 / maxArea 10 = 0.65556 → 0.7 + 0.19667 = 0.89667
-    // wide:  rawArea 9.44444 / maxArea 20 = 0.47222 → 0.7 + 0.14167 = 0.84167
-    expect(w.score).toBeCloseTo(0.8416666666666667, 10);
+    // Identical probe evidence on both — raw 5 — so the probe term is the same
+    // for each: 5 / (5 + 8) = 0.384615, contributing 0.269231 at weight 0.7.
+    // alpha: rawArea 6.55556 / maxArea 10 = 0.655556 → 0.269231 + 0.196667 = 0.465897
+    // wide:  rawArea 9.44444 / maxArea 20 = 0.472222 → 0.269231 + 0.141667 = 0.410897
+    expect(alpha.score).toBeCloseTo((5 / 13) * 0.7 + 0.6555555555555556 * 0.3, 10);
+    expect(w.score).toBeCloseTo((5 / 13) * 0.7 + 0.4722222222222222 * 0.3, 10);
     expect(w.score).toBeLessThan(alpha.score);
   });
 
@@ -138,7 +140,51 @@ describe('belief scoring', () => {
     });
     // With no area evidence the area term is dropped, not counted as zero:
     // alpha would otherwise be punished for data the user never entered.
-    expect(out[0]!.score).toBeCloseTo(1, 10);
+    //
+    // With only the probe term left, beta leads — it has six raw points of
+    // evidence to alpha's five. That ordering is the whole correction: under
+    // the old per-candidate denominator both saturated to exactly 1.0 and the
+    // extra evidence behind beta counted for nothing at all.
+    expect(out[0]!.id).toBe('beta');
+    expect(out[0]!.score).toBeCloseTo(6 / 14, 10);
+    expect(out[1]!.score).toBeCloseTo(5 / 13, 10);
+  });
+
+  it('needs more than one probe pointing somewhere before it offers it', () => {
+    // p1:'b' gives alpha a single point from a single probe. One question
+    // agreeing with itself is not corroboration, so nothing is offered — the
+    // catalogue does not get to name a belief off one answer.
+    const out = inferBeliefs({
+      answers: [{ probeId: 'p1', optionIds: ['b'], ts: TS }],
+      probes: TEST_PROBES, catalogue: TEST_CATALOGUE, tensions,
+    });
+    expect(out).toEqual([]);
+  });
+
+  it('ranks the belief with more evidence above the one the bank asks about less', () => {
+    // The bug this replaced, in miniature. 'narrow' is mentioned by exactly one
+    // option across the two probes; 'alpha' is mentioned by three. Answer in a
+    // way that gives alpha five points and narrow three, and alpha must lead.
+    // Dividing each by its own ceiling put narrow top on 3/3 against alpha's
+    // 5/5 tie-break, which is precisely backwards.
+    const probes = TEST_PROBES.map((p) => ({
+      ...p,
+      options: p.options.map((o) => (
+        (p.id === 'p1' && o.id === 'a') || (p.id === 'p2' && o.id === 'a')
+          ? { ...o, weights: { ...o.weights, narrow: o.id === 'a' && p.id === 'p1' ? 2 : 1 } }
+          : o
+      )),
+    }));
+    const narrow = { ...TEST_CATALOGUE[0]!, id: 'narrow', areas: ['work', 'money'] as LifeArea[] };
+    const out = inferBeliefs({
+      answers: TEST_ANSWERS, probes, catalogue: [TEST_CATALOGUE[0]!, narrow], tensions,
+    });
+    const a = out.find((r) => r.id === 'alpha')!;
+    const n = out.find((r) => r.id === 'narrow')!;
+    expect(a.probeScore).toBe(5);
+    expect(n.probeScore).toBe(3);
+    expect(out[0]!.id).toBe('alpha');
+    expect(a.score).toBeGreaterThan(n.score);
   });
 
   it('honours the limit', () => {

@@ -58,15 +58,28 @@ export const EXPECTED_GAP = {
  * BELIEF SCORING — a small synthetic catalogue, so the arithmetic is testable
  * without depending on the wording of the real content.
  *
- *   score = (rawProbe / maxProbe) × 0.7 + (rawArea / maxArea) × 0.3
+ *   score = probeTerm × 0.7 + (rawArea / maxArea) × 0.3
+ *   probeTerm = rawProbe / (rawProbe + EVIDENCE_HALF_POINT)
  *
- * where maxProbe is the most this candidate could possibly score across all
- * probes (per probe: the highest single option, or the sum of all options when
- * the probe allows several), and maxArea is 5 per rated area the candidate
- * claims — 5 being the largest possible tension, importance 5 × gap 1.
+ * where maxArea is 5 per rated area the candidate claims — 5 being the largest
+ * possible tension, importance 5 × gap 1.
  *
- * The normalisation is the point: without it a candidate listed against eight
- * areas beats a candidate listed against two purely by being listed more often.
+ * The AREA term is normalised, and that normalisation is the point: without it
+ * a candidate listed against eight areas beats a candidate listed against two
+ * purely by being listed more often.
+ *
+ * The PROBE term is deliberately NOT normalised per candidate, and this is the
+ * correction of a real bug. It used to divide by the most that candidate could
+ * possibly score across the whole bank — which meant a belief the bank barely
+ * asks about saturated its own small denominator and outranked a belief with
+ * three times the actual evidence behind it. Measured against the real
+ * catalogue, a person who answered all eleven probes pointing at `not_enough`
+ * (23 raw points) was told his leading belief was `im_an_impostor` (9 raw
+ * points, but only three probes' worth of ceiling to fill).
+ *
+ * Saturation fixes the ordering without restoring the opposite failure: more
+ * raw evidence always ranks higher, and the curve flattens so no single
+ * emphatic answer can run away with it.
  * -------------------------------------------------------------------------- */
 
 export const TEST_PROBES: Probe[] = [
@@ -111,13 +124,27 @@ export const TEST_CATALOGUE: BeliefCandidate[] = [
 /**
  * ANSWERS: p1 → 'a', p2 → ['a', 'b'].
  *
- *   maxProbe(alpha) = max(3,1,0) over p1  +  (2+0+0) summed over p2  = 3 + 2 = 5
- *   maxProbe(beta)  = max(1,0,0) over p1  +  (2+3+0) summed over p2  = 1 + 5 = 6
- *   maxProbe(gamma) = 0 + 0 = 0 → gamma can never be evidenced by these probes
+ *   maxProbe is no longer part of the score. It survives as a COVERAGE figure —
+ *   how much of a case the bank could make for a belief if every answer went
+ *   its way — which is what the catalogue invariant test measures.
  *
- *   rawProbe(alpha) = 3 (p1:a) + 2 (p2:a)         = 5   → 5/5 = 1.0
- *   rawProbe(beta)  = 1 (p1:a) + 2 (p2:a) + 3 (p2:b) = 6 → 6/6 = 1.0
+ *     maxProbe(alpha) = max(3,1,0) over p1  +  (2+0+0) summed over p2  = 3 + 2 = 5
+ *     maxProbe(beta)  = max(1,0,0) over p1  +  (2+3+0) summed over p2  = 1 + 5 = 6
+ *     maxProbe(gamma) = 0 + 0 = 0 → gamma can never be evidenced by these probes
+ *
+ *   rawProbe(alpha) = 3 (p1:a) + 2 (p2:a)            = 5
+ *   rawProbe(beta)  = 1 (p1:a) + 2 (p2:a) + 3 (p2:b) = 6
  *   rawProbe(gamma) = 0
+ *
+ *   Both are evidenced by two distinct probes, so both clear
+ *   MIN_DISTINCT_PROBES. With EVIDENCE_HALF_POINT = 8:
+ *
+ *     probeTerm(alpha) = 5 / (5 + 8) = 5/13 = 0.384615…
+ *     probeTerm(beta)  = 6 / (6 + 8) = 6/14 = 0.428571…
+ *
+ *   Note beta now leads on the probe term, which is the whole correction: beta
+ *   has more evidence behind it, and under the old denominator both saturated
+ *   to exactly 1.0 and the difference vanished.
  *
  *   rawArea(alpha) = tension(work) + tension(money) = 3.88889 + 2.66667 = 6.55556
  *   maxArea(alpha) = 5 × 2 areas = 10             → 6.55556/10 = 0.655556
@@ -125,11 +152,12 @@ export const TEST_CATALOGUE: BeliefCandidate[] = [
  *   maxArea(beta)  = 5 × 1 = 5                    → 1.11111/5  = 0.222222
  *   rawArea(gamma) = tension(health) = 1.77778 ; maxArea = 5 → 0.355556
  *
- *   score(alpha) = 1.0 × 0.7 + 0.655556 × 0.3 = 0.7 + 0.196667 = 0.896667
- *   score(beta)  = 1.0 × 0.7 + 0.222222 × 0.3 = 0.7 + 0.066667 = 0.766667
- *   score(gamma) = no probe evidence at all → 0, and it is not offered
+ *   score(alpha) = 0.384615 × 0.7 + 0.655556 × 0.3 = 0.269231 + 0.196667 = 0.465897
+ *   score(beta)  = 0.428571 × 0.7 + 0.222222 × 0.3 = 0.300000 + 0.066667 = 0.366667
+ *   score(gamma) = no probe evidence at all → not offered
  *
- *   Ranked: alpha (0.8967), beta (0.7667). Gamma is dropped.
+ *   Ranked: alpha (0.4659), beta (0.3667). Alpha still leads, on the strength
+ *   of the life gap rather than on a saturated denominator. Gamma is dropped.
  */
 export const TEST_ANSWERS: ProbeAnswer[] = [
   { probeId: 'p1', optionIds: ['a'], ts: TS },
@@ -139,7 +167,12 @@ export const TEST_ANSWERS: ProbeAnswer[] = [
 export const EXPECTED_BELIEFS = {
   maxProbe: { alpha: 5, beta: 6, gamma: 0 },
   rawProbe: { alpha: 5, beta: 6, gamma: 0 },
+  distinctProbes: { alpha: 2, beta: 2 },
+  probeTerm: { alpha: 5 / 13, beta: 6 / 14 },
   rawArea: { alpha: 6.555555555555555, beta: 1.1111111111111112, gamma: 1.7777777777777777 },
-  score: { alpha: 0.8966666666666666, beta: 0.7666666666666666 },
+  score: {
+    alpha: (5 / 13) * 0.7 + 0.6555555555555556 * 0.3,
+    beta: (6 / 14) * 0.7 + 0.2222222222222222 * 0.3,
+  },
   ranked: ['alpha', 'beta'],
 } as const;

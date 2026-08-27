@@ -26,6 +26,39 @@ export const AREA_WEIGHT = 0.3;
 /** The largest tension a single area can produce: importance 5 × gap 1. */
 const MAX_AREA_TENSION = 5;
 
+/**
+ * Raw evidence at which the probe term reaches half of its ceiling.
+ *
+ * The probe term used to be `rawProbe / maxProbeScore(candidate)` — each
+ * candidate normalised against the most the whole bank could ever say about
+ * it. That inverts the thing it is trying to measure. A belief the bank barely
+ * asks about has a tiny denominator, so one emphatic answer saturates it,
+ * while a belief the bank asks about from ten angles can collect three times
+ * the evidence and still score lower.
+ *
+ * It was not hypothetical. Against the real catalogue, a person who answered
+ * every one of the eleven probes that mention `not_enough` in its direction —
+ * 23 raw points — was shown `im_an_impostor` first, on 9 points, because nine
+ * was all of the ceiling it had.
+ *
+ * Saturation keeps the two properties that matter and drops the one that hurt:
+ * more raw evidence always ranks higher, the curve flattens so no single
+ * answer runs away with it, and no candidate gets a discount for being
+ * under-asked. It is deliberately NOT a probability, and the UI never shows it
+ * as one.
+ */
+export const EVIDENCE_HALF_POINT = 8;
+
+/**
+ * How many different probes must point at a candidate before it is offered.
+ *
+ * One probe agreeing with itself is not corroboration — it is a single answer
+ * with a weight on it. Requiring two independent questions is what stops the
+ * catalogue from turning into a horoscope as it grows: a belief has to show up
+ * in more than one part of somebody's account of themselves.
+ */
+export const MIN_DISTINCT_PROBES = 2;
+
 export interface CandidateReason {
   probeId: string;
   optionId: string;
@@ -38,6 +71,8 @@ export interface ScoredCandidate {
   /** 0…1. Not a probability, and never shown as one — a rank order, nothing more. */
   score: number;
   probeScore: number;
+  /** How many different probes pointed here. Corroboration, not weight. */
+  distinctProbes: number;
   areaScore: number;
   becauseProbes: CandidateReason[];
   becauseAreas: { area: LifeArea; tension: number }[];
@@ -47,6 +82,11 @@ export interface ScoredCandidate {
  * The most this candidate could possibly score if every answer pointed at it.
  * Single-choice probes contribute their best option; multi-select probes
  * contribute the sum, since all of them can be picked.
+ *
+ * This is a COVERAGE measure, not a scoring one — how much of a case the bank
+ * could make for a belief at best. It is what the catalogue invariant test
+ * measures; see the note on EVIDENCE_HALF_POINT for why it is no longer part
+ * of the score.
  */
 export function maxProbeScore(candidateId: string, probes: Probe[]): number {
   return probes.reduce((total, probe) => {
@@ -92,10 +132,14 @@ export function inferBeliefs(input: InferInput): ScoredCandidate[] {
     // No behavioural evidence at all means it is not offered, however wide the
     // life gap is. A gap is not evidence of a belief; it is only a reason to
     // weight one that behaviour already points at.
-    if (probeScore <= 0) return [];
+    //
+    // Nor is one probe enough. A single answer with a heavy weight on it is not
+    // corroboration, and offering a belief on that basis is how a catalogue
+    // this size starts sounding like a horoscope.
+    const distinctProbes = new Set(becauseProbes.map((r) => r.probeId)).size;
+    if (probeScore <= 0 || distinctProbes < MIN_DISTINCT_PROBES) return [];
 
-    const maxProbe = maxProbeScore(candidate.id, probes);
-    const probeTerm = maxProbe > 0 ? Math.min(1, probeScore / maxProbe) : 0;
+    const probeTerm = probeScore / (probeScore + EVIDENCE_HALF_POINT);
 
     const becauseAreas = candidate.areas
       .flatMap((area) => {
@@ -121,6 +165,7 @@ export function inferBeliefs(input: InferInput): ScoredCandidate[] {
       candidate,
       score,
       probeScore,
+      distinctProbes,
       areaScore: areaRaw,
       becauseProbes,
       becauseAreas,

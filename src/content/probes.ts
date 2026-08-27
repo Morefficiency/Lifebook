@@ -109,7 +109,7 @@ export const PROBES: Probe[] = [
     question: 'How much of what holds together around you depends on you specifically?',
     multi: false,
     options: [
-      { id: 'all_of_it', label: 'Most of it. If I stopped, things would fall over', weights: { im_the_reliable_one: 3, needs_are_a_burden: 1 } },
+      { id: 'all_of_it', label: 'Most of it. If I stopped, things would fall over', weights: { im_the_reliable_one: 3, needs_are_a_burden: 1, body_is_last: 1 } },
       { id: 'cant_delegate', label: 'I could hand things over but it is faster to do it myself', weights: { im_the_reliable_one: 2, cant_be_trusted: 1 } },
       { id: 'shared', label: 'It is genuinely shared', weights: {} },
     ],
@@ -137,7 +137,7 @@ export const PROBES: Probe[] = [
     options: [
       { id: 'achieving', label: 'Achieving. Results, marks, winning', weights: { love_is_earned: 3, not_enough: 2, must_be_perfect: 2 } },
       { id: 'no_trouble', label: 'Being no trouble', weights: { needs_are_a_burden: 3, conflict_is_dangerous: 2 } },
-      { id: 'helping', label: 'Looking after everyone else', weights: { im_the_reliable_one: 3, needs_are_a_burden: 2 } },
+      { id: 'helping', label: 'Looking after everyone else', weights: { im_the_reliable_one: 3, needs_are_a_burden: 2, body_is_last: 1 } },
       { id: 'being_good', label: 'Being good — behaving, not embarrassing anyone', weights: { must_be_perfect: 2, conflict_is_dangerous: 2 } },
       { id: 'nothing_reliable', label: 'Nothing reliably did', weights: { not_enough: 3, love_is_earned: 2 } },
       { id: 'just_being_there', label: 'Just being there. It was not conditional', weights: {} },

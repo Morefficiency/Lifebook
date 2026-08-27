@@ -169,13 +169,13 @@ export const BELIEF_CATALOGUE: BeliefCandidate[] = [
     text: 'My body is what I spend in order to get everything else.',
     cost: 'It works, right up until it does not, and the bill arrives all at once.',
     areas: ['health', 'lifestyle', 'emotions'],
-    identity: 'I am someone whose body is the asset, not the fuel.',
+    identity: 'I am someone who books sleep and training first and moves the work around them.',
     identityWhy:
-      'Nothing changes while sleep and training are the flexible items in the week. The counterpart is making them the fixed ones.',
+      'Nothing changes while sleep and training are the flexible items in the week — and "my body is the asset" is a stance, not something a week can settle. The counterpart has to be the ordering itself: which things go into the calendar first.',
     practices: [
       { kind: 'thought', cue: 'I will sleep / train / eat properly once this is over', text: 'It is never over. Protect the hour now.', cadence: 'when_it_shows_up' },
       { kind: 'behaviour', text: 'Put sleep and training in the calendar as fixed, and move the work around them once this week.', cadence: 'weekly' },
-      { kind: 'affirmation', text: 'My body is the asset everything else runs on.', cadence: 'daily' },
+      { kind: 'affirmation', text: 'I book sleep and training first, and move the work around them.', cadence: 'daily' },
     ],
   },
   {
