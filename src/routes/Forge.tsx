@@ -45,10 +45,24 @@ export default function Forge() {
     return a && b ? canonicalEdge(a, b) : null;
   }, [params]);
 
-  const [wish, setWish] = useState('');
+  // The other way in: a practice from the programme, testing the belief it was
+  // written against. The map route arrives with an edge; this one arrives with
+  // a belief, and everything after the first two fields is the same act.
+  const lb = useStore((s) => s.state.lifebook);
+  const fromProgramme = useMemo(() => {
+    const beliefId = params.get('belief');
+    if (!beliefId) return null;
+    const held = lb.beliefs.find((b) => b.id === beliefId && b.status === 'confirmed');
+    if (!held) return null;
+    const practiceId = params.get('practice');
+    const practice = practiceId ? lb.practices.find((p) => p.id === practiceId) : undefined;
+    return { held, practice };
+  }, [params, lb.beliefs, lb.practices]);
+
+  const [wish, setWish] = useState(() => fromProgramme?.practice?.text ?? '');
   const [outcome, setOutcome] = useState('');
   const [obstacle, setObstacle] = useState('');
-  const [belief, setBelief] = useState('');
+  const [belief, setBelief] = useState(() => fromProgramme?.held.text ?? '');
   const [steps, setSteps] = useState<StepDraft[]>([{ ifCue: '', thenAction: '' }]);
   const [fearedOutcomeText, setFearedOutcomeText] = useState('');
   const [forecastP, setForecastP] = useState(50);
@@ -56,7 +70,10 @@ export default function Forge() {
   const [touched, setTouched] = useState(false);
 
   const completeSteps = steps.filter((s) => s.ifCue.trim() && s.thenAction.trim());
-  const beliefRequired = !!edge; // a fault-line quest is a challenge quest
+  // Both entrances are challenge quests: one is testing a collision between
+  // two goals, the other a belief the user has said is his. Either way the
+  // hypothesis is the point and cannot be left blank.
+  const beliefRequired = !!edge || !!fromProgramme;
   const fearedProblem = fearedOutcomeProblem(fearedOutcomeText);
 
   const problems = {
@@ -74,6 +91,8 @@ export default function Forge() {
     if (!valid) return;
     const id = createQuest({
       ...(edge ? { edge } : {}),
+      ...(fromProgramme ? { beliefId: fromProgramme.held.id } : {}),
+      ...(fromProgramme?.practice ? { practiceId: fromProgramme.practice.id } : {}),
       wish, outcome, obstacle,
       beliefHypothesis: belief,
       steps: completeSteps,
@@ -92,6 +111,14 @@ export default function Forge() {
     <div className="mx-auto w-full max-w-2xl">
       <h1 className="text-2xl sm:text-3xl">{S.forge.title}</h1>
       <p className="mt-3 max-w-measure text-muted">{S.forge.lead}</p>
+
+      {fromProgramme ? (
+        <div className="mt-6 rounded-lg border border-hairline bg-surface/60 p-4">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted">{S.forge.testingBelief}</p>
+          <p className="mt-2 font-display text-lg leading-snug">“{fromProgramme.held.text}”</p>
+          <p className="mt-2 text-sm text-muted">{S.forge.testingHow}</p>
+        </div>
+      ) : null}
 
       {edge ? (
         <div className="card mt-6">

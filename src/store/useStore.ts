@@ -29,6 +29,8 @@ const now = () => new Date().toISOString();
 
 export interface QuestDraft {
   edge?: EdgeRef;
+  beliefId?: string;
+  practiceId?: string;
   wish: string;
   outcome: string;
   obstacle: string;
@@ -341,6 +343,8 @@ export const useStore = create<Store>((set, get) => {
         const quest: Quest = {
           id,
           ...(draft.edge ? { edge: draft.edge } : {}),
+          ...(draft.beliefId ? { beliefId: draft.beliefId } : {}),
+          ...(draft.practiceId ? { practiceId: draft.practiceId } : {}),
           wish: draft.wish.trim(),
           outcome: draft.outcome.trim(),
           obstacle: draft.obstacle.trim(),

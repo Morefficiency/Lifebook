@@ -451,6 +451,40 @@ matrix into the running app through its own import feature and checks that the
 UI reports the hand-computed 66% conflict index and the 0% → 61% → 78% Coherence
 sequence as goals are released and carried.
 
+### The two execution layers, joined
+
+Stage 6 hands somebody a programme and counts what they logged. Logging is a
+report of having done something — worth having, and not evidence about the
+belief. A person can do the behaviour a hundred times while the belief sits
+underneath entirely untouched, because nothing about it was ever put at risk.
+
+A quest is the version that risks it. It makes the belief say in advance what
+will happen, in a form that can turn out to be wrong: a concrete feared outcome
+and a number for how likely it is. When the forecast was confident (≥60) and the
+feared thing did not happen, that is **Prediction Broken** — the belief
+contradicted by the person's own week, which is the only kind of contradiction
+that moves anything (Craske et al. on expectancy violation: the disconfirmation
+has to be surprising to count).
+
+Those two halves used to be built, tested, and unaware of each other. Now:
+
+| Where | What happens |
+| --- | --- |
+| `/blueprint` | An evidence behaviour offers **Test it** beside *Log an instance* |
+| `/forge?belief=…&practice=…` | Arrives carrying the behaviour and the belief; the person supplies the prediction |
+| `/quest/:id` | The report. A confident forecast that did not happen is named as broken |
+| `/life` | The self half reports what each belief has survived — *wrong once, when it was sure* |
+
+`Quest.beliefId` is the join. `src/engine/evidence.ts` reads it back and answers,
+per belief: how many times has this been put at risk, and how often was it
+wrong? Only the first report against a quest counts — a second is a correction
+to the record, not a second test, and counting it would let somebody accumulate
+evidence by re-filing.
+
+`e2e/evidence-loop.mjs` walks the whole path in a browser, because this is the
+one route in the app where a belief is actually contradicted rather than merely
+worked on.
+
 ### The catalogue tests the content, not just the formula
 
 `src/engine/__tests__/catalogue.test.ts` runs against the real beliefs and

@@ -7,8 +7,11 @@
  * came for, and the self is the answer to why it is that shape.
  */
 import { Link } from 'react-router-dom';
-import type { HeldBelief, PracticeItem, PracticeLog, TargetIdentity } from '../../types';
+import type {
+  FieldReport, HeldBelief, PracticeItem, PracticeLog, Quest, TargetIdentity,
+} from '../../types';
 import { practiceProgress } from '../../engine/programme';
+import { beliefEvidence, evidenceForBeliefs, evidenceTotals } from '../../engine/evidence';
 import { areaName } from '../../content/areas';
 import { S } from '../../strings';
 
@@ -17,13 +20,21 @@ export interface SelfPanelProps {
   identities: TargetIdentity[];
   practices: PracticeItem[];
   logs: PracticeLog[];
+  quests: Quest[];
+  reports: FieldReport[];
 }
 
-export function SelfPanel({ beliefs, identities, practices, logs }: SelfPanelProps) {
+export function SelfPanel({
+  beliefs, identities, practices, logs, quests, reports,
+}: SelfPanelProps) {
   const confirmed = beliefs.filter((b) => b.status === 'confirmed');
   const beliefById = new Map(confirmed.map((b) => [b.id, b]));
   const owned = identities.filter((i) => i.text.trim().length > 0);
   const progress = practiceProgress(practices, logs);
+  // What each belief has actually been made to risk, as opposed to how many
+  // times the behaviour beside it was ticked off.
+  const evidence = beliefEvidence(quests, reports);
+  const totals = evidenceTotals(evidenceForBeliefs(confirmed, quests, reports));
 
   if (owned.length === 0) {
     return (
@@ -68,6 +79,27 @@ export function SelfPanel({ beliefs, identities, practices, logs }: SelfPanelPro
                   <span className="line-through decoration-fault/70">“{replaced.text}”</span>
                 </p>
               ) : null}
+              {/* What this belief has survived, if anything has been put to it.
+                  A count of logged practices says the person did the thing; a
+                  broken prediction says the belief was wrong about what would
+                  happen, which is the only one of the two that is evidence. */}
+              {(() => {
+                const e = replaced ? evidence.get(replaced.id) : undefined;
+                if (!e || (e.tested === 0 && e.pending === 0)) return null;
+                return (
+                  <p className="mt-2 flex flex-wrap items-center gap-x-3 text-xs">
+                    {e.broken > 0 ? (
+                      <span className="text-facil-bright">{S.life.evidenceBroken(e.broken)}</span>
+                    ) : null}
+                    {e.occurred > 0 ? (
+                      <span className="text-muted">{S.life.evidenceOccurred(e.occurred)}</span>
+                    ) : null}
+                    {e.pending > 0 ? (
+                      <span className="text-carry-bright">{S.life.evidencePending(e.pending)}</span>
+                    ) : null}
+                  </p>
+                );
+              })()}
               {/* Which parts of the life above this one is sitting under. It is
                   the join between the two halves of the page. */}
               {identity.areas.length > 0 ? (
@@ -88,8 +120,14 @@ export function SelfPanel({ beliefs, identities, practices, logs }: SelfPanelPro
       </ul>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
+        {/* Practices logged says how much was done; beliefs tested says how
+            much was risked. When there is any of the second it leads, because
+            it is the measure that can come back negative. */}
         <span className="numeral text-xs text-muted">
-          {S.life.selfEvidence(progress.logged, practices.length)}
+          {totals.tested > 0
+            ? `${S.life.selfTested(totals.beliefsTested, confirmed.length)} · ${
+              S.life.selfEvidence(progress.logged, practices.length)}`
+            : S.life.selfEvidence(progress.logged, practices.length)}
         </span>
         <Link to="/blueprint" className="btn-ghost py-2 text-xs">{S.life.selfProgramme}</Link>
       </div>

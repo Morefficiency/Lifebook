@@ -174,6 +174,8 @@ export default function Life() {
           identities={lb.identities}
           practices={lb.practices}
           logs={lb.practiceLogs}
+          quests={state.quests}
+          reports={state.reports}
         />
       </div>
 

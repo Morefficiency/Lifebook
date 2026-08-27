@@ -92,8 +92,13 @@ export const S = {
     selfEmptyBody: 'The app can work out what you appear to believe about yourself — from the gap above, and from what you say about your own behaviour. It offers guesses; you decide which are yours.',
     selfEmptyCta: 'Start that',
     selfProgramme: 'The programme',
+    selfTested: (tested: number, total: number) => `${tested} of ${total} put to the test`,
     selfEvidence: (logged: number, total: number) => `${logged} logged of ${total} practices`,
     selfInstead: 'instead of',
+    evidenceBroken: (n: number) =>
+      n === 1 ? 'wrong once, when it was sure' : `wrong ${n} times, when it was sure`,
+    evidenceOccurred: (n: number) => (n === 1 ? '1 time it was right' : `${n} times it was right`),
+    evidencePending: (n: number) => (n === 1 ? '1 test out' : `${n} tests out`),
 
     collisionsTitle: 'Where your goals collide',
     collisionsOpen: 'Open the map',
@@ -255,6 +260,9 @@ export const S = {
   },
 
   forge: {
+    testingBelief: 'Testing',
+    testingHow:
+      'A belief is not moved by doing the behaviour — it is moved by it saying in advance what will go wrong, and then being wrong. So say what you are afraid will happen, and how likely you think it is, before you do it.',
     title: 'Quest Forge',
     lead: 'One small experiment, in the real world, with a prediction attached.',
     wish: 'Wish',
@@ -867,7 +875,8 @@ export const S = {
       catch: 'Catch:',
       sayInstead: 'Say instead: ',
       logged: (n: number) => `${n} logged`,
-      logCta: 'Log an instance',
+      testCta: 'Test it',
+    logCta: 'Log an instance',
       setAside: 'Set aside',
       bringBack: 'Bring back',
       addOwn: 'Add your own',

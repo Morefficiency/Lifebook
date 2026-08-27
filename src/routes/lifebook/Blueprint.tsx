@@ -97,6 +97,7 @@ export default function Blueprint() {
                     key={item.id}
                     item={item}
                     count={progress.byItem.get(item.id) ?? 0}
+                    {...(identity.replacesBeliefId ? { beliefId: identity.replacesBeliefId } : {})}
                     logs={lb.practiceLogs.filter((l) => l.itemId === item.id)}
                   />
                 ))}
@@ -120,8 +121,10 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function PracticeRow({ item, count, logs }: {
+function PracticeRow({ item, count, logs, beliefId }: {
   item: PracticeItem; count: number; logs: { id: string; evidence: string; ts: string }[];
+  /** The belief this identity replaces, when it has one — what a test would test. */
+  beliefId?: string;
 }) {
   const [logging, setLogging] = useState(false);
   const [evidence, setEvidence] = useState('');
@@ -207,6 +210,18 @@ function PracticeRow({ item, count, logs }: {
           <button type="button" className="btn-ghost" onClick={() => setLogging(true)}>
             {S.stages.blueprint.logCta}
           </button>
+          {/* Logging says the behaviour happened. Testing makes the belief
+              commit to a prediction first, which is the only version of this
+              that can come back wrong — so it is offered on the behaviours,
+              where there is something to actually go and do. */}
+          {beliefId && item.kind === 'behaviour' && item.active ? (
+            <Link
+              to={`/forge?belief=${encodeURIComponent(beliefId)}&practice=${encodeURIComponent(item.id)}`}
+              className="btn-ghost"
+            >
+              {S.stages.blueprint.testCta}
+            </Link>
+          ) : null}
           <button
             type="button"
             className="btn-quiet text-xs"

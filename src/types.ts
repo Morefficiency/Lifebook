@@ -64,6 +64,18 @@ export type QuestStatus = 'active' | 'reported' | 'abandoned';
 export interface Quest {
   id: string;
   edge?: EdgeRef; // origin fault line (optional: free quests allowed)
+  /**
+   * The confirmed belief this quest is a test of, when it came from the
+   * programme rather than from the map.
+   *
+   * `beliefHypothesis` above is the sentence in the user's own words and stays
+   * the thing that is shown. This is the join, so that a broken prediction can
+   * be counted as evidence against a specific belief rather than only sitting
+   * in the ledger as a good day.
+   */
+  beliefId?: string;
+  /** The practice that produced it, when there was one. */
+  practiceId?: string;
   wish: string;
   outcome: string;
   obstacle: string; // WOOP; REQUIRED non-empty (§7.1)
