@@ -131,5 +131,24 @@
 
   .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
 
+  /* The dial, re-inked for paper.
+   *
+   * Its screen palette is a set of near-blacks that would print as a solid
+   * navy disc and empty a cartridge doing it. On paper the reading survives
+   * intact, because the thing that carries it is the length of each arc, not
+   * its colour: a light grey track, a mid-grey arc drawn across it, and an
+   * outline where an area has never been written. */
+  .print-sheet svg [data-role='track'] { fill: #ededed !important; }
+  .print-sheet svg [data-role='fill'] { fill: #8d8d8d !important; }
+  .print-sheet svg [data-role='blank'] { fill: #fff !important; stroke: #d6d6d6 !important; }
+  .print-sheet svg [data-role='rim'] { stroke: #c0c0c0 !important; }
+  .print-sheet svg [data-role='attention'] { fill: #333 !important; }
+  .print-sheet svg [data-role='hub'] { fill: #fff !important; stroke: #d6d6d6 !important; }
+  .print-sheet svg [data-role='selected'] { display: none !important; }
+  .print-sheet svg text { fill: #111 !important; }
+  /* The position beside each label is secondary but still has to be readable
+     in ink — the screen's instrument blue prints as a pale, unreadable tint. */
+  .print-sheet svg tspan { fill: #555 !important; }
+
   @page { margin: 18mm 16mm; }
 }

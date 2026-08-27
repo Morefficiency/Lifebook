@@ -191,18 +191,23 @@ await logBtn.click();
 await p.waitForTimeout(300);
 check('Logging an instance records it', /1 logged/.test(await p.locator('main').innerText()));
 
-// Gap dashboard
-await p.goto(`${BASE}/#/gap`); await p.waitForTimeout(500);
+// The standing view. /gap was folded into it and now redirects here.
+await p.goto(`${BASE}/#/gap`); await p.waitForTimeout(600);
+check('The old gap link redirects to the standing view', p.url().includes('/life'), p.url());
 const g = await p.locator('main').innerText();
 // Hand-computed from the importances and scores entered above:
 //   Health   importance 5, at 3 → 5 × 7/9 = 3.8889
 //   Work     importance 5, at 3 → 5 × 7/9 = 3.8889
 //   Partner  importance 4, at 8 → 4 × 2/9 = 0.8889
 //   Money    importance 3, at 2 → 3 × 8/9 = 2.6667
-//   Σ tension 11.3333 ÷ Σ importance 17 = 0.66667 → 67%
-check('Gap dashboard shows the hand-computed 67%', /\b67%/.test(g), (g.match(/\d+%/)||[])[0]);
-check('Gap shows from → to for each belief', /from, to/i.test(g));
-await p.screenshot({path:`${OUT}/lb-gap.png`,fullPage:true});
+//   Σ tension 11.3333 ÷ Σ importance 17 = 0.66667 → 67% of the distance left,
+//   which the dial states as its complement: 33% of the life being lived.
+check('The dial shows the hand-computed 33% — the complement of the 67% gap',
+  /\b33%/.test(g), (g.match(/\d+%/)||[])[0]);
+check('Every area is listed, written or not', /the twelve/i.test(g));
+check('The self half shows each belief and the identity replacing it',
+  /who you are becoming/i.test(g) && /instead of/i.test(g));
+await p.screenshot({path:`${OUT}/lb-life.png`,fullPage:true});
 
 // --- ledger reflects the Lifebook, not the old map ---
 await p.goto(`${BASE}/#/ledger`); await p.waitForTimeout(400);
@@ -239,7 +244,7 @@ check('Settings shows how big the saved document is', /currently \d+ KB/i.test(s
 
 // resume + persistence
 await p.goto(BASE); await p.waitForTimeout(600);
-check('Returning lands on the gap dashboard, not the start', p.url().includes('/gap'), p.url());
+check('Returning lands on the standing view, not the start', p.url().includes('/life'), p.url());
 
 const ext = reqs.filter(u=>!u.startsWith(BASE)&&!u.startsWith('data:')&&!u.startsWith('blob:'));
 check('Still zero outbound requests', ext.length===0, ext.slice(0,3).join(', '));

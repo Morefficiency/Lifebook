@@ -112,7 +112,7 @@ export function resumePath(state: AppState): string {
     if (lb.beliefs.filter((b) => b.status === 'confirmed').length === 0) return LIFEBOOK_PATH.self_image;
     if (lb.identities.filter((i) => i.text.trim().length > 0).length === 0) return LIFEBOOK_PATH.becoming;
     if (lb.practices.length === 0) return LIFEBOOK_PATH.blueprint;
-    return '/gap';
+    return '/life';
   }
 
   // Act one: goals, the pairs, the friction ratings, then the map.

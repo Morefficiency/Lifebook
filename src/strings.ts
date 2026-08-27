@@ -44,17 +44,75 @@ export const S = {
   },
 
   nav: {
-    board: 'Vision board',
-    gap: 'The gap',
+    life: 'Your life',
     blueprint: 'Blueprint',
     map: 'Map',
     quests: 'Quests',
     ledger: 'Ledger',
-    stats: 'Stats',
     science: 'Why this works',
     support: 'Support',
     settings: 'Settings',
     skip: 'Skip to main content',
+  },
+
+  /* The standing view — the screen the app is for. */
+  life: {
+    title: 'Your life',
+    lead: 'Everything you have said about the life you want, where each part of it actually is, and who you would have to be for the rest of it to be ordinary. One page. Nothing here is a score of you.',
+
+    dialTitle: 'All twelve, at once',
+    dialCentreNote: 'of what you described',
+    living: 'Living it',
+    livingNone: 'Not said yet',
+    dialLegend: 'Wider means you said it matters more. Longer means you are closer to what you described — the dotted rim is the life you wrote down.',
+    dialUnknown: (n: number) =>
+      n === 1 ? 'One area is written but not yet placed.' : `${n} areas are written but not yet placed.`,
+    dialBlank: (n: number) =>
+      n === 1 ? 'One area you have not written yet.' : `${n} areas you have not written yet.`,
+    summary: (living: string, described: number) =>
+      `A dial of twelve life areas. ${described} of twelve have been described. ${living}. Each area is listed in full below.`,
+    attention: (name: string) => `Most of the distance is in ${name}`,
+
+    areasTitle: 'The twelve',
+    areasNote: 'In the same order every time, so the shape stays recognisable.',
+    at: (score: number) => `${score}/10`,
+    matters: (n: number) => `matters ${n}/5`,
+    notPlaced: 'You have not said where this one is.',
+    mostDistance: 'most of the distance',
+    notWritten: 'Not written yet.',
+    place: 'Say where it is',
+    write: 'Write it',
+    revise: 'Revise',
+    beliefsHere: (n: number) => (n === 1 ? '1 belief sits here' : `${n} beliefs sit here`),
+
+    selfTitle: 'Who you are becoming',
+    selfLead: 'The life above is the outside of this. Each line is a belief you confirmed as yours, and the person you said you would have to be instead.',
+    selfCount: (n: number) => (n === 1 ? '1 identity owned' : `${n} identities owned`),
+    selfEmptyTitle: 'This half is empty',
+    selfEmptyBody: 'The app can work out what you appear to believe about yourself — from the gap above, and from what you say about your own behaviour. It offers guesses; you decide which are yours.',
+    selfEmptyCta: 'Start that',
+    selfProgramme: 'The programme',
+    selfEvidence: (logged: number, total: number) => `${logged} logged of ${total} practices`,
+    selfInstead: 'instead of',
+
+    collisionsTitle: 'Where your goals collide',
+    collisionsOpen: 'Open the map',
+    collisionsNone: 'You have not rated your goals against each other yet.',
+    collisionsStart: 'Do that — ten minutes',
+
+    /* The whole page, said once, in a sentence. Only ever assembled from
+       clauses that are actually true of this person — a life with nothing
+       placed gets the second clause and not the first. */
+    readDescribed: (n: number) =>
+      n === 12 ? 'You have described all 12 areas' : `You have described ${n} of 12 areas`,
+    readLiving: (n: number) => `and you are living ${n}% of what you wrote`,
+    readUnplaced: 'and have not yet said where any of it actually is',
+    readAttention: (name: string) => `Most of what is left is in ${name}`,
+    readIdentities: (n: number) =>
+      n === 1 ? 'One identity is in progress' : `${n} identities are in progress`,
+
+    resume: 'Pick up where you left off',
+    print: 'Print it',
   },
 
   gate: {

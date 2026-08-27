@@ -36,26 +36,22 @@ export function Layout({ children }: { children: ReactNode }) {
           className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-1 gap-y-2 px-4 py-3 sm:px-6"
         >
           <Link
-            to={hasLifebook ? '/gap' : hasMap ? '/map' : '/'}
+            to={hasLifebook ? '/life' : hasMap ? '/map' : '/'}
             className="mr-2 font-display text-base font-semibold tracking-tight text-bone"
           >
             {S.app.name}
           </Link>
 
+          {/* Four destinations at most. Everything else in the app is reached
+              from the standing view, which is the point of having one. */}
           {hasLifebook ? (
             <>
-              <NavLink to="/board" className={linkClass}>{S.nav.board}</NavLink>
-              <NavLink to="/gap" className={linkClass}>{S.nav.gap}</NavLink>
+              <NavLink to="/life" className={linkClass}>{S.nav.life}</NavLink>
               <NavLink to="/blueprint" className={linkClass}>{S.nav.blueprint}</NavLink>
             </>
           ) : null}
 
-          {hasMap ? (
-            <>
-              <NavLink to="/map" className={linkClass}>{S.nav.map}</NavLink>
-              <NavLink to="/quests" className={linkClass}>{S.nav.quests}</NavLink>
-            </>
-          ) : null}
+          {hasMap ? <NavLink to="/map" className={linkClass}>{S.nav.map}</NavLink> : null}
 
           {consented ? (
             <NavLink to="/ledger" className={linkClass}>{S.nav.ledger}</NavLink>

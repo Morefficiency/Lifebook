@@ -40,7 +40,7 @@ import Reflect from './routes/lifebook/Reflect';
 import SelfImage from './routes/lifebook/SelfImage';
 import Becoming from './routes/lifebook/Becoming';
 import Blueprint from './routes/lifebook/Blueprint';
-import Gap from './routes/lifebook/Gap';
+import Life from './routes/Life';
 const Print = lazy(() => import('./routes/lifebook/Print'));
 
 /**
@@ -140,7 +140,10 @@ export default function App() {
           <Route path="/self-image" element={<RequireAccess><SelfImage /></RequireAccess>} />
           <Route path="/becoming" element={<RequireAccess><Becoming /></RequireAccess>} />
           <Route path="/blueprint" element={<RequireAccess><Blueprint /></RequireAccess>} />
-          <Route path="/gap" element={<RequireAccess><Gap /></RequireAccess>} />
+          <Route path="/life" element={<RequireAccess><Life /></RequireAccess>} />
+          {/* The gap dashboard was folded into the standing view. Old links,
+              bookmarks and the print sheet's Back button still land somewhere. */}
+          <Route path="/gap" element={<Navigate to="/life" replace />} />
           <Route path="/print" element={<RequireAccess><Print /></RequireAccess>} />
 
           {/* v1 — the goal-conflict map and the evidence loop. Still reachable. */}

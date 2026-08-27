@@ -20,6 +20,12 @@ export default {
         instrument: '#7BA3C4',
         'instrument-dim': '#40556B',
         hairline: '#2A3242',
+        // The standing view. The dial encodes distance as arc length; these
+        // carry the same reading a second time in luminance. See src/design/ramp.ts.
+        'dial-track': '#1B2231',
+        'dial-blank': '#222A3A',
+        'dial-far': '#3F5F7C',
+        'dial-near': '#9CC2DE',
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
@@ -27,6 +33,9 @@ export default {
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       maxWidth: { measure: '68ch' },
+      // A single spacing rhythm for the standing view, so panels on the same
+      // row agree about their own height without magic numbers in three files.
+      spacing: { dial: '30rem' },
       keyframes: {
         'fade-up': { '0%': { opacity: '0', transform: 'translateY(6px)' }, '100%': { opacity: '1', transform: 'none' } },
         'pulse-soft': { '0%,100%': { opacity: '1' }, '50%': { opacity: '0.55' } },

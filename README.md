@@ -35,8 +35,45 @@ every collision runs through. Someone who stops there has had a fair trade.
 | 8 | Becoming | `/becoming` | The self-image of the person for whom your vision is ordinary. |
 | 9 | Blueprint | `/blueprint` | The programme: thought swaps, evidence behaviours, affirmations, a practice rhythm. |
 
-`/gap` is the standing dashboard for anyone who went through act two; `/map` is
-the standing home for anyone who stopped after act one.
+Both acts return to the same place.
+
+## The standing view
+
+`/life` is where the app lives once anything is in it — and where returning
+visitors land. It holds a whole life on one page:
+
+| Part | What it is |
+| --- | --- |
+| The read | Two sentences: how much has been described, how much is being lived, where most of what is left sits, how many identities are in progress. Assembled from clauses that are true of this person, so a half-finished life gets a short true sentence rather than a padded one. |
+| The dial | All twelve areas as one figure. **Angular width is how much the area matters; arc length is how close it is to what they described.** The dotted rim is the life they wrote down; the dark remainder between an arc and the rim is the distance left. |
+| Who you are becoming | The other half of the same thing: each confirmed belief struck through, the identity replacing it, and the areas of the life it sits under. |
+| The twelve | Every area in full, in a fixed order, whether or not it has been written — the vision statement, where it is, what matters, the beliefs sitting on it, and one thing to do next. |
+| Where your goals collide | The conflict map compressed to its three figures and its one sentence, with a door to the map itself. |
+
+Three rules govern it.
+
+**An absence is never a zero.** An area with a vision and no honest answer about
+where it is has no fill on the dial, no score in its tile, and is excluded from
+the percentage entirely — not counted as nought. `livingPercent` returns `null`
+rather than `0` when nothing has been placed, because an unmeasured life is not
+a life with none of it lived.
+
+**The order never changes.** The dial and the tiles both run in the fixed
+`LIFE_AREAS` order rather than sorting by score, so the shape of a life is
+something a person can learn and then notice changing. A ring that reshuffles
+itself whenever a number moves cannot be recognised a month later.
+
+**Every absence has a way out of it.** All twelve tiles offer an action in all
+three states — write it, say where it is, revise it — so no part of the page
+shows a hole without a way to fill it.
+
+The geometry is not in the component. `src/engine/overview.ts` computes the
+sectors, and `src/engine/__tests__/overview-fixtures.ts` carries the dial worked
+out by hand — twelve start and end angles to nine decimal places, closing at
+exactly 360° — written before the engine existed.
+
+`/gap` was folded into this page and now redirects to it. `/map` remains the
+standing home for anyone who stopped after act one and never opened act two.
 
 ### Why the short form is six goals and not twelve
 
@@ -254,9 +291,13 @@ src/
     xp.ts          XP lines, levels, badges
     report.ts      the deterministic insight-report template
     __tests__/     fixtures with the arithmetic hand-computed in comments
+    overview.ts    the standing view: area states, dial geometry, living percent
+  design/        the palette decisions that are not Tailwind tokens
+    ramp.ts        the one sequential ramp, and why it is not red-to-green
   data/          Dexie persistence, ledger payload types, pair ordering
   store/         Zustand store (one mutation path), selectors, wizard progress
-  components/    NetworkMap and shared primitives
+  components/    NetworkMap, the standing view's parts, shared primitives
+    life/          LifeDial, AreaTile, SelfPanel, CollisionStrip
   routes/        one file per screen
   strings.ts     every user-facing string
   types.ts       the §4 data model
@@ -273,6 +314,27 @@ be itemised on tap — which is what Design Law 5 requires.
 
 **The ledger is append-only.** Nothing edits or deletes an entry. An annotation is
 itself an entry pointing at the one it annotates.
+
+### Reading the dial
+
+Two things carry information, and nothing else does:
+
+| channel | meaning |
+| --- | --- |
+| angular width | importance, 1–5 — how much the person said that area matters |
+| arc length | current, 1–10 — how close it is to what they described |
+
+Colour repeats the arc-length reading in luminance and adds nothing of its own.
+It deliberately does not run red-to-green: red and green are spoken for on the
+conflict map, where they mean *these two goals fight* and *these two goals
+help*, and a second unrelated red would teach the wrong thing. An area far from
+its vision is not failing, it is further away, so the far end of the ramp is dim
+rather than alarming. The only warm mark on the dial is the single rim segment
+over the costliest area.
+
+The figure prints. `@media print` re-inks it to a light-grey track, a mid-grey
+arc and an outline for the unwritten — the reading survives because what carries
+it is arc length, not colour.
 
 ### Reading the map
 
@@ -389,6 +451,19 @@ matrix into the running app through its own import feature and checks that the
 UI reports the hand-computed 66% conflict index and the 0% → 61% → 78% Coherence
 sequence as goals are released and carried.
 
+`src/engine/__tests__/overview-fixtures.ts` does the same job for the standing
+view, and was likewise written first: five areas written, four of them placed,
+seven untouched, with every sector angle worked out on paper. The suite checks
+that the ring closes at exactly 360°, that no two sectors overlap, that a
+five-importance area is exactly 5/3 the width of a three, and that an unrated
+area gets `null` rather than a fill of zero.
+
+`e2e/standing-view.mjs` walks the page in the three states people arrive in —
+nothing written, described but unplaced, and complete — plus a phone. Its
+sharpest check reads the numbers off the dial's labels and off the tiles below
+and fails if they disagree, because a picture that quietly contradicts the text
+beside it is the one bug this screen cannot afford.
+
 ---
 
 ## Accessibility and quality floor
@@ -398,4 +473,7 @@ everywhere, never removed · `prefers-reduced-motion` respected globally, with t
 map reveal rendering instantly · semantic HTML with a skip link and labelled
 controls · the map is a labelled `img` role with a parallel keyboard-navigable
 fault-line list, so selection never depends on clicking a line · every duel
-answerable from the keyboard (1–5).
+answerable from the keyboard (1–5) · the life dial is a labelled `img` role
+carrying a one-sentence summary, and every value it draws is also written out in
+the twelve tiles below it, which are ordinary focusable content — so nothing on
+that page is available only by pointing at it.

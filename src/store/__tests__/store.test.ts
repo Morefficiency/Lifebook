@@ -358,7 +358,7 @@ describe('where a returning user lands', () => {
       id: 'p1', identityId: 'i', kind: 'behaviour', text: 'x', cadence: 'weekly', active: true, ts: 't',
     }];
 
-    expect(resumePath(st)).toBe('/gap');
+    expect(resumePath(st)).toBe('/life');
     expect(resumePath(st)).not.toBe('/goals');
   });
 

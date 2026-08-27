@@ -11,9 +11,12 @@
  * spend a cartridge on an ink-blue background.
  */
 import { Link } from 'react-router-dom';
-import { AREA_BY_ID } from '../../content/areas';
-import { lifeGapPercent, rankedTensions } from '../../engine/gap';
+import { AREA_BY_ID, areaName } from '../../content/areas';
+import { rankedTensions } from '../../engine/gap';
+import { areaRows, dialSectors, livingPercent, rankedRows } from '../../engine/overview';
+import { LifeDial } from '../../components/life/LifeDial';
 import { useStore } from '../../store/useStore';
+import { S } from '../../strings';
 
 const KIND_LABEL = { thought: 'Catch', behaviour: 'Do', affirmation: 'Say' } as const;
 
@@ -24,12 +27,18 @@ export default function Print() {
     .filter((v) => v.statement.trim().length > 0)
     .sort((a, b) => b.importance - a.importance);
   const currentByArea = new Map(lb.currents.map((c) => [c.area, c]));
-  const gap = lifeGapPercent(lb.visions, lb.currents);
   const ranked = rankedTensions(lb.visions, lb.currents);
   const confirmed = lb.beliefs.filter((b) => b.status === 'confirmed');
   const identityFor = new Map(lb.identities.map((i) => [i.replacesBeliefId, i]));
 
   const empty = visions.length === 0 && confirmed.length === 0;
+
+  // The same figure the standing view draws, from the same engine. On paper it
+  // is the part people keep, so it goes above everything else.
+  const rows = areaRows(lb.visions, lb.currents);
+  const sectors = dialSectors(rows);
+  const living = livingPercent(lb.visions, lb.currents);
+  const attention = rankedRows(rows)[0]?.area ?? null;
 
   return (
     <div className="print-sheet mx-auto w-full max-w-3xl">
@@ -37,7 +46,7 @@ export default function Print() {
         <button type="button" className="btn-primary" onClick={() => window.print()}>
           Print, or save as PDF
         </button>
-        <Link to="/gap" className="btn-quiet">Back</Link>
+        <Link to="/life" className="btn-quiet">Back</Link>
         <p className="w-full text-sm text-muted sm:w-auto">
           Prints light-on-white. Your browser&apos;s print dialogue can save it as a
           PDF instead of sending it to a printer.
@@ -55,9 +64,35 @@ export default function Print() {
         <h1 className="font-display text-4xl leading-tight">My Lifebook</h1>
         <p className="mt-2 text-sm text-muted">
           Written {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-          {gap !== null ? ` · ${gap}% of the distance still to go` : ''}
         </p>
       </header>
+
+      {visions.length > 0 ? (
+        <section className="mt-8 break-inside-avoid">
+          <div className="mx-auto w-full max-w-[26rem]">
+            <LifeDial
+              sectors={sectors}
+              rows={rows}
+              selected={null}
+              onSelect={() => {}}
+              attention={attention}
+              centre={{
+                value: living === null ? '—' : String(living),
+                suffix: living === null ? undefined : '%',
+                label: living === null ? S.life.livingNone : S.life.living,
+              }}
+              summary={S.life.summary(
+                living === null ? S.life.livingNone : `${S.life.living} ${living}%`,
+                visions.length,
+              )}
+            />
+          </div>
+          <p className="mt-2 text-center text-xs text-muted">
+            {S.life.dialLegend}
+            {attention ? ` ${S.life.attention(areaName(attention))}.` : ''}
+          </p>
+        </section>
+      ) : null}
 
       {visions.length > 0 ? (
         <section className="mt-10">
