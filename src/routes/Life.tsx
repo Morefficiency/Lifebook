@@ -24,6 +24,8 @@ import { LifeDial } from '../components/life/LifeDial';
 import { AreaTile } from '../components/life/AreaTile';
 import { SelfPanel } from '../components/life/SelfPanel';
 import { CollisionStrip } from '../components/life/CollisionStrip';
+import { WaitingBand } from '../components/life/WaitingBand';
+import { waitingToShow } from '../engine/waiting';
 import { Explain } from '../components/ui';
 import { S } from '../strings';
 import type { LifeArea } from '../types';
@@ -74,6 +76,12 @@ export default function Life() {
   ];
   const readout = described > 0 ? sentences.map((t) => `${t}.`).join(' ') : null;
 
+  // Read once per mount rather than per render: the band must not change under
+  // somebody mid-page because a threshold ticked over while they were reading.
+  const [openedAt] = useState(() => new Date().toISOString());
+  const waiting = useMemo(() => waitingToShow(state, openedAt), [state, openedAt]);
+  const beliefText = (id: string) => lb.beliefs.find((b) => b.id === id)?.text;
+
   return (
     <div className="w-full">
       <header className="mx-auto max-w-measure">
@@ -83,6 +91,10 @@ export default function Life() {
         ) : null}
         <p className="mt-3 prose-quiet">{S.life.lead}</p>
       </header>
+
+      <div className="mx-auto max-w-measure">
+        <WaitingBand items={waiting} beliefText={beliefText} />
+      </div>
 
       {/* ---- the figure, and the self it comes out of ---------------------- */}
       <div className="mt-10 grid gap-8 lg:grid-cols-2 lg:items-stretch">

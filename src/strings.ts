@@ -95,8 +95,10 @@ export const S = {
     selfTested: (tested: number, total: number) => `${tested} of ${total} put to the test`,
     selfEvidence: (logged: number, total: number) => `${logged} logged of ${total} practices`,
     selfInstead: 'instead of',
-    evidenceBroken: (n: number) =>
-      n === 1 ? 'wrong once, when it was sure' : `wrong ${n} times, when it was sure`,
+    evidenceBroken: (n: number) => {
+      const times = n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`;
+      return `wrong ${times}, when it was sure`;
+    },
     evidenceOccurred: (n: number) => (n === 1 ? '1 time it was right' : `${n} times it was right`),
     evidencePending: (n: number) => (n === 1 ? '1 test out' : `${n} tests out`),
 
@@ -118,6 +120,29 @@ export const S = {
 
     resume: 'Pick up where you left off',
     print: 'Print it',
+  },
+
+  /* The return loop. No reminder ever leaves the app; this is what it says
+     when somebody comes back of their own accord. See src/engine/waiting.ts
+     for why that distinction is the whole design. */
+  waiting: {
+    label: 'What this page is still holding',
+    beliefContradicted: (text: string, broken: number) =>
+      broken === 2
+        ? `“${text}” has been wrong twice since you last said it was yours, both times when you were sure it would not be.`
+        : `“${text}” has been wrong ${broken} times since you last said it was yours, each time when you were sure it would not be.`,
+    beliefCta: 'Look at it again',
+    testOut: (days: number) =>
+      days >= 60
+        ? `A test has been out in the world for ${Math.round(days / 30)} months. It only counts once you say what happened.`
+        : `A test has been out in the world for ${days} days. It only counts once you say what happened.`,
+    testCta: 'Say what happened',
+    placementStale: (area: string, days: number) =>
+      `You said where ${area} was ${Math.round(days / 30)} months ago. The dial is still drawing that answer.`,
+    placementCta: 'Place it again',
+    mapStale: (days: number) =>
+      `Your map is from ${Math.round(days / 30)} months ago. It was a picture of one day, and that day was a while back.`,
+    mapCta: 'Rate them again',
   },
 
   gate: {

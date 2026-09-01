@@ -13,7 +13,7 @@
     "typecheck": "tsc -b --noEmit",
     "audit:prohibitions": "node scripts/prohibitions.mjs",
     "verify": "npm run test && npm run build && npm run audit:prohibitions",
-    "e2e": "node e2e/shortform.mjs && node e2e/standing-view.mjs && node e2e/lifebook.mjs && node e2e/evidence-loop.mjs && node e2e/acceptance.mjs && node e2e/release-and-carry.mjs && node e2e/map-density.mjs && node e2e/offline-and-print.mjs",
+    "e2e": "node e2e/shortform.mjs && node e2e/standing-view.mjs && node e2e/lifebook.mjs && node e2e/evidence-loop.mjs && node e2e/return-loop.mjs && node e2e/acceptance.mjs && node e2e/release-and-carry.mjs && node e2e/map-density.mjs && node e2e/offline-and-print.mjs",
     "build:account": "vite build --outDir dist-account",
     "preview:account": "vite preview --outDir dist-account --port 4174",
     "e2e:accounts": "node e2e/accounts.mjs"

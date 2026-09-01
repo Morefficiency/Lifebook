@@ -451,6 +451,42 @@ matrix into the running app through its own import feature and checks that the
 UI reports the hand-computed 66% conflict index and the 0% → 61% → 78% Coherence
 sequence as goals are released and carried.
 
+### The return loop, without a single reminder
+
+§13 bans reminders, notifications and streaks, and the reasons are good. That
+leaves exactly one honest way to give somebody a reason to come back: when they
+do come back, of their own accord, the page has to be straight about what it is
+still holding and how old its own figures are.
+
+That is provenance, not nagging, and the line is easy to cross, so
+`src/engine/waiting.ts` states it:
+
+> A streak rewards consecutive days and punishes a break. Never.
+> A reminder arrives uninvited and asks for attention. Never.
+> "You placed this in March" is the mirror saying when it was made.
+
+Four things can be waiting, ranked by what earns being said rather than by age:
+
+| | Threshold | Why it is worth a line |
+| --- | --- | --- |
+| A belief its own evidence contradicted | 2 broken predictions | The only one that is news about the person rather than housekeeping about the data |
+| A test still out | 7 days | Reporting is the mechanism; an unreported quest is the loop left open |
+| A stale placement | 120 days | The dial is drawing an old answer as if it were current |
+| A stale map | 180 days | It always said it was a picture of one day; this says which day |
+
+Three rules hold it in place, and each is a test. **Nothing surfaces on day
+one** — a page with something waiting the moment you finish is a to-do list with
+a self-image theme. **Nothing is ever a count of what you owe** — each line is
+one specific thing with somewhere to go, never "3 items need attention". And at
+most two lines show, because five is the list this deliberately is not.
+
+The contradicted-belief line counts only evidence from **since the person last
+said the belief was his**. Without that clause it is permanent: somebody who
+reads it, thinks about it and decides he still holds the belief would be told
+the same thing forever, which is a nag arriving by the back door. Re-ruling on a
+belief moves its timestamp, the count starts again, and the band goes quiet
+until his own week says something new.
+
 ### The two execution layers, joined
 
 Stage 6 hands somebody a programme and counts what they logged. Logging is a

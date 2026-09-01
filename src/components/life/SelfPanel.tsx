@@ -124,10 +124,10 @@ export function SelfPanel({
             much was risked. When there is any of the second it leads, because
             it is the measure that can come back negative. */}
         <span className="numeral text-xs text-muted">
-          {totals.tested > 0
-            ? `${S.life.selfTested(totals.beliefsTested, confirmed.length)} · ${
-              S.life.selfEvidence(progress.logged, practices.length)}`
-            : S.life.selfEvidence(progress.logged, practices.length)}
+          {[
+            totals.tested > 0 ? S.life.selfTested(totals.beliefsTested, confirmed.length) : null,
+            practices.length > 0 ? S.life.selfEvidence(progress.logged, practices.length) : null,
+          ].filter(Boolean).join(' · ')}
         </span>
         <Link to="/blueprint" className="btn-ghost py-2 text-xs">{S.life.selfProgramme}</Link>
       </div>
