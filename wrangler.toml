@@ -1,0 +1,18 @@
+# Cloudflare Pages project configuration.
+#
+# Keeping this in the repository rather than in dashboard settings means the
+# build configuration is reviewed like everything else, and a fresh Pages
+# project picks it up with no clicking.
+#
+# ONE THING MUST MATCH: `name` has to be the exact name of your Pages project.
+# If you create the project as anything other than "lifebook", change this line
+# or the build will stop and tell you the names disagree.
+
+name = "lifebook"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+# There are deliberately no bindings here. Lifebook has no Workers, no
+# Functions, no D1 and no KV: it is a static bundle that talks to exactly one
+# other origin, and only when you have configured accounts. Adding a binding
+# would mean adding a server to a local-first app.

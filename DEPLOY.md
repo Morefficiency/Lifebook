@@ -14,32 +14,68 @@ Output lands in `dist/`.
 
 ## Cloudflare Pages
 
-The best fit, and the one this repo is set up for.
+The best fit, and the one this repo is configured for. Two files carry the
+configuration so you do not have to type it into a dashboard:
 
-**Project settings**
+- `wrangler.toml` — the project name and `pages_build_output_dir = "dist"`.
+  **`name` must equal your Pages project name**, or the build stops and says so.
+- `.node-version` — pins Node 22 for the build.
 
-| Setting | Value |
-| --- | --- |
-| Framework preset | None (or Vite) |
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-| Node version | 20 or later (`NODE_VERSION` build variable) |
+### Before you connect anything: which branch?
 
-That is the whole configuration. Three things that usually need attention on a
-single-page app do not need it here:
+Pages builds one branch as *production* and every other branch as a *preview*.
+Check what is actually on the branch you are about to point it at:
 
-- **No SPA rewrite rule.** The app uses hash routing (`/#/life`), so every URL
-  a browser ever requests is `/`. There is no `_redirects` file and none is
+```bash
+git log --oneline -1 origin/main
+```
+
+If the app lives on a working branch rather than on `main`, you have two
+choices, and only the first is a good long-term answer:
+
+1. **Merge the working branch into `main` first**, then point Pages at `main`.
+   Production then means "reviewed and merged", which is what you want the word
+   to mean.
+2. **Set the production branch to the working branch** in Pages
+   (Settings → Builds → Branch control). Faster today, and it makes every future
+   deploy depend on remembering which branch is the real one.
+
+### Connecting it
+
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
+   **Connect to Git**.
+2. Authorize the Cloudflare GitHub app and pick the repository. Grant it access
+   to that one repository, not to the whole account.
+3. Name the project **`lifebook`** — the same string as `name` in
+   `wrangler.toml`.
+4. Set the production branch (see above).
+5. Build command `npm run build`, output directory `dist`. Pages will read both
+   from `wrangler.toml` anyway; typing them changes nothing.
+6. Add environment variables *if* you want accounts (next section), then
+   **Save and Deploy**.
+
+Every push to the production branch redeploys. Every other branch gets its own
+preview URL, which is genuinely useful here: you can look at a change to the
+constellation on a phone before it is anyone's production.
+
+Three things that normally need attention on a single-page app do not need it:
+
+- **No SPA rewrite rule.** The app uses hash routing (`/#/life`), so every URL a
+  browser ever requests is `/`. There is no `_redirects` file and none is
   needed. If you ever switch to browser routing you will need
   `/*  /index.html  200`.
-- **No build-time secrets.** See below.
+- **No server-side secrets.** See below.
 - **Headers** are already declared in `public/_headers`, which Vite copies into
-  `dist/` verbatim. Read that file before your first deploy: it explains why
-  the Content-Security-Policy line is left commented out and which of the two
-  versions is correct for your deployment.
+  `dist/` verbatim and Pages reads directly. Read that file before your first
+  deploy: it explains why the Content-Security-Policy line is left commented out
+  and which of the two versions is correct for your deployment.
+  `e2e/headers.mjs` serves the real build under that policy and checks the app
+  still works, so the choice is tested rather than hoped for.
 
-**Environment variables** (Settings → Environment variables, *Production* and
-*Preview* separately)
+### Environment variables
+
+Settings → Environment variables, set for *Production* and *Preview*
+separately.
 
 | Variable | When |
 | --- | --- |
@@ -56,14 +92,29 @@ security with no cross-row policy (`supabase/migrations/0001_init.sql`). The
 `service_role` key is not designed for that and must never appear in a
 Cloudflare variable, this repository, or any file that reaches a browser.
 
-**After deploying with accounts**, add the Pages URL to your Supabase project
-under Authentication → URL Configuration → Redirect URLs, or the email link and
-the Google round-trip will bounce.
+**After deploying with accounts**, add the Pages URL — and the
+`*.pages.dev` preview pattern, if you want previews to be able to sign in — to
+your Supabase project under Authentication → URL Configuration → Redirect URLs.
+Otherwise the email link and the Google round-trip both bounce.
 
-**The service worker.** Updates are prompted, not silent, so a returning person
-keeps the bundle they are mid-sentence in until they accept the new one. The
-`_headers` file keeps `/sw.js` uncached at the edge so that prompt can actually
-arrive.
+### The service worker
+
+Updates are prompted, not silent, so a returning person keeps the bundle they
+are mid-sentence in until they accept the new one. The `_headers` file keeps
+`/sw.js` uncached at the edge so that prompt can actually arrive.
+
+### Deploying from a terminal instead
+
+If you would rather not connect Git, the same build ships with one command:
+
+```bash
+npm run build
+npx wrangler pages deploy          # reads wrangler.toml
+```
+
+`wrangler login` opens a browser once. For CI, use a token scoped to
+**Cloudflare Pages: Edit** on the one account and nothing else, stored as a
+repository secret — never in a file in this repository.
 
 ## Anywhere else
 
