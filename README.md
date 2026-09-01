@@ -451,6 +451,36 @@ matrix into the running app through its own import feature and checks that the
 UI reports the hand-computed 66% conflict index and the 0% → 61% → 78% Coherence
 sequence as goals are released and carried.
 
+### The constellation
+
+`/constellation` is the standing view's data given a third axis, and the third
+axis is allowed to mean exactly one thing: how near an area is to the person.
+Three tiers from the inside out — **the person** (Body, Mind, Feeling,
+Character, Spirit), **the people** (Love, Family, Friends), **the world**
+(Money, Work, Days, Purpose) — which is the order the areas already run in,
+made spatial. It is the intuitive reading, the scientific one (Bronfenbrenner's
+nested systems, microsystem outward), and the older one: body, mind and spirit
+at the core, then the people, then the world. The self sits at the centre with
+the identities in progress orbiting it.
+
+Everything that carries meaning is listed in `src/engine/constellation.ts` and
+nowhere else: size is importance, glow is how close the area is to what was
+described, a wireframe is an area never written (a place kept, not a value of
+zero), a spoke from the self thickens with importance and brightens where a
+confirmed belief sits, and a violet arc joins two areas that share one — coupled
+through the self-image, so changing the belief moves both. Angle within a tier
+is fixed by area order and carries nothing, and the legend on screen says so.
+
+The renderer is raw three.js in one component. Every radius, opacity and curve
+comes from numbers the engine computed and the tests hand-checked; the scene
+does no arithmetic about the person of its own. Idle orbit, the pulse on the
+one amber ring and the satellites' drift all stop under
+`prefers-reduced-motion`; the person's own dragging and zooming always work. A
+rail lists the self and all twelve areas, grouped by tier, so nothing on the
+screen is reachable only by pointing at it — and `e2e/constellation.mjs` checks
+that what the panel says matches what the standing view says for the same
+area. three.js is split into its own chunk and paid for only by this screen.
+
 ### The return loop, without a single reminder
 
 §13 bans reminders, notifications and streaks, and the reasons are good. That

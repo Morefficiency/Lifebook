@@ -135,7 +135,12 @@ export default function Life() {
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs leading-relaxed text-muted">{S.life.dialLegend}</p>
+                <p className="text-xs leading-relaxed text-muted">
+                  {S.life.dialLegend}{' '}
+                  <Link to="/constellation" className="text-instrument underline decoration-instrument-dim underline-offset-4 hover:decoration-instrument">
+                    {S.constellation.door}
+                  </Link>
+                </p>
                 <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
                   {attention ? (
                     <span className="text-carry-bright">{S.life.attention(areaName(attention))}</span>
@@ -224,6 +229,7 @@ export default function Life() {
       </section>
 
       <div className="mt-10 flex flex-wrap items-center gap-4">
+        <Link to="/constellation" className="btn-primary">{S.constellation.door}</Link>
         <Link to="/board" className="btn-ghost">{S.stages.gap.board}</Link>
         <Link to="/print" className="btn-quiet">{S.life.print}</Link>
       </div>

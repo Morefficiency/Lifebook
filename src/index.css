@@ -89,6 +89,17 @@
   .prose-quiet p + p { @apply mt-4; }
 
   .numeral { @apply font-mono tabular-nums; }
+
+  /* The constellation's chrome floats over a live scene, so it is a pane of
+     glass rather than a card: enough blur to read on, not enough to hide
+     what is behind it. */
+  .glass {
+    background: rgba(18, 23, 34, 0.62);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(123, 163, 196, 0.22);
+    box-shadow: 0 20px 50px rgba(2, 4, 16, 0.55);
+  }
 }
 
 /* §15 — prefers-reduced-motion is respected globally, not per component. */

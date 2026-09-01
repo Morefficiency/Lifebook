@@ -145,6 +145,35 @@ export const S = {
     mapCta: 'Rate them again',
   },
 
+  /* The constellation — the standing view's data with a third axis. */
+  constellation: {
+    title: 'Constellation',
+    crumb: 'Constellation',
+    back: 'Your life',
+    rail: 'Areas',
+    panelLabel: 'Detail',
+    self: 'The self',
+    selfSub: (n: number) => (n === 1 ? '1 identity' : `${n} identities`),
+    tiers: { person: 'the person', people: 'the people', world: 'the world' },
+    hint: 'Drag to orbit · scroll to come closer · pick anything to read it.',
+    legend:
+      'Size is how much it matters. Glow is how close it is to what you described. An outline is an area not yet written. Violet joins two areas that share a belief. How near a thing sits to the centre is how near it is to you — and that is the only thing position means.',
+    unplacedShort: 'not placed',
+    kindSelf: 'The self',
+    kindArea: (tier: string) => `Area · ${tier}`,
+    selfTitle: 'Who you are becoming',
+    selfLead: 'The identities you have said you would have to be, orbiting the self they are replacing. The life around them is the outside of this.',
+    selfEmpty: 'Nothing here yet. The self takes shape once a belief has been confirmed and the person who does not hold it has been named.',
+    selfImage: 'What you appear to believe',
+    notWritten: 'Not written yet. It keeps its place in the sky so the shape of the whole is honest about what is missing.',
+    beliefsHere: 'Beliefs sitting here',
+    none: 'None confirmed.',
+    coupledWith: 'Coupled through the self with',
+    testHere: 'Test one of them',
+    door: 'Open the constellation',
+    doorSub: 'The same twelve, with the self at the centre and depth for how near each one is to you.',
+  },
+
   gate: {
     next25: 'Ten minutes, four steps',
     steps: [

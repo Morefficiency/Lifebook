@@ -41,6 +41,8 @@ import SelfImage from './routes/lifebook/SelfImage';
 import Becoming from './routes/lifebook/Becoming';
 import Blueprint from './routes/lifebook/Blueprint';
 import Life from './routes/Life';
+// three.js is the largest thing in the bundle and only this screen needs it.
+const ConstellationRoute = lazy(() => import('./routes/Constellation'));
 const Print = lazy(() => import('./routes/lifebook/Print'));
 
 /**
@@ -141,6 +143,7 @@ export default function App() {
           <Route path="/becoming" element={<RequireAccess><Becoming /></RequireAccess>} />
           <Route path="/blueprint" element={<RequireAccess><Blueprint /></RequireAccess>} />
           <Route path="/life" element={<RequireAccess><Life /></RequireAccess>} />
+          <Route path="/constellation" element={<RequireAccess><ConstellationRoute /></RequireAccess>} />
           {/* The gap dashboard was folded into the standing view. Old links,
               bookmarks and the print sheet's Back button still land somewhere. */}
           <Route path="/gap" element={<Navigate to="/life" replace />} />

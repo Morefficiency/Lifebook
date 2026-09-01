@@ -57,6 +57,9 @@ export default defineConfig({
           // else is split so it can arrive when it is actually used.
           react: ['react', 'react-dom', 'react-router-dom'],
           storage: ['dexie'],
+          // The constellation's renderer: ~600 KB that nobody pays for until
+          // they open that one screen.
+          three: ['three'],
         },
       },
     },

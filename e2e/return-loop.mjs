@@ -67,7 +67,10 @@ function seed({ aged }) {
         // Owned before the evidence in the aged profile, so the contradictions
         // count; owned today in the fresh one, where nothing has happened since.
         source: 'offered', status: 'confirmed', areas: ['money'],
-        ts: aged ? daysAgo(200) : ts,
+        // Owned a second after the evidence, not "now": two daysAgo(0) calls
+        // can straddle a millisecond, and the band counts only evidence from
+        // after the belief was last owned.
+        ts: aged ? daysAgo(200) : new Date(Date.parse(ts) + 1000).toISOString(),
       }],
       identities: [{
         id: 'i1', text: 'I am someone who decides with numbers rather than with dread.',
