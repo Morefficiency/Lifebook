@@ -1,0 +1,42 @@
+# Cloudflare Pages headers.
+#
+# Lifebook is a static bundle: there is no server of ours in the path, so the
+# only server-side hardening available is the set of headers Pages will send.
+# This file is that set. Pages reads it from the build output and never serves
+# it as a file.
+
+/*
+  # This app must never be framed: the pages carry someone's beliefs about
+  # themselves, and a clickjacked overlay could harvest an answer.
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Cross-Origin-Opener-Policy: same-origin
+  # Nothing in the app asks for any of these, so nothing should be able to.
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), interest-cohort=(), microphone=(), payment=(), usb=()
+
+  # A Content-Security-Policy is deliberately NOT set here, because the one
+  # correct value depends on whether you deployed with accounts.
+  #
+  # Local-only (no VITE_SUPABASE_URL) — safe to paste as-is:
+  #   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'
+  #
+  # With accounts — same line, plus your project origin on connect-src:
+  #   connect-src 'self' https://YOUR-PROJECT.supabase.co wss://YOUR-PROJECT.supabase.co;
+  #
+  # Paste the wrong one and sign-in fails silently, which is why it is not
+  # guessed for you. 'unsafe-inline' on style-src is required: React sets a
+  # handful of style attributes (the dial, the constellation panel).
+
+# The service worker decides when the app updates. If an edge or a browser
+# holds a stale copy, people stay on an old bundle until the cache expires.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Everything under /assets carries a content hash in its name, so it can be
+# held forever and a new build simply asks for a different name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/workbox-*.js
+  Cache-Control: public, max-age=31536000, immutable
