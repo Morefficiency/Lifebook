@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MapFrame, NetworkMap } from '../components/NetworkMap';
 import { Explain, StatChip, StrivingText, Tag } from '../components/ui';
 import { S } from '../strings';
+import { PaidCta } from '../components/PaidCta';
 import { conflictEdgesByHeat, edgeKey } from '../engine/graph';
 import type { EdgeMetric } from '../engine/graph';
 import {
@@ -189,12 +190,17 @@ export default function MapView() {
           </ul>
         )}
 
+        {/* The report is the last free thing; forging an experiment is the
+            first paid one. Saying so here, at the point where somebody reaches
+            for it, is the difference between a door and an ambush. */}
         <Link to="/onboarding/report" className="btn-ghost mt-6 w-full">
           {S.report.title}
         </Link>
-        <Link to="/forge" className="btn-quiet mt-2 w-full">
-          {S.quest.newQuest}
-        </Link>
+        <div className="mt-2">
+          <PaidCta to="/forge" className="btn-quiet w-full" behind={S.paid.behindForge}>
+            {S.quest.newQuest}
+          </PaidCta>
+        </div>
       </aside>
     </div>
   );

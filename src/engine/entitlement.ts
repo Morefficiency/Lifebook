@@ -72,8 +72,12 @@ export type Tier = 'free' | 'paid';
 export const FREE_ROUTES: readonly string[] = [
   // The front door and the account.
   '/', '/sign-in',
-  // The ten-minute promise, in the order the landing page makes it.
-  '/vision', '/board', '/goals', '/pairs', '/friction', '/map',
+  // The ten-minute promise, in the order the landing page makes it. '/mirror'
+  // is step four — it is the map itself, the screen MirrorStage calls "the
+  // whole product for most people" — and it is reached from '/friction', not
+  // chosen from a menu. Charging there would put the wall exactly on the payoff
+  // the landing page sells, ten minutes into somebody's own writing.
+  '/vision', '/board', '/goals', '/pairs', '/friction', '/mirror', '/map',
   '/onboarding/values', '/onboarding/strivings', '/onboarding/duels',
   '/onboarding/heat', '/onboarding/mirror', '/onboarding/report',
   // Never chargeable: your own data, and the pages that explain and support
@@ -85,7 +89,7 @@ export const FREE_ROUTES: readonly string[] = [
 /** Everything after the map. */
 export const PAID_ROUTES: readonly string[] = [
   '/current', '/reflect', '/self-image', '/becoming', '/blueprint',
-  '/mirror', '/life', '/constellation', '/print',
+  '/life', '/constellation', '/print',
   '/quests', '/quest', '/fork', '/forge', '/rerate', '/ledger', '/stats',
 ];
 

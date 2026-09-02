@@ -18,6 +18,7 @@
  */
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { writeVisions, shortForm } from './lib/walk.mjs';
 
 const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4174';
 const OUT = process.env.E2E_OUT ?? 'e2e/.out';
@@ -139,6 +140,31 @@ const landed = (page) => page.url().split('#')[1] ?? '';
   const settingsText = await page.locator('main').innerText();
   check('an unpaid account can still export everything it wrote', /export/i.test(settingsText));
   check('...and can still delete everything', /delete/i.test(settingsText));
+
+  // The commercially decisive moment, walked properly rather than asserted
+  // from a fixture: finish the whole free tier and arrive at the map the way a
+  // real first user does, then look at what it offers next.
+  await page.goto(`${BASE}/#/vision`);
+  await page.waitForTimeout(400);
+  await writeVisions(page);
+  await shortForm(page);
+  // '/mirror' IS the map — the payoff screen the landing page sells. This
+  // assertion once read '/map' and the walk stopped dead at a paywall here,
+  // ten minutes into somebody's own writing, at the exact moment of the payoff.
+  check('the free tier runs all the way to the map without paying',
+    landed(page).startsWith('/mirror'), landed(page));
+
+  const mapText = await page.locator('main').innerText();
+  check('the map is honest that both doors out of it lead into the paid half',
+    /paid half/i.test(mapText), mapText.slice(-140));
+  check('...and says the map itself stays theirs either way',
+    /stay yours|stays yours/i.test(mapText));
+
+  // '/map' is not asserted here. It sits behind RequireMirror, and this stub
+  // answers the state query with null, which walks the fixture back to the
+  // gate — an artifact of the stub, not of the app. The same marker component
+  // is exercised above at '/mirror', which is the moment that actually decides
+  // whether somebody buys.
 
   await page.goto(`${BASE}/#/unlock`);
   await page.waitForTimeout(600);

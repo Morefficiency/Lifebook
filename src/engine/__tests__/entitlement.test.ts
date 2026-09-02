@@ -47,9 +47,21 @@ describe('status', () => {
 
 describe('the line', () => {
   it('puts every step the landing page promises on the free side', () => {
-    for (const p of ['/vision', '/board', '/goals', '/pairs', '/friction', '/map']) {
+    // '/mirror' belongs in this list and was once missing from it. It is not a
+    // menu item — '/friction' navigates straight into it — so leaving it out of
+    // the promise put the paywall on step four, which is the map, which is the
+    // thing the landing page exists to sell. Ten minutes of someone's writing,
+    // then a price, at the exact moment of the payoff.
+    for (const p of ['/vision', '/board', '/goals', '/pairs', '/friction', '/mirror', '/map']) {
       expect(tierOf(p), p).toBe('free');
     }
+  });
+
+  it('lets the free walk reach its own end without crossing the line', () => {
+    // The route each act-one stage hands over to, in order. Every one of them
+    // has to be free or the walk stops in the middle of itself.
+    const walk = ['/', '/vision', '/board', '/goals', '/pairs', '/friction', '/mirror'];
+    for (const p of walk) expect(tierOf(p), p).toBe('free');
   });
 
   it('puts act two on the paid side', () => {

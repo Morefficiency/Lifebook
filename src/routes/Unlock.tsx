@@ -31,7 +31,7 @@ type Phase = 'offer' | 'opening' | 'waiting' | 'waited' | 'checking';
 
 export default function Unlock() {
   const navigate = useNavigate();
-  const { search } = useLocation();
+  const { search, state: navState } = useLocation();
   const params = new URLSearchParams(search.startsWith('?') ? search : `?${search}`);
   const returning = params.get('paid') === '1';
   const cancelled = params.get('cancelled') === '1';
@@ -135,8 +135,16 @@ export default function Unlock() {
   }
 
   /* ---- the offer ------------------------------------------------------- */
+  // Somebody sent here by reaching for a locked screen is answered about that
+  // screen first. Arriving at a price page without being told why you are
+  // looking at it is the part that feels like a trick.
+  const cameFrom = typeof (navState as { from?: unknown } | null)?.from === 'string';
+
   return (
     <Page title={S.unlock.title} lead={S.unlock.lead}>
+      {cameFrom ? (
+        <p className="mt-6 text-sm text-carry-bright">{S.unlock.cameFor}</p>
+      ) : null}
       {cancelled ? (
         <p className="mt-6 text-sm text-muted">{S.unlock.cancelled}</p>
       ) : null}

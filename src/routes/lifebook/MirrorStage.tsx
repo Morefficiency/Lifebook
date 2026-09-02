@@ -23,6 +23,7 @@ import { conflictEdgesByHeat } from '../../engine/graph';
 import { useGraph, useStrivingLookup } from '../../store/selectors';
 import { useStore } from '../../store/useStore';
 import { S } from '../../strings';
+import { PaidNote } from '../../components/PaidCta';
 
 export default function MirrorStage() {
   const navigate = useNavigate();
@@ -155,6 +156,11 @@ export default function MirrorStage() {
             <p className="mt-2 text-sm leading-relaxed text-muted">{S.stages.mirror.doorWhyBody}</p>
           </Link>
         </div>
+
+        {/* Both doors above lead into the paid half. Said here, once, under
+            them — rather than stamped on each — so the composition survives and
+            nobody clicks through to a price they were not told about. */}
+        <PaidNote />
 
         <div className="mt-6 flex flex-wrap gap-3">
           <Link to="/map" className="btn-quiet">{S.stages.mirror.keepMap}</Link>

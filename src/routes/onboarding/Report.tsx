@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { S } from '../../strings';
+import { PaidCta } from '../../components/PaidCta';
 import { useGraph, useInsightReport, useStrivingLookup } from '../../store/selectors';
 import { conflictEdgesByWeight, edgeKey } from '../../engine/graph';
 import type { EdgeMetric } from '../../engine/graph';
@@ -129,14 +130,19 @@ export default function InsightReportRoute() {
               })}
             </ul>
 
-            <button
-              type="button"
-              className="btn-primary mt-6"
-              disabled={!chosen}
-              onClick={() => chosen && go(chosen)}
-            >
-              {S.report.chooseFaultLine}
-            </button>
+            {/* Choosing a fault line is where the report hands over to the
+                paid half. For anyone who has paid this is exactly the button
+                it always was. */}
+            <div className="mt-6">
+              <PaidCta
+                to="/fork"
+                onClick={() => chosen && go(chosen)}
+                disabled={!chosen}
+                behind={S.paid.behindFork}
+              >
+                {S.report.chooseFaultLine}
+              </PaidCta>
+            </div>
           </>
         )}
       </section>

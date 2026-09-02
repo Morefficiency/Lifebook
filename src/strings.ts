@@ -148,6 +148,16 @@ export const S = {
     mapCta: 'Rate them again',
   },
 
+  /* Shown where the free tier genuinely runs out, and nowhere else. */
+  paid: {
+    cost: (price: string) => `Part of the rest — ${price}, once.`,
+    see: 'See what that opens',
+    behindFork: 'Taking a fault line apart — what each side of it is actually protecting, and which one you would rather be wrong about.',
+    behindForge: 'Turning a collision into a small experiment with a prediction attached, so it can turn out you were wrong.',
+    behindReport: 'The fault line you pick opens the part of the app that does something about it.',
+    note: 'Both of these are part of what follows the map, which is the paid half. The map itself, and everything you have written, stay yours either way.',
+  },
+
   /* The offer. The only screen in the app whose job is to be persuasive —
      which here means saying what is behind the wall accurately, saying what
      stays free, and not manufacturing urgency about a decision that has none. */
@@ -181,6 +191,9 @@ export const S = {
     refundLink: 'Read the refund policy',
 
     cancelled: 'Nothing was charged. It is still here whenever you want it.',
+    /* Said when somebody arrived by reaching for a specific locked thing,
+       rather than by opening the price page on purpose. */
+    cameFor: 'That screen is part of what follows the map.',
 
     waiting: 'Payment received. Waiting for it to come through…',
     waitingSlow:

@@ -172,7 +172,7 @@ export default function App() {
           <Route path="/goals" element={<RequireAccess><Goals /></RequireAccess>} />
           <Route path="/pairs" element={<RequireAccess><Pairs /></RequireAccess>} />
           <Route path="/friction" element={<RequireAccess><Friction /></RequireAccess>} />
-          <Route path="/mirror" element={<Paid><MirrorStage /></Paid>} />
+          <Route path="/mirror" element={<RequireAccess><MirrorStage /></RequireAccess>} />
           <Route path="/current" element={<Paid><Current /></Paid>} />
           <Route path="/reflect" element={<Paid><Reflect /></Paid>} />
           <Route path="/self-image" element={<Paid><SelfImage /></Paid>} />
