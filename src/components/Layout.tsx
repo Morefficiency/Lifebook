@@ -75,12 +75,23 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4 text-xs text-muted sm:px-6">
-        <p>
-          {session || !isCloudEnabled() ? S.bits.footer : S.bits.footerLocal}{' '}
+        <p>{session || !isCloudEnabled() ? S.bits.footer : S.bits.footerLocal}</p>
+        {/* Reachable from every screen, because somebody who wants to know what
+            happens to what they just wrote should not have to go looking. */}
+        <nav aria-label={S.a11y.footerNav} className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
           <Link to="/support" className="underline decoration-hairline underline-offset-4 hover:text-bone">
             {S.nav.support}
           </Link>
-        </p>
+          <Link to="/privacy" className="underline decoration-hairline underline-offset-4 hover:text-bone">
+            {S.nav.privacy}
+          </Link>
+          <Link to="/terms" className="underline decoration-hairline underline-offset-4 hover:text-bone">
+            {S.nav.terms}
+          </Link>
+          <Link to="/refunds" className="underline decoration-hairline underline-offset-4 hover:text-bone">
+            {S.nav.refunds}
+          </Link>
+        </nav>
       </footer>
     </div>
   );

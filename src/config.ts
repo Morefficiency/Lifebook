@@ -14,8 +14,65 @@ export const ACCESS_MODE: AccessMode = 'open';
 /** Codes are compared case-insensitively after trimming. */
 export const ACCESS_CODES: string[] = ['COHERENCE-V1'];
 
-/** External purchase link. No payment is processed inside this app. */
-export const PURCHASE_URL = 'https://example.com/coherence';
+/* ========================================================================== *
+ * The offer
+ *
+ * Lifebook is free up to and including the map — the whole promise the landing
+ * page makes. Everything after it is bought once and kept.
+ *
+ * The price here is display only: what is actually charged is the Stripe price
+ * id configured on the create-checkout function, so a mismatch shows the wrong
+ * number on the page but cannot charge the wrong amount. Keep them in step.
+ * ========================================================================== */
+
+export const PRICE_DISPLAY = '$29';
+export const PRICE_CURRENCY = 'USD';
+export const PRICE_NOTE = 'one payment, kept for good';
+
+/**
+ * Whether there is anywhere to take money.
+ *
+ * Selling requires an account to attach the purchase to and a server to ask
+ * about it, so a build with no Supabase project configured is entirely free —
+ * see the note in src/engine/entitlement.ts. Setting this to false in a build
+ * that does have a project turns the paywall off without removing it.
+ */
+export const SELLING_ENABLED_DEFAULT = true;
+
+export function isSellingEnabled(): boolean {
+  return SELLING_ENABLED_DEFAULT && isCloudEnabled();
+}
+
+/* ========================================================================== *
+ * Who is selling this
+ *
+ * These four values appear in the privacy policy, the terms and the refund
+ * policy — the three documents that say who a customer is contracting with and
+ * where to complain. They are the operator's facts and cannot be guessed, so
+ * they start empty and `npm run check:launch` refuses to pass while they are.
+ * A build that ships "[your company]" to a paying customer is worse than a
+ * build that fails.
+ * ========================================================================== */
+
+/** Legal name of whoever takes the money. A person's own name is fine. */
+export const OPERATOR_NAME = import.meta.env['VITE_OPERATOR_NAME'] ?? '';
+
+/** Where support, refund requests and data questions actually arrive. */
+export const SUPPORT_EMAIL = import.meta.env['VITE_SUPPORT_EMAIL'] ?? '';
+
+/** Country or state whose law governs the terms, e.g. 'France'. */
+export const GOVERNING_LAW = import.meta.env['VITE_GOVERNING_LAW'] ?? '';
+
+/** The date the current terms and privacy policy took effect. */
+export const POLICY_UPDATED = import.meta.env['VITE_POLICY_UPDATED'] ?? '';
+
+/** Days within which a refund is given without argument. See /refunds. */
+export const REFUND_DAYS = 30;
+
+export function operatorConfigured(): boolean {
+  return [OPERATOR_NAME, SUPPORT_EMAIL, GOVERNING_LAW, POLICY_UPDATED]
+    .every((v) => v.trim().length > 0);
+}
 
 /** localStorage key for the unlock flag — the only thing this app puts there. */
 export const UNLOCK_KEY = 'coherence.unlocked';

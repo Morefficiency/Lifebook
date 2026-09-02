@@ -19,6 +19,7 @@ import { UNLOCK_KEY, isCloudEnabled } from '../config';
 import { emptyState, loadState, saveState, scheduleSave, wipeEverything } from '../data/db';
 import { emptyLifebook } from '../types';
 import type { SyncStatus } from '../data/sync';
+import type { Entitlement } from '../engine/entitlement';
 import { entry } from '../data/ledger';
 import type {
   AppState, EdgeRef, Effect, FieldReport, ForkChoice, Heat, LedgerKind, LifeArea,
@@ -64,6 +65,28 @@ interface Store {
   syncError: string | null;
   setSession: (session: Session | null) => void;
   setAuthReady: (ready: boolean) => void;
+
+  /**
+   * What the server last said this account has paid for.
+   *
+   * Held in memory only and never persisted — see src/data/entitlement.ts.
+   * Null means "not established yet", which is not the same as "has not paid"
+   * and must not lock anybody out on its own.
+   */
+  entitlement: Entitlement | null;
+  entitlementReady: boolean;
+  setEntitlement: (e: Entitlement | null) => void;
+  /**
+   * Mark the answer as being fetched again.
+   *
+   * Called the moment a session changes, before the request goes out. Without
+   * it there is a window where `entitlementReady` is still true from the
+   * signed-out state and `entitlement` is still null, and a paying customer
+   * who has just signed in gets bounced to the sales page for something they
+   * already own. It corrects itself a moment later, which is exactly what
+   * makes it the kind of bug that ships.
+   */
+  beginEntitlementCheck: () => void;
   setSync: (status: SyncStatus, error?: string | null) => void;
   /** Called after every local mutation so the account layer can queue a push. */
   onLocalChange: ((state: AppState) => void) | null;
@@ -159,11 +182,17 @@ export const useStore = create<Store>((set, get) => {
 
     session: null,
     authReady: !isCloudEnabled(),
+    entitlement: null,
+    // With no project configured there is nothing to sell and nothing to ask,
+    // so the answer is already final: everything is open.
+    entitlementReady: !isCloudEnabled(),
     syncStatus: isCloudEnabled() ? 'idle' : 'off',
     syncError: null,
     onLocalChange: null,
     setSession: (session) => set({ session }),
     setAuthReady: (authReady) => set({ authReady }),
+    setEntitlement: (entitlement) => set({ entitlement, entitlementReady: true }),
+    beginEntitlementCheck: () => set({ entitlementReady: false }),
     setSync: (syncStatus, syncError = null) => set({ syncStatus, syncError }),
     setOnLocalChange: (onLocalChange) => set({ onLocalChange }),
 

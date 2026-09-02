@@ -1,7 +1,7 @@
 /** §5 A0 — landing, access gate, consent. */
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { ACCESS_MODE, PURCHASE_URL, isCloudEnabled, isValidAccessCode } from '../config';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { ACCESS_MODE, PRICE_DISPLAY, REFUND_DAYS, isCloudEnabled, isSellingEnabled, isValidAccessCode } from '../config';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
 import { resumePath } from '../store/progress';
@@ -78,6 +78,25 @@ export default function Landing() {
         </ul>
       </section>
 
+      {isSellingEnabled() ? (
+        <section className="mt-10">
+          <h2 className="text-sm uppercase tracking-[0.14em] text-muted">{S.gate.priceTitle}</h2>
+          <p className="mt-4 max-w-measure leading-relaxed text-bone">{S.gate.priceFree}</p>
+          <p className="mt-3 max-w-measure leading-relaxed text-muted">
+            {S.gate.priceRest(PRICE_DISPLAY)}
+          </p>
+          <p className="mt-3 text-sm text-muted">
+            {S.gate.priceRefund(REFUND_DAYS)}{' '}
+            <Link
+              to="/unlock"
+              className="text-instrument underline decoration-instrument-dim underline-offset-4 hover:decoration-instrument"
+            >
+              {S.gate.priceSee}
+            </Link>
+          </p>
+        </section>
+      ) : null}
+
       <section className="card mt-10">
         {!gateOpen && !cloud ? (
           <div className="mb-6">
@@ -92,17 +111,6 @@ export default function Landing() {
               aria-invalid={codeError}
             />
             {codeError ? <FieldError>{S.gate.codeBad}</FieldError> : null}
-            <p className="hint">
-              <a
-                href={PURCHASE_URL}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-instrument underline decoration-instrument-dim underline-offset-4"
-              >
-                {S.gate.purchase}
-              </a>
-              {' — '}opens an external page. No payment happens inside this app.
-            </p>
           </div>
         ) : null}
 
@@ -133,6 +141,14 @@ export default function Landing() {
         <button type="button" className="btn-primary mt-6 w-full sm:w-auto" onClick={begin}>
           {S.gate.begin}
         </button>
+
+        <p className="mt-5 text-xs leading-relaxed text-muted">
+          By starting you accept the{' '}
+          <Link to="/terms" className="underline decoration-hairline underline-offset-4 hover:text-bone">terms</Link>
+          {' '}and the{' '}
+          <Link to="/privacy" className="underline decoration-hairline underline-offset-4 hover:text-bone">privacy policy</Link>
+          . Both are short, and the second one is the one worth reading.
+        </p>
       </section>
     </div>
   );

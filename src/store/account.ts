@@ -17,6 +17,7 @@ import {
 import { emptyState } from '../data/db';
 import { supabaseRemote } from '../data/remote';
 import { initSupabase, supabase } from '../data/supabase';
+import { fetchEntitlement } from '../data/entitlement';
 import { pullAndMerge, push, type SyncOutcome } from '../data/sync';
 import { useStore, type Session } from './useStore';
 import type { AppState } from '../types';
@@ -82,6 +83,16 @@ async function adoptSession(session: Session | null): Promise<void> {
   }
 
   await useStore.getState().replaceState(local);
+
+  // Who this account has paid for, asked fresh on every session change. Signing
+  // out must clear it, or the next person at this browser inherits the answer.
+  if (session) {
+    useStore.getState().beginEntitlementCheck();
+    useStore.getState().setEntitlement(await fetchEntitlement());
+  } else {
+    useStore.getState().setEntitlement(null);
+  }
+
   if (session) await syncNow();
   else useStore.getState().setSync(isCloudEnabled() ? 'idle' : 'off', null);
 }
@@ -232,4 +243,17 @@ function friendly(message: string): string {
     return 'Could not reach the server. Check your connection.';
   }
   return message;
+}
+
+/* --------------------------------------------------------- entitlement --- */
+
+/**
+ * Re-ask the server what this account has paid for.
+ *
+ * Called on returning from checkout and when the tab regains focus after being
+ * away, so a purchase made on a phone shows up on the laptop without a reload.
+ */
+export async function refreshEntitlement(): Promise<void> {
+  if (!useStore.getState().session) return;
+  useStore.getState().setEntitlement(await fetchEntitlement());
 }

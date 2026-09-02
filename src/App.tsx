@@ -3,10 +3,11 @@ import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-d
 import { Layout } from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UpdatePrompt } from './components/UpdatePrompt';
-import { ACCESS_MODE, isCloudEnabled } from './config';
+import { ACCESS_MODE, isCloudEnabled, isSellingEnabled } from './config';
 import { useStore } from './store/useStore';
 import { initAccounts, flushPush } from './store/account';
 import { ONBOARDING_PATH, isOnboardingComplete, onboardingStep } from './store/progress';
+import { canOpen } from './engine/entitlement';
 import { S } from './strings';
 
 import Landing from './routes/Landing';
@@ -44,6 +45,10 @@ import Life from './routes/Life';
 // three.js is the largest thing in the bundle and only this screen needs it.
 const ConstellationRoute = lazy(() => import('./routes/Constellation'));
 const Print = lazy(() => import('./routes/lifebook/Print'));
+const Unlock = lazy(() => import('./routes/Unlock'));
+const Privacy = lazy(() => import('./routes/legal/Privacy'));
+const Terms = lazy(() => import('./routes/legal/Terms'));
+const Refunds = lazy(() => import('./routes/legal/Refunds'));
 
 /**
  * Everything behind this needs an account when there is one to have, and the
@@ -64,6 +69,37 @@ function RequireAccess({ children }: { children: ReactNode }) {
 
   if (ACCESS_MODE === 'code' && !unlocked) return <Navigate to="/" replace />;
   return <>{children}</>;
+}
+
+/**
+ * Everything after the map.
+ *
+ * Sits inside RequireAccess, so by the time this runs there is a session. The
+ * two states worth being careful about:
+ *
+ *   not established yet  wait, rather than bounce somebody to a sales page for
+ *                        something they already own. A flash of "buy this" at a
+ *                        paying customer is worse than a moment of nothing.
+ *   could not establish  entitlement stays null after the check. canOpen()
+ *                        treats that as unpaid, but /unlock reads the same null
+ *                        and offers to try again rather than only to buy.
+ */
+function RequirePaid({ children }: { children: ReactNode }) {
+  const entitlement = useStore((s) => s.entitlement);
+  const ready = useStore((s) => s.entitlementReady);
+  const { pathname } = useLocation();
+
+  if (!isSellingEnabled()) return <>{children}</>;
+  if (!ready) return <Loading />;
+  if (!canOpen(pathname, entitlement, true)) {
+    return <Navigate to="/unlock" replace state={{ from: pathname }} />;
+  }
+  return <>{children}</>;
+}
+
+/** RequireAccess and RequirePaid together, which is what most routes want. */
+function Paid({ children }: { children: ReactNode }) {
+  return <RequireAccess><RequirePaid>{children}</RequirePaid></RequireAccess>;
 }
 
 function Loading() {
@@ -136,18 +172,18 @@ export default function App() {
           <Route path="/goals" element={<RequireAccess><Goals /></RequireAccess>} />
           <Route path="/pairs" element={<RequireAccess><Pairs /></RequireAccess>} />
           <Route path="/friction" element={<RequireAccess><Friction /></RequireAccess>} />
-          <Route path="/mirror" element={<RequireAccess><MirrorStage /></RequireAccess>} />
-          <Route path="/current" element={<RequireAccess><Current /></RequireAccess>} />
-          <Route path="/reflect" element={<RequireAccess><Reflect /></RequireAccess>} />
-          <Route path="/self-image" element={<RequireAccess><SelfImage /></RequireAccess>} />
-          <Route path="/becoming" element={<RequireAccess><Becoming /></RequireAccess>} />
-          <Route path="/blueprint" element={<RequireAccess><Blueprint /></RequireAccess>} />
-          <Route path="/life" element={<RequireAccess><Life /></RequireAccess>} />
-          <Route path="/constellation" element={<RequireAccess><ConstellationRoute /></RequireAccess>} />
+          <Route path="/mirror" element={<Paid><MirrorStage /></Paid>} />
+          <Route path="/current" element={<Paid><Current /></Paid>} />
+          <Route path="/reflect" element={<Paid><Reflect /></Paid>} />
+          <Route path="/self-image" element={<Paid><SelfImage /></Paid>} />
+          <Route path="/becoming" element={<Paid><Becoming /></Paid>} />
+          <Route path="/blueprint" element={<Paid><Blueprint /></Paid>} />
+          <Route path="/life" element={<Paid><Life /></Paid>} />
+          <Route path="/constellation" element={<Paid><ConstellationRoute /></Paid>} />
           {/* The gap dashboard was folded into the standing view. Old links,
               bookmarks and the print sheet's Back button still land somewhere. */}
           <Route path="/gap" element={<Navigate to="/life" replace />} />
-          <Route path="/print" element={<RequireAccess><Print /></RequireAccess>} />
+          <Route path="/print" element={<Paid><Print /></Paid>} />
 
           {/* v1 — the goal-conflict map and the evidence loop. Still reachable. */}
           <Route path="/onboarding/values" element={<RequireAccess><Values /></RequireAccess>} />
@@ -157,19 +193,24 @@ export default function App() {
           <Route path="/onboarding/mirror" element={<RequireAccess><Mirror /></RequireAccess>} />
           <Route path="/onboarding/report" element={<RequireAccess><InsightReportRoute /></RequireAccess>} />
 
-          <Route path="/fork" element={<RequireAccess><ForkRoute /></RequireAccess>} />
-          <Route path="/forge" element={<RequireAccess><Forge /></RequireAccess>} />
-          <Route path="/rerate" element={<RequireAccess><Rerate /></RequireAccess>} />
+          <Route path="/fork" element={<Paid><ForkRoute /></Paid>} />
+          <Route path="/forge" element={<Paid><Forge /></Paid>} />
+          <Route path="/rerate" element={<Paid><Rerate /></Paid>} />
 
           <Route path="/map" element={<RequireAccess><RequireMirror><MapView /></RequireMirror></RequireAccess>} />
-          <Route path="/quests" element={<RequireAccess><RequireMirror><Quests /></RequireMirror></RequireAccess>} />
-          <Route path="/quest/:id" element={<RequireAccess><RequireMirror><QuestDetail /></RequireMirror></RequireAccess>} />
-          <Route path="/ledger" element={<RequireAccess><Ledger /></RequireAccess>} />
-          <Route path="/stats" element={<RequireAccess><Stats /></RequireAccess>} />
+          <Route path="/quests" element={<Paid><RequireMirror><Quests /></RequireMirror></Paid>} />
+          <Route path="/quest/:id" element={<Paid><RequireMirror><QuestDetail /></RequireMirror></Paid>} />
+          <Route path="/ledger" element={<Paid><Ledger /></Paid>} />
+          <Route path="/stats" element={<Paid><Stats /></Paid>} />
 
           <Route path="/support" element={<Support />} />
           <Route path="/science" element={<Science />} />
           <Route path="/settings" element={<Settings />} />
+
+          <Route path="/unlock" element={<RequireAccess><Unlock /></RequireAccess>} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refunds" element={<Refunds />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

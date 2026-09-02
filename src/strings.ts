@@ -44,6 +44,9 @@ export const S = {
   },
 
   nav: {
+    privacy: 'Privacy',
+    terms: 'Terms',
+    refunds: 'Refunds',
     life: 'Your life',
     blueprint: 'Blueprint',
     map: 'Map',
@@ -145,6 +148,57 @@ export const S = {
     mapCta: 'Rate them again',
   },
 
+  /* The offer. The only screen in the app whose job is to be persuasive —
+     which here means saying what is behind the wall accurately, saying what
+     stays free, and not manufacturing urgency about a decision that has none. */
+  unlock: {
+    title: 'The rest of it',
+    crumb: 'Unlock',
+    lead: 'You have the map. What follows it is where the map turns into something you can act on.',
+
+    haveTitle: 'What you already have, free, for good',
+    have: [
+      'The life you want, written in your own words, area by area.',
+      'Everything you are actually trying to do right now.',
+      'The map of where those things collide, and the one goal that sits inside more of those collisions than any other.',
+      'Export. Always. Your writing is never the thing being withheld.',
+    ],
+
+    getTitle: 'What this opens',
+    get: [
+      ['Where your life actually is', 'Place all twelve areas against what you described, and see the distance in each one instead of guessing at it.'],
+      ['What you appear to believe', 'The app reads your own answers back and offers the beliefs they imply. You confirm which are yours; it never tells you what you are.'],
+      ['Who you would have to be instead', 'For each belief you own, the identity that replaces it — and the smallest thing that would test whether the old one is even true.'],
+      ['Your life on one page', 'The standing view: twelve areas, the self they come out of, and the collisions between them. The screen you come back to.'],
+      ['The constellation', 'The same life in three dimensions, with the self at the centre and every area placed by how near it is to you.'],
+      ['Experiments that can fail', 'Predict what you think will happen, do the thing, record what actually happened. A belief that survives that is worth keeping.'],
+    ],
+
+    priceNote: 'One payment. No subscription, nothing to cancel, no second charge.',
+    buy: 'Unlock the rest',
+    buying: 'Opening checkout…',
+    refund: (d: number) => `${d} days, no questions asked.`,
+    refundLink: 'Read the refund policy',
+
+    cancelled: 'Nothing was charged. It is still here whenever you want it.',
+
+    waiting: 'Payment received. Waiting for it to come through…',
+    waitingSlow:
+      'This is taking longer than it should. Your payment went through — reload in a minute and it will be here. If it is not, write to support and it will be fixed today.',
+
+    ownedTitle: 'You own this',
+    ownedBody: 'Everything is open. This page is only here so you can find the receipt.',
+    ownedCta: 'Go to your life',
+
+    unknownTitle: 'Could not check',
+    unknownBody:
+      'We could not reach the server to see what you have paid for. This is not a decision about your account — if you have bought this, it is still yours.',
+    retry: 'Try again',
+
+    signInFirst: 'Sign in first, so the purchase has an account to attach to.',
+    notSelling: 'This build has no payment configured, so everything is open.',
+  },
+
   /* The constellation — the standing view's data with a third axis. */
   constellation: {
     title: 'Constellation',
@@ -186,14 +240,25 @@ export const S = {
     never: [
       'No feed. No streaks. Nothing to check daily.',
       'It never tells you what you are — it asks, and you decide.',
-      'Nothing is sold, shared or advertised against. Ever.',
+      // Said precisely now that there is a price on the page: the thing that is
+      // never sold is your writing. Leaving it as "nothing is sold" beside a
+      // price tag would read as a contradiction, or worse, as a hedge.
+      'Your writing is never sold, shared, mined or advertised against. Ever.',
     ],
+
+    /* Said on the way in rather than after ten minutes of work. Someone who
+       would resent finding a price later is owed it before they start. */
+    priceTitle: 'What it costs',
+    priceFree: 'Everything above — through to the map and the goal every collision runs through — is free, with no card and no trial clock.',
+    priceRest: (price: string) =>
+      `What comes after the map — where your life actually is, the beliefs underneath it, the identities that replace them, and the experiments that test them — is ${price}, once.`,
+    priceRefund: (d: number) => `${d} days to change your mind, no questions asked.`,
+    priceSee: 'See what that opens',
     consentTherapy: 'I understand this is a self-reflection tool, not therapy or medical care.',
     consentLocal: 'I understand my answers are saved to my account so they follow me between devices, and that the people who run this service can read them.',
     codeLabel: 'Access code',
     codePlaceholder: 'Enter your access code',
     codeBad: 'That code was not recognised. Check for stray spaces and try again.',
-    purchase: 'Get an access code',
     begin: 'Start with the life you want',
     afterMap: 'There is more after that, for whoever wants it. Nothing pushes you into it.',
     consentRequired: 'Both boxes are required before you can start.',
@@ -970,6 +1035,7 @@ export const S = {
   },
 
   a11y: {
+    footerNav: 'Policies',
     primaryNav: 'Primary',
     progress: 'Progress',
     pairsRated: 'Pairs rated',

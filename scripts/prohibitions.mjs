@@ -29,6 +29,10 @@ const ALLOWED = [
   'Lifebook is a self-reflection tool. It is not therapy, it is not diagnosis, and it is not crisis support.',
   // The sign-up consent block, which must be able to say what this is not.
   'This is a self-reflection tool. It is not therapy, not diagnosis, and not crisis support.',
+  // Terms clause 2. Once there is a price on this, the document a customer is
+  // contracting under has to be able to state plainly what they are not buying
+  // — and it is the clause most worth a customer reading.
+  'Lifebook is a tool for writing things down and noticing patterns in what you wrote. It is not therapy, not counselling, not medical or psychological treatment, not diagnosis, and not crisis support. It does not know anything about you that you did not type into it.',
   // /science citation, §10-mandated. Verbatim journal-article title.
   'Maximizing exposure therapy: An inhibitory learning approach. Behaviour Research and Therapy, 58, 10–23.',
   // /science — naming the mechanics deliberately left out. The list has to be
