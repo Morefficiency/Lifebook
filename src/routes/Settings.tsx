@@ -162,6 +162,10 @@ export default function Settings() {
           ref={fileRef}
           type="file"
           accept="application/json,.json"
+          // Visually hidden and driven by the button below it, which means it
+          // still needs a name of its own — without one a screen reader
+          // announces "file upload" and nothing about what it is for.
+          aria-label={S.settings.importTitle}
           className="sr-only"
           onChange={(e) => {
             const f = e.target.files?.[0];

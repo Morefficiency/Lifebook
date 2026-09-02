@@ -31,7 +31,11 @@ export interface AreaTileProps {
 
 function Importance({ n }: { n: number }) {
   return (
-    <span className="flex items-center gap-[3px]" aria-label={S.life.matters(n)}>
+    // role="img" rather than a bare span: aria-label is prohibited on an
+    // element with no role, so a screen reader was free to ignore it and
+    // announce the importance rating as nothing at all. The dots are a picture
+    // of a number, which is exactly what role="img" is for.
+    <span role="img" className="flex items-center gap-[3px]" aria-label={S.life.matters(n)}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}

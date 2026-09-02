@@ -15,7 +15,7 @@
     "check:launch": "node scripts/launch-check.mjs",
     "check:functions": "node scripts/check-functions.mjs",
     "verify": "npm run test && npm run build && npm run audit:prohibitions && npm run check:functions",
-    "e2e": "node e2e/shortform.mjs && node e2e/standing-view.mjs && node e2e/constellation.mjs && node e2e/lifebook.mjs && node e2e/evidence-loop.mjs && node e2e/return-loop.mjs && node e2e/acceptance.mjs && node e2e/release-and-carry.mjs && node e2e/map-density.mjs && node e2e/offline-and-print.mjs && node e2e/headers.mjs",
+    "e2e": "node e2e/shortform.mjs && node e2e/standing-view.mjs && node e2e/constellation.mjs && node e2e/lifebook.mjs && node e2e/evidence-loop.mjs && node e2e/return-loop.mjs && node e2e/acceptance.mjs && node e2e/release-and-carry.mjs && node e2e/map-density.mjs && node e2e/offline-and-print.mjs && node e2e/headers.mjs && node e2e/a11y.mjs",
     "build:account": "vite build --outDir dist-account",
     "preview:account": "vite preview --outDir dist-account --port 4174",
     "e2e:accounts": "node e2e/accounts.mjs && node e2e/paywall.mjs"
@@ -41,6 +41,7 @@
     "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.4.20",
+    "axe-core": "^4.13.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^30.0.1",
     "playwright": "^1.62.1",
