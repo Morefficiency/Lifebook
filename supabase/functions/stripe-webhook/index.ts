@@ -11,9 +11,17 @@
  *   1. VERIFY THE SIGNATURE FIRST. Anyone can POST to this URL. Until
  *      constructEventAsync succeeds, the body is a stranger's JSON and is not
  *      read for anything.
- *   2. BE IDEMPOTENT. Stripe retries until it gets a 2xx and can deliver the
- *      same event twice after one. Every event id is recorded, and a repeat is
- *      answered 200 without doing the work again.
+ *   2. BE IDEMPOTENT, AND IN THE RIGHT ORDER. Stripe retries until it gets a
+ *      2xx and can deliver the same event twice after one. The obvious design —
+ *      record the event id first, then do the work — has a hole in it: if the
+ *      function dies between the two (a timeout, a redeploy, the runtime being
+ *      recycled), the retry sees the recorded id, calls it a duplicate, and the
+ *      customer is never granted anything. Nobody finds out until they email.
+ *
+ *      So the work happens first and the id is recorded after. That is only
+ *      safe because the work is itself idempotent — grant_entitlement is an
+ *      upsert — which makes a double delivery harmless and a lost delivery
+ *      impossible. Cheap duplicate work beats a silent missing grant.
  *   3. FAIL LOUD, NOT OPEN. A 5xx makes Stripe retry, which is what should
  *      happen when the database is briefly unreachable. A malformed or
  *      unsigned request gets a 400 and is never retried.
@@ -96,18 +104,13 @@ Deno.serve(async (req) => {
     return new Response('bad signature', { status: 400 });
   }
 
-  // Idempotency. The insert is the lock: a duplicate event collides on the
-  // primary key and we stop here rather than granting twice.
-  const { error: seenError } = await db
+  // A cheap early exit for the common repeat. Not a lock — see note 2 above.
+  const { data: seen } = await db
     .from('stripe_events')
-    .insert({ id: event.id, type: event.type });
-  if (seenError) {
-    if (seenError.code === '23505') return new Response('already handled', { status: 200 });
-    // Anything else is the database being unwell. Ask Stripe to try again
-    // rather than processing an event we cannot record.
-    console.error('could not record event', seenError);
-    return new Response('storage error', { status: 500 });
-  }
+    .select('id')
+    .eq('id', event.id)
+    .maybeSingle();
+  if (seen) return new Response('already handled', { status: 200 });
 
   try {
     switch (event.type) {
@@ -140,7 +143,23 @@ Deno.serve(async (req) => {
         break;
       }
 
-      case 'charge.refunded':
+      case 'charge.refunded': {
+        // This event also fires for a partial refund. Taking the product away
+        // because somebody was refunded four dollars would be a support ticket
+        // written by us, so only a full refund closes the account.
+        const charge = event.data.object as Stripe.Charge;
+        if (charge.amount_refunded < charge.amount) {
+          console.log('partial refund, access kept', charge.id);
+          break;
+        }
+        const userId = await userIdFor(event);
+        if (!userId) { console.error('no user id on', event.type); break; }
+        const { error } = await db.rpc('revoke_entitlement', { p_user_id: userId });
+        if (error) throw error;
+        console.log('revoked', userId);
+        break;
+      }
+
       case 'charge.dispute.created': {
         const userId = await userIdFor(event);
         if (!userId) { console.error('no user id on', event.type); break; }
@@ -156,11 +175,20 @@ Deno.serve(async (req) => {
         break;
     }
   } catch (e) {
-    // The event is recorded but the work failed. Remove the record so Stripe's
-    // retry is allowed to do the work rather than being skipped as a duplicate.
+    // Nothing has been recorded yet, so Stripe's retry will do the work again
+    // rather than be waved through as a duplicate.
     console.error('handler failed for', event.id, e);
-    await db.from('stripe_events').delete().eq('id', event.id);
     return new Response('handler failed', { status: 500 });
+  }
+
+  // Recorded only now that the work is done. A duplicate here is a race with a
+  // concurrent delivery of the same event, which the upsert already made
+  // harmless — so it is logged rather than treated as a failure.
+  const { error: recordError } = await db
+    .from('stripe_events')
+    .insert({ id: event.id, type: event.type });
+  if (recordError && recordError.code !== '23505') {
+    console.error('handled but could not record', event.id, recordError);
   }
 
   return new Response('ok', { status: 200 });

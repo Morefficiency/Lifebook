@@ -43,6 +43,10 @@ const ALLOWED = [
   'No streaks, no daily goals, no notifications, no time pressure, no randomised rewards.',
   'No feed.',
   'No streaks.',
+  // The meta description — the sentence a search result and a link preview
+  // quote. Naming the mechanic it refuses is the differentiator, and it is the
+  // same legitimate use as the /science list above.
+  'No feed, no streaks, nothing to check daily.',
 ];
 
 const BANNED = [

@@ -93,6 +93,13 @@ Deno.serve(async (req) => {
       metadata: { user_id: user.id },
       payment_intent_data: { metadata: { user_id: user.id } },
       customer_email: user.email ?? undefined,
+      // Without this, a one-off payment usually creates no Stripe customer at
+      // all ('if_required' is the default), which leaves a later refund or
+      // dispute with no customer to map back to a user. The webhook has a
+      // payment-intent fallback for exactly that case, but having a real
+      // customer record is both more reliable and more useful to a human
+      // looking at the dashboard trying to help somebody.
+      customer_creation: 'always',
       allow_promotion_codes: true,
       success_url: `${APP_URL}/#/unlock?paid=1`,
       cancel_url: `${APP_URL}/#/unlock?cancelled=1`,
