@@ -12,19 +12,52 @@ npm run verify     # tests, build, prohibitions audit
 
 Output lands in `dist/`.
 
-## Cloudflare Pages
+## Cloudflare Workers (static assets)
 
-The best fit, and the one this repo is configured for. Two files carry the
-configuration so you do not have to type it into a dashboard:
+This is what the repo is configured for, and what Cloudflare now steers new
+projects towards: a Worker that serves the built files and runs no code of its
+own. `wrangler.toml` carries the whole configuration —
 
-- `wrangler.toml` — the project name and `pages_build_output_dir = "dist"`.
-  **`name` must equal your Pages project name**, or the build stops and says so.
-- `.node-version` — pins Node 22 for the build.
+```toml
+name = "lifebook"          # must equal the Worker's name
+compatibility_date = "..."
 
-### Before you connect anything: which branch?
+[assets]
+directory = "./dist"
+not_found_handling = "none"
+```
 
-Pages builds one branch as *production* and every other branch as a *preview*.
-Check what is actually on the branch you are about to point it at:
+— and `.node-version` pins the build to Node 22.
+
+`not_found_handling` is `none` on purpose. The usual value for a single-page app
+is `single-page-application`, which rewrites every unknown path to index.html.
+Lifebook uses hash routing (`/#/life`), so the only path a browser ever requests
+is `/`; a 404 here means a genuinely missing file and should say so rather than
+be papered over with the app shell.
+
+### Dashboard settings
+
+In the Worker → **Settings** → **Build**:
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | `/` |
+| Branch | the branch that actually has the app |
+
+**Build command is the one people leave empty.** With no build command there is
+no `dist/`, and the deploy fails with
+
+```
+✘ [ERROR] Could not detect a directory containing static files
+```
+
+which reads like a configuration problem and is really "nothing was built".
+
+### Which branch
+
+A Worker builds one branch. Check what is on it before pointing anything at it:
 
 ```bash
 git log --oneline -1 origin/main
@@ -33,49 +66,38 @@ git log --oneline -1 origin/main
 If the app lives on a working branch rather than on `main`, you have two
 choices, and only the first is a good long-term answer:
 
-1. **Merge the working branch into `main` first**, then point Pages at `main`.
-   Production then means "reviewed and merged", which is what you want the word
-   to mean.
-2. **Set the production branch to the working branch** in Pages
-   (Settings → Builds → Branch control). Faster today, and it makes every future
-   deploy depend on remembering which branch is the real one.
+1. **Merge the working branch into `main`**, then build `main`. Production then
+   means "reviewed and merged", which is what you want the word to mean.
+2. **Change the Worker's branch** to the working branch. Faster today, and it
+   makes every future deploy depend on remembering which branch is the real one.
 
-### Connecting it
+Pointing it at a branch that does not have the app yet is the failure mode here,
+and when the build command is also empty it does not look like one.
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git**.
-2. Authorize the Cloudflare GitHub app and pick the repository. Grant it access
-   to that one repository, not to the whole account.
-3. Name the project **`lifebook`** — the same string as `name` in
-   `wrangler.toml`.
-4. Set the production branch (see above).
-5. Build command `npm run build`, output directory `dist`. Pages will read both
-   from `wrangler.toml` anyway; typing them changes nothing.
-6. Add environment variables *if* you want accounts (next section), then
-   **Save and Deploy**.
+### Connecting the repository
 
-Every push to the production branch redeploys. Every other branch gets its own
-preview URL, which is genuinely useful here: you can look at a change to the
-constellation on a phone before it is anyone's production.
+You do not start on GitHub — there is no button there for this. Start in the
+Cloudflare dashboard; it redirects you to GitHub to install its app, where you
+pick the account, choose **Only select repositories**, and grant it this
+repository alone. Afterwards, repository access is changed at
+`github.com/settings/installations`, which is also where you revoke it.
 
-Three things that normally need attention on a single-page app do not need it:
+### Headers still apply
 
-- **No SPA rewrite rule.** The app uses hash routing (`/#/life`), so every URL a
-  browser ever requests is `/`. There is no `_redirects` file and none is
-  needed. If you ever switch to browser routing you will need
-  `/*  /index.html  200`.
-- **No server-side secrets.** See below.
-- **Headers** are already declared in `public/_headers`, which Vite copies into
-  `dist/` verbatim and Pages reads directly. Read that file before your first
-  deploy: it explains why the Content-Security-Policy line is left commented out
-  and which of the two versions is correct for your deployment.
-  `e2e/headers.mjs` serves the real build under that policy and checks the app
-  still works, so the choice is tested rather than hoped for.
+`public/_headers` is copied into `dist/` by Vite, and wrangler parses it for
+Workers static assets exactly as Pages does — so the frame, sniff, referrer and
+permissions headers, and the cache rules that keep `/sw.js` fresh, all survive
+the move. Read that file before your first deploy: it explains why the
+Content-Security-Policy line is left commented out and which of the two versions
+is correct for your deployment. `e2e/headers.mjs` serves the real build under
+that policy and checks the app still works, so the choice is tested rather than
+hoped for.
 
 ### Environment variables
 
-Settings → Environment variables, set for *Production* and *Preview*
-separately.
+Worker → Settings → **Variables and Secrets**, and note that these are needed at
+*build* time, not runtime — Vite compiles them into the bundle — so they belong
+in the build configuration's variables.
 
 | Variable | When |
 | --- | --- |
@@ -92,10 +114,9 @@ security with no cross-row policy (`supabase/migrations/0001_init.sql`). The
 `service_role` key is not designed for that and must never appear in a
 Cloudflare variable, this repository, or any file that reaches a browser.
 
-**After deploying with accounts**, add the Pages URL — and the
-`*.pages.dev` preview pattern, if you want previews to be able to sign in — to
-your Supabase project under Authentication → URL Configuration → Redirect URLs.
-Otherwise the email link and the Google round-trip both bounce.
+**After deploying with accounts**, add the deployed URL to your Supabase project
+under Authentication → URL Configuration → Redirect URLs, or the email link and
+the Google round-trip both bounce.
 
 ### The service worker
 
@@ -105,16 +126,22 @@ are mid-sentence in until they accept the new one. The `_headers` file keeps
 
 ### Deploying from a terminal instead
 
-If you would rather not connect Git, the same build ships with one command:
-
 ```bash
 npm run build
-npx wrangler pages deploy          # reads wrangler.toml
+npx wrangler deploy            # reads wrangler.toml
+npx wrangler deploy --dry-run  # check the config without shipping
 ```
 
 `wrangler login` opens a browser once. For CI, use a token scoped to
-**Cloudflare Pages: Edit** on the one account and nothing else, stored as a
+**Workers Scripts: Edit** on the one account and nothing else, stored as a
 repository secret — never in a file in this repository.
+
+## Cloudflare Pages instead
+
+Pages works equally well and needs one change: swap the `[assets]` block in
+`wrangler.toml` for `pages_build_output_dir = "dist"`, and use
+`npx wrangler pages deploy`. The two forms are mutually exclusive — wrangler
+refuses a config that claims to be both.
 
 ## Anywhere else
 

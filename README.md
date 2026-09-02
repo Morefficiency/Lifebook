@@ -176,8 +176,8 @@ SPA rewrite rule is needed and the app works from a `file://` path or a
 subdirectory without configuration.
 
 Security headers ship with the build in `public/_headers`, which Cloudflare
-Pages reads directly; on a host that ignores it, reproduce those headers in that
-host's own configuration. **[DEPLOY.md](DEPLOY.md)** has the Cloudflare Pages
+reads directly on both Workers and Pages; on a host that ignores it, reproduce
+those headers in that host's own configuration. **[DEPLOY.md](DEPLOY.md)** has the Cloudflare Pages
 settings, the environment variables, and the one line you have to choose for
 yourself (the Content-Security-Policy, which differs depending on whether you
 deployed with accounts).

@@ -9,8 +9,16 @@
 # or the build will stop and tell you the names disagree.
 
 name = "lifebook"
-pages_build_output_dir = "dist"
 compatibility_date = "2026-09-01"
+
+# Lifebook is a static bundle, so this Worker serves assets and runs no code of
+# its own. `_headers` in the assets directory is honoured, which is where the
+# security headers and cache rules live.
+[assets]
+directory = "./dist"
+# Hash routing means every URL a browser requests is "/", so there is nothing to
+# rewrite. A 404 here is a genuinely missing file and should say so.
+not_found_handling = "none"
 
 # There are deliberately no bindings here. Lifebook has no Workers, no
 # Functions, no D1 and no KV: it is a static bundle that talks to exactly one
