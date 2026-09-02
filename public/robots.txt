@@ -1,0 +1,8 @@
+# Lifebook is a public product page and a private app behind it. The app lives
+# entirely behind '#' fragments, which crawlers do not follow, so there is
+# nothing here that needs excluding: what is crawlable is the landing page and
+# the policies, and those are meant to be read.
+User-agent: *
+Allow: /
+
+Sitemap: /sitemap.xml

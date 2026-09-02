@@ -168,6 +168,17 @@ npm run preview:account &
 npm run e2e:accounts
 ```
 
+### Launching
+
+**[LAUNCH.md](LAUNCH.md)** is the ordered path from this repository to a first
+paying customer — Supabase, the migrations, Stripe, the two Edge Functions, the
+webhook, and the end-to-end purchase test with a card number that costs nothing.
+Every step has a check, so a failure tells you which step it was.
+
+`npm run check:launch` refuses to pass while the operator's name, contact
+address, governing law or policy date are unset, and fails outright if a Stripe
+key or the `service_role` key has found its way into the browser bundle.
+
 ### Deploying
 
 `npm run build` produces a fully static `dist/`. Upload it anywhere — Cloudflare

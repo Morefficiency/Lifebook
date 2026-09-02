@@ -189,7 +189,22 @@ export const useStore = create<Store>((set, get) => {
     syncStatus: isCloudEnabled() ? 'idle' : 'off',
     syncError: null,
     onLocalChange: null,
-    setSession: (session) => set({ session }),
+    // An entitlement belongs to a session. Changing the session must therefore
+    // invalidate it in the same update, or there is a window — however short —
+    // in which `entitlementReady` is still true from the previous session and
+    // `entitlement` is still null, and a paying customer who has just signed in
+    // is bounced to the sales page for something they own. Doing it here rather
+    // than in the caller makes the window structurally impossible instead of
+    // dependent on the order of a handful of awaits.
+    setSession: (session) => set((s) => {
+      if (s.session?.userId === session?.userId) return { session };
+      return {
+        session,
+        entitlement: null,
+        // Signing out has nothing to ask about, so that answer is already final.
+        entitlementReady: session === null || !isCloudEnabled(),
+      };
+    }),
     setAuthReady: (authReady) => set({ authReady }),
     setEntitlement: (entitlement) => set({ entitlement, entitlementReady: true }),
     beginEntitlementCheck: () => set({ entitlementReady: false }),

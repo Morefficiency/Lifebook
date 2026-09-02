@@ -177,6 +177,47 @@ const landed = (page) => page.url().split('#')[1] ?? '';
   await ctx.close();
 }
 
+/* ------------------------------ back from Stripe, webhook still in flight -- */
+{
+  // The riskiest sequence in the whole product: money has left the customer's
+  // account and the grant has not landed yet. Showing them a buy button here is
+  // how you earn a chargeback from someone who did nothing wrong.
+  entitlementRow = null;
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
+  const page = await ctx.newPage();
+  await stub(page);
+  await page.goto(BASE, { waitUntil: 'networkidle' });
+  await page.locator('input[type=checkbox]').nth(0).click();
+  await page.locator('input[type=checkbox]').nth(1).click();
+  await page.getByRole('button', { name: /^Start with the life you want/ }).click();
+  await page.waitForFunction(() => location.hash.includes('/sign-in'), null, { timeout: 15000 });
+  await createAccount(page);
+
+  // Stripe sends them back with the marker in the hash-router's query string.
+  await page.goto(`${BASE}/#/unlock?paid=1`);
+  await page.waitForTimeout(600);
+  const midFlight = await page.locator('main').innerText();
+  check('a customer returning from checkout is told to wait, not asked to pay again',
+    /waiting|received/i.test(midFlight)
+    && (await page.getByRole('button', { name: /Unlock the rest/ }).count()) === 0,
+    midFlight.slice(0, 90));
+
+  // The webhook lands while they are looking at that screen.
+  entitlementRow = { status: 'active', granted_at: '2026-09-02T00:00:00.000Z' };
+  await page.waitForFunction(
+    () => /own this/i.test(document.querySelector('main')?.textContent ?? ''),
+    null, { timeout: 20000 },
+  ).then(() => check('...and the screen turns into a receipt the moment it lands', true))
+   .catch(() => check('...and the screen turns into a receipt the moment it lands', false,
+     'still waiting after 20s'));
+
+  await page.goto(`${BASE}/#/life`);
+  await page.waitForTimeout(700);
+  check('...and the paid side is open straight afterwards', landed(page).startsWith('/life'), landed(page));
+
+  await ctx.close();
+}
+
 /* ------------------------------------------------------- after a refund --- */
 {
   const { ctx, page } = await signedIn({ status: 'refunded', granted_at: '2026-09-01T00:00:00.000Z' });

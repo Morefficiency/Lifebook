@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -14,9 +15,40 @@ import { VitePWA } from 'vite-plugin-pwa';
  * Updates are prompted rather than silent: swapping the bundle underneath
  * someone mid-sentence is how you lose a paragraph.
  */
-export default defineConfig({
+/**
+ * The absolute URL the app is served from.
+ *
+ * Open Graph images and canonical links have to be absolute — a relative one is
+ * silently ignored by some crawlers, which is the kind of failure you only find
+ * out about from a link that previews as a grey rectangle. Set VITE_APP_URL to
+ * the deployed origin; with nothing set the tags are stripped rather than
+ * shipped pointing at a placeholder.
+ */
+function absoluteUrls(appUrl: string) {
+  return {
+    name: 'lifebook-absolute-urls',
+    transformIndexHtml(html: string) {
+      if (appUrl) return html.replaceAll('%APP_URL%', appUrl);
+      // No origin configured: drop the tags that would be wrong rather than
+      // emit "%APP_URL%/og.png" into somebody's link preview.
+      return html
+        .split('\n')
+        .filter((line) => !line.includes('%APP_URL%'))
+        .join('\n');
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  // loadEnv rather than process.env: this file is typechecked with types: [],
+  // deliberately, and Vite's own loader reads both the .env files and the
+  // matching environment variables without needing the node types.
+  const appUrl = (loadEnv(mode, '.', 'VITE_')['VITE_APP_URL'] ?? '').replace(/\/+$/, '');
+
+  return {
   plugins: [
     react(),
+    absoluteUrls(appUrl),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.svg'],
@@ -69,4 +101,5 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     setupFiles: ['src/store/__tests__/setup.ts'],
   },
+};
 });

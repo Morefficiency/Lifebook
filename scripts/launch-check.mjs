@@ -48,6 +48,15 @@ if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
 
 /* ------------------------------------------------------------- accounts --- */
 
+const appUrl = envValue('VITE_APP_URL');
+if (!appUrl) {
+  warn('VITE_APP_URL is not set. The Open Graph tags are dropped without it, so '
+     + 'the link previews as a bare grey URL wherever it is posted — which is '
+     + 'most of how a first customer arrives.');
+} else if (!/^https:\/\/[^/]+$/.test(appUrl)) {
+  fail(`VITE_APP_URL must be an https origin with no path or trailing slash: ${appUrl}`);
+}
+
 const url = envValue('VITE_SUPABASE_URL');
 const anon = envValue('VITE_SUPABASE_ANON_KEY');
 if (!url || !anon) {
@@ -86,6 +95,10 @@ if (!existsSync(DIST)) {
     if (bundle.toLowerCase().includes(marker.toLowerCase())) {
       warn(`The bundle contains "${marker}". Check it is not on a page anybody reads.`);
     }
+  }
+
+  if (appUrl && !existsSync(join(DIST, 'og.png'))) {
+    fail('dist/og.png is missing, but the share tags point at it.');
   }
 
   if (!existsSync(join(DIST, '_headers'))) {
