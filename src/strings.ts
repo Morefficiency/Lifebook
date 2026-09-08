@@ -103,6 +103,14 @@ export const S = {
       return `wrong ${times}, when it was sure`;
     },
     evidenceOccurred: (n: number) => (n === 1 ? '1 time it was right' : `${n} times it was right`),
+    /* What the record says against what the person still forecasts. Shown
+       only once there are enough reports to say anything (see engine/credence). */
+    credence: (stated: number, record: number) =>
+      `You still forecast ${stated}%. Your record says ${record}%.`,
+    credenceHeld: 'Held against your own record.',
+    /* Where an area has gone since it was first placed. */
+    trend: (delta: number, since: string) =>
+      `${delta > 0 ? '+' : ''}${delta} since ${since}`,
     evidencePending: (n: number) => (n === 1 ? '1 test out' : `${n} tests out`),
 
     collisionsTitle: 'Where your goals collide',
@@ -210,6 +218,26 @@ export const S = {
 
     signInFirst: 'Sign in first, so the purchase has an account to attach to.',
     notSelling: 'This build has no payment configured, so everything is open.',
+  },
+
+  /* Patterns from the record — offered as questions, never as findings. */
+  patterns: {
+    title: 'What your record says',
+    lead: 'Patterns in what you have actually done, put to you as questions. Nothing here is inferred about you; it is your own results added up.',
+    none: 'Nothing yet. This fills in as experiments come back — three in one area is enough to say something.',
+    kind: {
+      held: 'Held against the record',
+      calibration: 'Forecast against outcome',
+      avoidance: 'Untested',
+    } as Record<'held' | 'calibration' | 'avoidance', string>,
+    act: 'Go there',
+    explain: [
+      'Three kinds of pattern, each computed only from experiments you filed and reported on. Only the first report on each experiment counts.',
+      'Forecast against outcome: in one area of life, the average of what you predicted against how often the feared thing actually happened. Needs three reports in that area.',
+      'Held against the record: a belief you confirmed, tested at least three times, where what you still forecast sits 20 points or more above what your own results say.',
+      'Untested: an area you rated 4 or 5 that no experiment has touched, once you have run three anywhere.',
+      'None of this says what a pattern means. That is yours.',
+    ],
   },
 
   /* The constellation — the standing view's data with a third axis. */

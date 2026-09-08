@@ -12,6 +12,7 @@ import type {
 } from '../../types';
 import { practiceProgress } from '../../engine/programme';
 import { beliefEvidence, evidenceForBeliefs, evidenceTotals } from '../../engine/evidence';
+import { MIN_REPORTS_FOR_RESISTANCE, beliefCredence } from '../../engine/credence';
 import { areaName } from '../../content/areas';
 import { S } from '../../strings';
 
@@ -35,6 +36,9 @@ export function SelfPanel({
   // times the behaviour beside it was ticked off.
   const evidence = beliefEvidence(quests, reports);
   const totals = evidenceTotals(evidenceForBeliefs(confirmed, quests, reports));
+  // What the person still forecasts against what their record says. The gap
+  // between the two is the thing that is invisible from inside a belief.
+  const credence = new Map(beliefCredence(confirmed, quests, reports).map((c) => [c.beliefId, c]));
 
   if (owned.length === 0) {
     return (
@@ -96,6 +100,23 @@ export function SelfPanel({
                     ) : null}
                     {e.pending > 0 ? (
                       <span className="text-carry-bright">{S.life.evidencePending(e.pending)}</span>
+                    ) : null}
+                  </p>
+                );
+              })()}
+              {/* Stated against record. Said only once there are enough reports
+                  for the record to have an opinion, and said as two numbers
+                  rather than a verdict — the person reads the gap. */}
+              {(() => {
+                const c = replaced ? credence.get(replaced.id) : undefined;
+                if (!c || c.tested < MIN_REPORTS_FOR_RESISTANCE || c.statedRate === null) return null;
+                return (
+                  <p className="mt-1.5 text-xs leading-relaxed">
+                    <span className="text-muted">
+                      {S.life.credence(Math.round(c.statedRate * 100), Math.round(c.evidenceRate * 100))}
+                    </span>
+                    {c.held ? (
+                      <span className="ml-2 text-carry-bright">{S.life.credenceHeld}</span>
                     ) : null}
                   </p>
                 );

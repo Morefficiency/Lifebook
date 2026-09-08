@@ -53,12 +53,16 @@ export const lifebook = {
   /* ---------------------------- Stage 2: current -------------------------- */
 
   setCurrent(area: LifeArea, score: number, description: string) {
+    const ts = now();
     mutate((lb) => ({
       ...lb,
       currents: [
         ...lb.currents.filter((c) => c.area !== area),
-        { area, score, description, ts: now() },
+        { area, score, description, ts },
       ],
+      // The snapshot above is overwritten; this is not. Every placing joins the
+      // record, so a person can later see where an area has actually gone.
+      placements: [...(lb.placements ?? []), { area, score, ts }],
     }));
   },
 

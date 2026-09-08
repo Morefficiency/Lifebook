@@ -22,6 +22,9 @@ export interface AreaTileProps {
   row: AreaRow;
   statement: string;
   beliefCount: number;
+  /** Where this area has gone since it was first placed, when it has been
+   *  placed more than once. Null is "no direction yet", not zero. */
+  trend: { delta: number; since: string } | null;
   selected: boolean;
   /** The area carrying the most importance × gap — marked the same way here as
    *  on the dial, so the two halves of the page point at the same thing. */
@@ -63,7 +66,7 @@ function Position({ score }: { score: number }) {
 }
 
 export function AreaTile({
-  row, statement, beliefCount, selected, attention, onHover,
+  row, statement, beliefCount, trend, selected, attention, onHover,
 }: AreaTileProps) {
   const def = AREA_BY_ID.get(row.area);
   const name = def?.name ?? row.area;
@@ -95,7 +98,12 @@ export function AreaTile({
       {row.state === 'rated' ? (
         <div className="mt-3">
           <Position score={row.current!} />
-          <div className="mt-1.5 numeral text-xs text-muted">{S.life.at(row.current!)}</div>
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 numeral text-xs text-muted">
+            <span>{S.life.at(row.current!)}</span>
+            {/* The record, in four words. Sign carries the direction; the
+                colour does not, so it reads the same to everyone. */}
+            {trend ? <span className="text-instrument-dim">{S.life.trend(trend.delta, trend.since)}</span> : null}
+          </div>
         </div>
       ) : null}
 

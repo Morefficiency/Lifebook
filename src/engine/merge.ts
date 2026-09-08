@@ -110,6 +110,14 @@ export function mergeStates(
     // Their own timestamps are better evidence than the document's.
     visions: unionByStamp(mine.lifebook.visions, theirs.lifebook.visions, (v) => v.area),
     currents: unionByStamp(mine.lifebook.currents, theirs.lifebook.currents, (c) => c.area),
+    // Append-only events, like the practice logs: a placing made on either
+    // device is a placing that happened. Keyed by area+timestamp because the
+    // record has no ids of its own and needs none.
+    placements: unionById(
+      (mine.lifebook.placements ?? []).map((p) => ({ ...p, id: `${p.area}@${p.ts}` })),
+      (theirs.lifebook.placements ?? []).map((p) => ({ ...p, id: `${p.area}@${p.ts}` })),
+      true,
+    ).map(({ id: _id, ...p }) => p),
     probes: unionByStamp(mine.lifebook.probes, theirs.lifebook.probes, (p) => p.probeId),
     beliefs: unionByStamp(mine.lifebook.beliefs, theirs.lifebook.beliefs, (b) => b.id),
     identities: unionByStamp(mine.lifebook.identities, theirs.lifebook.identities, (i) => i.id),

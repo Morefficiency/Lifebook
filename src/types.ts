@@ -237,9 +237,26 @@ export interface PracticeLog {
   ts: string;
 }
 
+/**
+ * One placing of one area, kept forever.
+ *
+ * `currents` holds only the latest placing of each area, overwritten every time
+ * — which is right for the standing view and useless for seeing where Money
+ * has gone over six months. This is the record: append-only, one entry per
+ * placing, never edited. It is what lets the app say anything about results
+ * over time rather than about a snapshot.
+ */
+export interface Placement {
+  area: LifeArea;
+  score: number; // 1–10, same scale as AreaCurrent
+  ts: string;
+}
+
 export interface Lifebook {
   visions: AreaVision[];
   currents: AreaCurrent[];
+  /** Every placing ever made, in the order made. See Placement. */
+  placements: Placement[];
   probes: ProbeAnswer[];
   beliefs: HeldBelief[];
   identities: TargetIdentity[];
@@ -257,7 +274,7 @@ export type LifebookStage =
 
 export function emptyLifebook(): Lifebook {
   return {
-    visions: [], currents: [], probes: [], beliefs: [],
+    visions: [], currents: [], placements: [], probes: [], beliefs: [],
     identities: [], practices: [], practiceLogs: [], stagesCompleted: {},
   };
 }

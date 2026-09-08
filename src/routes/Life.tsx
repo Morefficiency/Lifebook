@@ -26,6 +26,9 @@ import { SelfPanel } from '../components/life/SelfPanel';
 import { CollisionStrip } from '../components/life/CollisionStrip';
 import { WaitingBand } from '../components/life/WaitingBand';
 import { waitingToShow } from '../engine/waiting';
+import { areaTrend } from '../engine/record';
+import { offers } from '../engine/patterns';
+import { PatternsBand } from '../components/life/PatternsBand';
 import { Explain } from '../components/ui';
 import { S } from '../strings';
 import type { LifeArea } from '../types';
@@ -56,6 +59,22 @@ export default function Life() {
     }
     return counts;
   }, [lb.beliefs]);
+
+  // The record: where each area has gone since it was first placed. Only an
+  // area placed more than once has a direction.
+  const monthOf = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+  const trends = useMemo(() => {
+    const out = new Map<LifeArea, { delta: number; since: string }>();
+    for (const r of rows) {
+      const t = areaTrend(lb.placements ?? [], r.area);
+      if (t.delta !== null && t.firstTs) out.set(r.area, { delta: t.delta, since: monthOf(t.firstTs) });
+    }
+    return out;
+  }, [rows, lb.placements]);
+
+  // What the record says, offered as questions.
+  const patternOffers = useMemo(() => offers(state), [state]);
 
   const described = describedCount(lb.visions);
   const unplaced = rows.filter((r) => r.state === 'written').length;
@@ -210,6 +229,7 @@ export default function Life() {
                 row={row}
                 statement={statementBy.get(row.area) ?? ''}
                 beliefCount={beliefsByArea.get(row.area) ?? 0}
+                trend={trends.get(row.area) ?? null}
                 selected={selected === row.area}
                 attention={attention === row.area}
                 onHover={(hovering) => setSelected(hovering ? row.area : null)}
@@ -217,6 +237,11 @@ export default function Life() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* ---- what the record says ----------------------------------------- */}
+      <section className="mt-14">
+        <PatternsBand offers={patternOffers} />
       </section>
 
       {/* ---- the goals, and where they fight -------------------------------- */}
