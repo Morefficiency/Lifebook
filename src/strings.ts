@@ -220,6 +220,24 @@ export const S = {
     notSelling: 'This build has no payment configured, so everything is open.',
   },
 
+  /* Today — read once in the morning, then closed. */
+  today: {
+    title: 'Today',
+    door: 'Today’s reading',
+    doorSub: 'One identity to hold, one area, what is due. Read it and close it.',
+    hold: 'Hold this today',
+    distance: 'Where most of the distance is',
+    due: 'Due today',
+    duePre: 'Log an instance on ',
+    dueLink: 'the programme',
+    duePost: ' when it has actually happened — not before.',
+    question: 'One question from your record',
+    close: 'That is all. Close this and go.',
+    emptyPre: 'Nothing to read yet. ',
+    emptyLink: 'Your life',
+    emptyPost: ' is where this is assembled from.',
+  },
+
   /* Patterns from the record — offered as questions, never as findings. */
   patterns: {
     title: 'What your record says',

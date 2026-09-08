@@ -46,6 +46,7 @@ import Life from './routes/Life';
 const ConstellationRoute = lazy(() => import('./routes/Constellation'));
 const Print = lazy(() => import('./routes/lifebook/Print'));
 const Unlock = lazy(() => import('./routes/Unlock'));
+const Today = lazy(() => import('./routes/Today'));
 const Privacy = lazy(() => import('./routes/legal/Privacy'));
 const Terms = lazy(() => import('./routes/legal/Terms'));
 const Refunds = lazy(() => import('./routes/legal/Refunds'));
@@ -179,6 +180,7 @@ export default function App() {
           <Route path="/becoming" element={<Paid><Becoming /></Paid>} />
           <Route path="/blueprint" element={<Paid><Blueprint /></Paid>} />
           <Route path="/life" element={<Paid><Life /></Paid>} />
+          <Route path="/today" element={<Paid><Today /></Paid>} />
           <Route path="/constellation" element={<Paid><ConstellationRoute /></Paid>} />
           {/* The gap dashboard was folded into the standing view. Old links,
               bookmarks and the print sheet's Back button still land somewhere. */}

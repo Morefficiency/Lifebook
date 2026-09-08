@@ -89,7 +89,7 @@ export const FREE_ROUTES: readonly string[] = [
 /** Everything after the map. */
 export const PAID_ROUTES: readonly string[] = [
   '/current', '/reflect', '/self-image', '/becoming', '/blueprint',
-  '/life', '/constellation', '/print',
+  '/life', '/constellation', '/print', '/today',
   '/quests', '/quest', '/fork', '/forge', '/rerate', '/ledger', '/stats',
 ];
 

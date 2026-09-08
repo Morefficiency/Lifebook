@@ -113,6 +113,17 @@ export default function Life() {
 
       <div className="mx-auto max-w-measure">
         <WaitingBand items={waiting} beliefText={beliefText} />
+        {/* The daily door. Not in the nav — the nav keeps its four — but one
+            tap from the page a person lands on, which is this one. */}
+        {ownedIdentities > 0 ? (
+          <Link
+            to="/today"
+            className="mt-6 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg border border-hairline bg-surface/40 px-4 py-3 transition-colors hover:border-instrument-dim"
+          >
+            <span className="font-display text-bone">{S.today.door}</span>
+            <span className="text-xs text-muted">{S.today.doorSub}</span>
+          </Link>
+        ) : null}
       </div>
 
       {/* ---- the figure, and the self it comes out of ---------------------- */}
