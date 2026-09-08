@@ -18,6 +18,11 @@
  *   inactive           never
  *   weekly, last log 6 days ago → not due ; 8 days ago → due
  *
+ * WITH AN IDENTITY HELD, its practices come first, and the affirmations of the
+ * other identities are left off — one sentence a day. Their behaviours stay.
+ *   held = i1 ; i1: behaviour(daily) affirmation(daily) ; i2: behaviour(daily) affirmation(daily)
+ *   → [i1 behaviour, i1 affirmation, i2 behaviour]
+ *
  * THE AREA is the one carrying most importance × gap, from engine/overview.
  * THE QUESTION is the first offer from engine/patterns, or nothing.
  */
@@ -31,8 +36,11 @@ const T = (d: string, t = '09:00:00') => `${d}T${t}.000Z`;
 const identity = (id: string, replacesBeliefId: string): TargetIdentity => ({
   id, text: `I am someone who ${id}.`, replacesBeliefId, areas: ['work'], edited: false, ts: T('2026-04-01'),
 });
-const practice = (id: string, identityId: string, cadence: PracticeItem['cadence'], active = true): PracticeItem => ({
-  id, identityId, kind: 'behaviour', text: `do ${id}`, cadence, active, ts: T('2026-04-01'),
+const practice = (
+  id: string, identityId: string, cadence: PracticeItem['cadence'], active = true,
+  kind: PracticeItem['kind'] = 'behaviour',
+): PracticeItem => ({
+  id, identityId, kind, text: `do ${id}`, cadence, active, ts: T('2026-04-01'),
 });
 const log = (itemId: string, d: string): PracticeLog => ({ id: `l-${itemId}-${d}`, itemId, evidence: 'x', ts: T(d) });
 
@@ -89,6 +97,18 @@ describe('which practices are due', () => {
 
   it('lists daily always, weekly only when a week has passed, and never the rest', () => {
     expect(duePractices(items, logs, now).map((p) => p.id)).toEqual(['d', 'w-stale', 'w-never']);
+  });
+
+  it('with an identity held, puts its practices first and drops the other sentences', () => {
+    const two = [
+      practice('i2-b', 'i2', 'daily'),
+      practice('i2-a', 'i2', 'daily', true, 'affirmation'),
+      practice('i1-b', 'i1', 'daily'),
+      practice('i1-a', 'i1', 'daily', true, 'affirmation'),
+    ];
+    expect(duePractices(two, [], now, 'i1').map((p) => p.id)).toEqual(['i1-b', 'i1-a', 'i2-b']);
+    // With nothing held, nothing is dropped and the order is as given.
+    expect(duePractices(two, [], now).map((p) => p.id)).toEqual(['i2-b', 'i2-a', 'i1-b', 'i1-a']);
   });
 
   it('draws the line at seven days exactly', () => {

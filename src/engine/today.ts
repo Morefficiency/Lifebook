@@ -40,16 +40,28 @@ export function dayIndexOf(nowIso: string): number {
  * logged, or if it never has been. "When it shows up" is never scheduled — it
  * is the person's to notice, not the app's to list. Inactive items are set
  * aside and stay that way.
+ *
+ * When an identity is being held today, its practices come first, and the
+ * affirmations of the *other* identities are left off: a person holds one
+ * sentence a day, and a morning page that recites three is a page nobody
+ * reads. Behaviours from the other identities stay — a thing that is due is
+ * due whichever sentence is being held.
  */
-export function duePractices(items: PracticeItem[], logs: PracticeLog[], nowIso: string): PracticeItem[] {
+export function duePractices(
+  items: PracticeItem[],
+  logs: PracticeLog[],
+  nowIso: string,
+  heldIdentityId: string | null = null,
+): PracticeItem[] {
   const lastLog = new Map<string, string>();
   for (const l of logs) {
     const prev = lastLog.get(l.itemId);
     if (!prev || l.ts > prev) lastLog.set(l.itemId, l.ts);
   }
   const today = dayIndexOf(nowIso);
-  return items.filter((p) => {
+  const due = items.filter((p) => {
     if (!p.active) return false;
+    if (heldIdentityId && p.identityId !== heldIdentityId && p.kind === 'affirmation') return false;
     if (p.cadence === 'daily') return true;
     if (p.cadence === 'weekly') {
       const last = lastLog.get(p.id);
@@ -58,6 +70,9 @@ export function duePractices(items: PracticeItem[], logs: PracticeLog[], nowIso:
     }
     return false;
   });
+  if (!heldIdentityId) return due;
+  // Stable partition: the held identity's items first, original order kept.
+  return [...due.filter((p) => p.identityId === heldIdentityId), ...due.filter((p) => p.identityId !== heldIdentityId)];
 }
 
 export interface TodayReading {
@@ -96,7 +111,7 @@ export function todayReading(state: AppState, nowIso: string): TodayReading {
     belief,
     credence,
     area,
-    due: duePractices(lb.practices, lb.practiceLogs, nowIso),
+    due: duePractices(lb.practices, lb.practiceLogs, nowIso, identity?.id ?? null),
     question: offers(state)[0] ?? null,
   };
 }

@@ -75,6 +75,45 @@ exactly 360° — written before the engine existed.
 `/gap` was folded into this page and now redirects to it. `/map` remains the
 standing home for anyone who stopped after act one and never opened act two.
 
+### The record, and what it says
+
+Every placing of an area is kept (`Lifebook.placements`, append-only), so each
+tile on the standing view can say where that area has gone and since when. An
+area placed once has no direction and says nothing rather than zero.
+
+Every confirmed belief is treated as what it is — a prediction generator — and
+every experiment filed against it already records a forecast and an outcome.
+`src/engine/credence.ts` does the bookkeeping: a Beta(3, 1) posterior per
+belief over "its predictions come true", the person's own most recent forecast
+beside it, and the gap between the two. That gap is *resistance* — the rigorous
+form of "what is holding me back", and in active-inference terms a
+high-precision prior, a belief that explains contradicting evidence away rather
+than updating on it. On the page it is nothing more than "you still forecast
+70%; your record says 43%", which is the kind of thing that is invisible from
+inside and obvious once written down. The closed forms — mean, variance, and
+the expected narrowing one more test would buy — are written out in the test
+header so they can be checked with a pencil; the last of them is what marks
+one identity on the programme as the one a test would tell you most about.
+
+`src/engine/patterns.ts` reads the record and offers three kinds of thing, each
+as a question with its evidence: forecast against outcome per area, an
+important area no experiment has touched, and a belief held against the
+record. Nothing is offered below its minimum n — two points is a guess with a
+straight face. Design Law 5 is kept, not bent: no number is inferred about the
+person, every number is their own record added up, explainable on tap, and the
+sentence stops before it says what any of it means.
+
+### Today
+
+`/today` is a short page read once in the morning and closed: the identity to
+hold today, the belief it replaces with what the record says about it, the area
+carrying most distance with the person's own line for it, what is due by the
+cadence they chose, and one question from the record. The identity rotates by
+the date, so it is the same all day, changes tomorrow, and two devices agree.
+It is not a streak, it does not notify, it does not grade the day, and it ends
+by telling the person to close it — which is Law 2 stated as copy. The door is
+on the standing view; the nav keeps its four.
+
 ### Why the short form is six goals and not twelve
 
 Twelve goals is sixty-six pairwise judgements, which is a different product from
@@ -310,6 +349,10 @@ src/
     report.ts      the deterministic insight-report template
     __tests__/     fixtures with the arithmetic hand-computed in comments
     overview.ts    the standing view: area states, dial geometry, living percent
+    record.ts      the placement record read back: series and trend per area
+    credence.ts    Beta posterior per belief, resistance, expected gain of a test
+    patterns.ts    what the record says, offered as questions with their evidence
+    today.ts       the morning reading: identity by date, what is due, one question
   design/        the palette decisions that are not Tailwind tokens
     ramp.ts        the one sequential ramp, and why it is not red-to-green
   data/          Dexie persistence, ledger payload types, pair ordering
