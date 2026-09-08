@@ -1036,6 +1036,16 @@ export const S = {
       sayInstead: 'Say instead: ',
       logged: (n: number) => `${n} logged`,
       testCta: 'Test it',
+      /* Which belief a test would move furthest. One marker, on one identity,
+         only once there is more than one to choose between. */
+      mostToLearn: 'A test here would tell you the most.',
+      mostToLearnTested: (n: number) =>
+        n === 0 ? 'This belief has never been put to one.' : `Tested ${n} times so far.`,
+      mostToLearnExplain: [
+        'Each confirmed belief carries a running estimate of how often its predictions come true, built from the experiments filed against it.',
+        'For each one, the app works out how much one more result would narrow that estimate. The belief with the most to narrow gets this line. An untested belief almost always wins; a well-tested one almost never does.',
+        'It is a suggestion about where a test is most informative, not about which belief matters most. That is yours.',
+      ],
     logCta: 'Log an instance',
       setAside: 'Set aside',
       bringBack: 'Bring back',

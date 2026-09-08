@@ -43,6 +43,9 @@ const lifeText = async () => {
   return page.locator('main').innerText();
 };
 
+/** The text of the belief the experiments are filed against, read off the forge. */
+let testedBelief = '';
+
 /** One experiment against the first behaviour's belief, reported as not happening. */
 async function fileOne(forecast) {
   await page.goto(`${BASE}/#/blueprint`);
@@ -51,6 +54,7 @@ async function fileOne(forecast) {
   await page.getByRole('link', { name: 'Test it' }).first().click();
   await page.waitForURL('**/forge**');
   await page.getByRole('heading', { name: /Forge|quest/i }).first().waitFor({ timeout: 10000 });
+  if (!testedBelief) testedBelief = (await page.locator('#belief').inputValue()).trim();
 
   await page.fill('#outcome', 'They take it as ordinary information and the conversation moves on.');
   await page.fill('#obstacle', 'I will soften it into a joke before anyone can react to it.');
@@ -117,6 +121,21 @@ await fileOne(70);
   check('every offer is a question', (life.match(/\?\n/g) ?? []).length >= 3);
   check('nothing on the page says what any of it means',
     !/you are (avoid|afraid|anxious)|this means|diagnos/i.test(life));
+}
+
+/* ---- which test next: the marker moves off the belief just tested -------- */
+{
+  await page.goto(`${BASE}/#/blueprint`);
+  await page.getByRole('heading', { name: 'The work' }).waitFor({ timeout: 10000 });
+  await page.waitForTimeout(400);
+  const marked = page.locator('main section', { hasText: 'A test here would tell you the most' });
+  check('the programme marks exactly one identity as the most informative to test',
+    (await marked.count()) === 1, `${await marked.count()}`);
+  const markedText = (await marked.count()) ? await marked.first().innerText() : '';
+  check('...and it is not the belief that has just been tested three times',
+    markedText.length > 0 && !markedText.includes(testedBelief.slice(0, 30)),
+    testedBelief.slice(0, 40));
+  check('...and it says that belief has never been put to a test', /never been put to one/i.test(markedText));
 }
 
 /* ---- placing everything a second time: the tiles gain a direction -------- */

@@ -21,8 +21,9 @@ import { buildProgramme, practiceProgress } from '../../engine/programme';
 import { lifebook } from '../../store/lifebookStore';
 import { S } from '../../strings';
 import { useStore } from '../../store/useStore';
+import { beliefCredence, rankByGain } from '../../engine/credence';
 import { StageFrame } from '../../components/lifebook';
-import { Tag } from '../../components/ui';
+import { Tag, Explain } from '../../components/ui';
 import type { Cadence, PracticeItem, PracticeKind } from '../../types';
 
 const KIND_LABEL: Record<PracticeKind, string> = S.stages.blueprint.kinds;
@@ -33,11 +34,29 @@ const KIND_ORDER: PracticeKind[] = ['thought', 'behaviour', 'affirmation'];
 
 export default function Blueprint() {
   const lb = useStore((s) => s.state.lifebook);
+  const quests = useStore((s) => s.state.quests);
+  const reports = useStore((s) => s.state.reports);
 
   const identities = useMemo(
     () => lb.identities.filter((i) => i.text.trim().length > 0),
     [lb.identities],
   );
+
+  // Which belief a test would move furthest — the expected narrowing of its
+  // estimate from one more result (engine/credence). Only identities with a
+  // behaviour to actually go and do are candidates, since that is what a test
+  // is made from, and there is no "most" among fewer than two.
+  const mostToLearn = useMemo(() => {
+    const candidates = lb.identities
+      .filter((i) => i.text.trim().length > 0 && i.replacesBeliefId)
+      .filter((i) => lb.practices.some((p) => p.identityId === i.id && p.kind === 'behaviour' && p.active));
+    if (candidates.length < 2) return null;
+    const beliefs = lb.beliefs.filter((b) => candidates.some((i) => i.replacesBeliefId === b.id));
+    const top = rankByGain(beliefCredence(beliefs, quests, reports))[0];
+    if (!top) return null;
+    const identity = candidates.find((i) => i.replacesBeliefId === top.beliefId);
+    return identity ? { identityId: identity.id, tested: top.tested } : null;
+  }, [lb.identities, lb.practices, lb.beliefs, quests, reports]);
 
   // Seed the programme from the catalogue once per identity, then leave it alone
   // — everything after that is his to edit, disable or delete.
@@ -90,6 +109,17 @@ export default function Blueprint() {
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {identity.areas.map((a) => <Tag key={a}>{AREA_BY_ID.get(a)?.name ?? a}</Tag>)}
               </div>
+              {mostToLearn?.identityId === identity.id ? (
+                <p className="mt-3 flex flex-wrap items-center gap-x-2 text-sm">
+                  <span className="text-instrument">{S.stages.blueprint.mostToLearn}</span>
+                  <span className="text-muted">{S.stages.blueprint.mostToLearnTested(mostToLearn.tested)}</span>
+                  <Explain>
+                    <div className="space-y-2">
+                      {S.stages.blueprint.mostToLearnExplain.map((line) => <p key={line}>{line}</p>)}
+                    </div>
+                  </Explain>
+                </p>
+              ) : null}
 
               <ul className="mt-6 space-y-3">
                 {KIND_ORDER.flatMap((kind) => items.filter((i) => i.kind === kind)).map((item) => (
