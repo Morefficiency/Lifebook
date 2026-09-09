@@ -16,17 +16,11 @@
  *   VITE_SUPABASE_URL=https://stub.supabase.co VITE_SUPABASE_ANON_KEY=stub \
  *     npx vite build --outDir dist-account
  */
-import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { ACCOUNT_BASE as BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4174';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter();
+
 
 /* ------------------------------------------------------- the fake server -- */
 
@@ -130,12 +124,8 @@ async function install(page) {
 
 /* ----------------------------------------------------------------- run --- */
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 950 } });
-const page = await ctx.newPage();
-const errs = [];
-page.on('pageerror', (e) => errs.push(e.message));
-page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+const browser = await launch(chromium);
+const { ctx, page, errs } = await openPage(browser, { viewport: { width: 1280, height: 950 } });
 await install(page);
 
 const signUp = async (email, password = 'hunter2hunter2') => {
@@ -320,6 +310,5 @@ check("...and leaves other accounts alone", rows.has('user-2'));
 
 check('No console errors', errs.length === 0, errs.slice(0, 2).join(' | '));
 
-console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
-process.exit(fails.length ? 1 : 0);
+finish();

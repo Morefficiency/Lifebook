@@ -8,27 +8,15 @@
  * pushes. The identity rotation is by date and is unit-tested; here the check
  * is that the same identity is shown across two visits in one sitting.
  */
-import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 import { actTwo, consent, shortForm, writeVisions } from './lib/walk.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter();
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {},
-);
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
-const page = await ctx.newPage();
-const errs = [];
-page.on('pageerror', (e) => errs.push(e.message));
-page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+
+const browser = await launch(chromium);
+const { ctx, page, errs } = await openPage(browser, { viewport: { width: 1280, height: 1000 } });
 
 const today = async () => {
   await page.goto(`${BASE}/#/today`);
@@ -77,6 +65,5 @@ check('the same identity is held across the whole day', second.includes(identity
 await page.screenshot({ path: `${OUT}/today.png`, fullPage: true });
 check('No console errors', errs.length === 0, errs.slice(0, 2).join(' | '));
 
-console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
-process.exit(fails.length ? 1 : 0);
+finish();

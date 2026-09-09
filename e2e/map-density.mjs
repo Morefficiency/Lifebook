@@ -7,15 +7,10 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter();
+
 
 const TEXTS = [
   'build my business to replace my salary', 'be more present with my partner', 'keep training 4×/week',
@@ -50,7 +45,7 @@ const file = `${OUT}/seed-12.json`;
 writeFileSync(file, JSON.stringify(state, null, 2));
 check('Seed is the maximum matrix: 12 strivings, 66 pairs', pairRatings.length === 66, `${pairRatings.length} pairs`);
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await launch(chromium);
 const page = await (await browser.newContext({ viewport: { width: 1400, height: 1000 } })).newPage();
 page.on('pageerror', (e) => { console.log('PAGEERROR', e.message); fails.push('page error'); });
 
@@ -119,6 +114,5 @@ check('The fault-line list leads with that same edge',
 
 await page.screenshot({ path: `${OUT}/map-12.png` });
 
-console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
-process.exit(fails.length ? 1 : 0);
+finish();

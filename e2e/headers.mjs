@@ -17,14 +17,12 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { chromium } from 'playwright';
+import { launch, openPage, reporter } from './lib/harness.mjs';
 import { consent, writeVisions } from './lib/walk.mjs';
 
+const { check, finish } = reporter({ style: 'compact' });
+
 const DIST = 'dist';
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
 
 /* ---- read the shipped headers file, not a copy of it --------------------- */
 
@@ -87,11 +85,7 @@ const BASE = `http://127.0.0.1:${server.address().port}`;
 
 /* ---- walk it ------------------------------------------------------------- */
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH
-    ? { executablePath: process.env.CHROMIUM_PATH, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] }
-    : { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
-);
+const browser = await launch(chromium, { webgl: true });
 const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 } });
 const page = await ctx.newPage();
 
@@ -144,5 +138,4 @@ check('no page errors under the policy', errs.length === 0, errs.slice(0, 3).joi
 
 await browser.close();
 server.close();
-console.log(fails.length ? `\n${fails.length} FAILED: ${fails.join(', ')}` : '\nall checks passed');
-process.exit(fails.length ? 1 : 0);
+finish();

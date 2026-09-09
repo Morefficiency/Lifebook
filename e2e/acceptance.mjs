@@ -14,17 +14,14 @@
  *
  * CHROMIUM_PATH overrides the browser binary; E2E_BASE the origin.
  */
-import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch } from './lib/harness.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
 const log = (...a) => console.log(...a);
 const fails = [];
 const check = (name, ok, extra='') => { log(`${ok ? 'PASS' : 'FAIL'}  ${name}${extra?' — '+extra:''}`); if(!ok) fails.push(name); };
 
-const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const browser = await launch(chromium);
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 const page = await ctx.newPage();
 
@@ -276,4 +273,5 @@ await page.screenshot({ path: `${OUT}/shot-360.png`, fullPage: false });
 
 log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
+console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 process.exit(fails.length ? 1 : 0);

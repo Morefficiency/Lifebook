@@ -20,24 +20,17 @@
  */
 import { readFileSync, mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 import { consent, writeVisions, shortForm } from './lib/walk.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
+const { check, finish } = reporter({ style: 'compact' });
+
 mkdirSync(process.env.E2E_OUT ?? 'e2e/.out', { recursive: true });
 
 const AXE = readFileSync('node_modules/axe-core/axe.min.js', 'utf8');
 
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH
-    ? { executablePath: process.env.CHROMIUM_PATH, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] }
-    : { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
-);
+const browser = await launch(chromium, { webgl: true });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
 const page = await ctx.newPage();
 
@@ -134,5 +127,4 @@ check('focus is visible on the element that has it',
   JSON.stringify(ring));
 
 await browser.close();
-console.log(fails.length ? `\n${fails.length} FAILED: ${fails.join(', ')}` : '\nall checks passed');
-process.exit(fails.length ? 1 : 0);
+finish();

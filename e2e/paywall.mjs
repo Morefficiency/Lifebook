@@ -16,18 +16,12 @@
  *   VITE_SUPABASE_URL=https://stub.supabase.co VITE_SUPABASE_ANON_KEY=stub \
  *     npm run build:account && npm run preview:account & node e2e/paywall.mjs
  */
-import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { ACCOUNT_BASE as BASE, launch, openPage, reporter } from './lib/harness.mjs';
 import { writeVisions, shortForm } from './lib/walk.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4174';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter({ style: 'compact' });
+
 
 const b64url = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwt = (sub) => `${b64url({ alg: 'HS256', typ: 'JWT' })}.${b64url({
@@ -76,9 +70,7 @@ async function stub(page) {
   });
 }
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {},
-);
+const browser = await launch(chromium);
 
 /** A fresh browser context signed in as u1, with the given entitlement row. */
 async function signedIn(row) {
@@ -292,5 +284,4 @@ const landed = (page) => page.url().split('#')[1] ?? '';
 }
 
 await browser.close();
-console.log(fails.length ? `\n${fails.length} FAILED: ${fails.join(', ')}` : '\nall checks passed');
-process.exit(fails.length ? 1 : 0);
+finish();

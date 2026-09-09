@@ -12,15 +12,10 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter();
+
 
 const daysAgo = (n) => new Date(Date.now() - n * 86_400_000).toISOString();
 
@@ -82,9 +77,7 @@ function seed({ aged }) {
   };
 }
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {},
-);
+const browser = await launch(chromium);
 
 async function load(name, state) {
   const file = `${OUT}/seed-${name}.json`;
@@ -152,6 +145,5 @@ async function load(name, state) {
   await ctx.close();
 }
 
-console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
-process.exit(fails.length ? 1 : 0);
+finish();

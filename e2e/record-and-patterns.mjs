@@ -14,27 +14,15 @@
  *   latest forecast 70% → resistance 0.27 ≥ 0.20 → held
  *   mean forecast 75%, 0 of 3 → calibration bias 0.75 ≥ 0.30 → offered
  */
-import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { BASE, OUT, launch, openPage, reporter } from './lib/harness.mjs';
 import { DEFAULT_VISIONS, actTwo, consent, shortForm, writeVisions } from './lib/walk.mjs';
 
-const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:4173';
-const OUT = process.env.E2E_OUT ?? 'e2e/.out';
-mkdirSync(OUT, { recursive: true });
-const fails = [];
-const check = (n, ok, x = '') => {
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${x ? ' — ' + x : ''}`);
-  if (!ok) fails.push(n);
-};
+const { check, finish } = reporter();
 
-const browser = await chromium.launch(
-  process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {},
-);
-const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
-const page = await ctx.newPage();
-const errs = [];
-page.on('pageerror', (e) => errs.push(e.message));
-page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+
+const browser = await launch(chromium);
+const { ctx, page, errs } = await openPage(browser, { viewport: { width: 1440, height: 1000 } });
 
 const lifeText = async () => {
   await page.goto(`${BASE}/#/life`);
@@ -161,6 +149,5 @@ await fileOne(70);
 await page.screenshot({ path: `${OUT}/record-and-patterns.png`, fullPage: true });
 check('No console errors', errs.length === 0, errs.slice(0, 2).join(' | '));
 
-console.log('\n' + (fails.length ? `FAILURES: ${fails.join(' | ')}` : 'ALL CHECKS PASSED'));
 await browser.close();
-process.exit(fails.length ? 1 : 0);
+finish();
