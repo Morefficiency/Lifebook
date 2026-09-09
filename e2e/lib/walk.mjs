@@ -23,7 +23,6 @@ export const DEFAULT_SCORES = {
 
 export async function consent(page, base) {
   await page.goto(base, { waitUntil: 'networkidle' });
-  if (await page.locator('#access-code').count()) await page.fill('#access-code', 'COHERENCE-V1');
   await page.locator('input[type=checkbox]').nth(0).click();
   await page.locator('input[type=checkbox]').nth(1).click();
   await page.getByRole('button', { name: /^Start with the life you want/ }).click();

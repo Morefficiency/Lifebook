@@ -7,7 +7,7 @@
  */
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { ENABLE_GOOGLE_SIGN_IN, GATE_SIGN_UP, isCloudEnabled, isValidAccessCode } from '../config';
+import { ENABLE_GOOGLE_SIGN_IN, isCloudEnabled } from '../config';
 import { sendPasswordReset, signIn, signInWithGoogle, signUp } from '../store/account';
 import { useStore } from '../store/useStore';
 import { S } from '../strings';
@@ -22,7 +22,6 @@ export default function SignIn() {
   const [mode, setMode] = useState<Mode>('in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -45,7 +44,6 @@ export default function SignIn() {
     }
 
     if (mode === 'up') {
-      if (GATE_SIGN_UP && !isValidAccessCode(code)) { setError(S.gate.codeBad); return; }
       if (!ack) { setError('Please read and accept the two lines above first.'); return; }
     }
 
@@ -64,7 +62,6 @@ export default function SignIn() {
 
   const google = async () => {
     setError(null);
-    if (mode === 'up' && GATE_SIGN_UP && !isValidAccessCode(code)) { setError(S.gate.codeBad); return; }
     const result = await signInWithGoogle();
     if (!result.ok) setError(result.error ?? 'That did not work.');
   };
@@ -117,19 +114,6 @@ export default function SignIn() {
         className="mt-6 space-y-4"
         onSubmit={(e) => { e.preventDefault(); void submit(); }}
       >
-        {mode === 'up' && GATE_SIGN_UP ? (
-          <div>
-            <label htmlFor="code" className="label">{S.gate.codeLabel}</label>
-            <input
-              id="code"
-              className="field mt-2"
-              value={code}
-              autoComplete="off"
-              onChange={(e) => { setCode(e.target.value); setError(null); }}
-            />
-          </div>
-        ) : null}
-
         <div>
           <label htmlFor="email" className="label">Email</label>
           <input

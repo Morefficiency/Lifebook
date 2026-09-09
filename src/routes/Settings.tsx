@@ -8,7 +8,6 @@ import { deleteAccountEverywhere, signOut, syncNow } from '../store/account';
 import { isCloudEnabled } from '../config';
 import { validateState } from '../data/db';
 import { Page } from '../components/ui';
-import { ACCESS_MODE } from '../config';
 
 function todayStamp(): string {
   const d = new Date();
@@ -293,8 +292,7 @@ export default function Settings() {
       ) : null}
 
       <p className="mt-10 text-xs text-muted">
-        {S.bits.accessMode}: <span className="numeral">{ACCESS_MODE}</span>. {S.bits.schemaVersion}:{' '}
-        <span className="numeral">{state.version}</span>.
+        {S.bits.schemaVersion}: <span className="numeral">{state.version}</span>.
       </p>
     </Page>
   );

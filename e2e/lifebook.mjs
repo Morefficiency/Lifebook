@@ -21,7 +21,6 @@ const errs=[]; p.on('pageerror',e=>errs.push(e.message)); p.on('console',m=>{if(
 await p.goto(BASE,{waitUntil:'networkidle'});
 // The access code now gates sign-up only, and is off by default; fill it if
 // this build still shows the field.
-if (await p.locator('#access-code').count()) await p.fill('#access-code','COHERENCE-V1');
 await p.locator('input[type=checkbox]').nth(0).check();
 await p.locator('input[type=checkbox]').nth(1).check();
 await p.getByRole('button',{name:'Start with the life you want'}).click();

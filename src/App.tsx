@@ -3,7 +3,7 @@ import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-d
 import { Layout } from './components/Layout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UpdatePrompt } from './components/UpdatePrompt';
-import { ACCESS_MODE, isCloudEnabled, isSellingEnabled } from './config';
+import { isCloudEnabled, isSellingEnabled } from './config';
 import { useStore } from './store/useStore';
 import { initAccounts, flushPush } from './store/account';
 import { ONBOARDING_PATH, isOnboardingComplete, onboardingStep } from './store/progress';
@@ -56,7 +56,6 @@ const Refunds = lazy(() => import('./routes/legal/Refunds'));
  * access code when the build is gated. The two static pages stay open.
  */
 function RequireAccess({ children }: { children: ReactNode }) {
-  const unlocked = useStore((s) => s.unlocked);
   const session = useStore((s) => s.session);
   const authReady = useStore((s) => s.authReady);
 
@@ -68,7 +67,6 @@ function RequireAccess({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (ACCESS_MODE === 'code' && !unlocked) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 

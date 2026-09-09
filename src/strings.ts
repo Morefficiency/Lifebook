@@ -315,9 +315,6 @@ export const S = {
     priceSee: 'See what that opens',
     consentTherapy: 'I understand this is a self-reflection tool, not therapy or medical care.',
     consentLocal: 'I understand my answers are saved to my account so they follow me between devices, and that the people who run this service can read them.',
-    codeLabel: 'Access code',
-    codePlaceholder: 'Enter your access code',
-    codeBad: 'That code was not recognised. Check for stray spaces and try again.',
     begin: 'Start with the life you want',
     afterMap: 'There is more after that, for whoever wants it. Nothing pushes you into it.',
     consentRequired: 'Both boxes are required before you can start.',
@@ -1165,7 +1162,6 @@ export const S = {
     whatHappened: 'What happened',
     footer: 'Your own words, kept for you and nobody else. No feed, no ads, no analytics.',
     footerLocal: 'Everything you enter stays in this browser. Not signed in, so nothing is synced.',
-    accessMode: 'Access mode',
     schemaVersion: 'Schema version',
     persistenceError:
       'This browser refused to save to its local database, so changes may not survive a refresh. Private-browsing modes and blocked site data are the usual cause.',

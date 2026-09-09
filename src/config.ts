@@ -1,19 +1,3 @@
-/**
- * Access codes.
- *
- * Since accounts arrived this is no longer the front door — it is an optional
- * gate on *sign-up*, for when you want only people with a code to be able to
- * create an account. Set ACCESS_MODE to 'code' to turn it on.
- *
- * Codes are still checked in the browser, so they gate honestly rather than
- * cryptographically: anyone willing to read the bundle can find the list.
- */
-export type AccessMode = 'open' | 'code';
-export const ACCESS_MODE: AccessMode = 'open';
-
-/** Codes are compared case-insensitively after trimming. */
-export const ACCESS_CODES: string[] = ['COHERENCE-V1'];
-
 /* ========================================================================== *
  * The offer
  *
@@ -73,9 +57,6 @@ export function operatorConfigured(): boolean {
     .every((v) => v.trim().length > 0);
 }
 
-/** localStorage key for the unlock flag — the only thing this app puts there. */
-export const UNLOCK_KEY = 'coherence.unlocked';
-
 /* ========================================================================== *
  * Accounts (Supabase)
  *
@@ -99,15 +80,3 @@ export function isCloudEnabled(): boolean {
 export const ENABLE_GOOGLE_SIGN_IN =
   (import.meta.env['VITE_ENABLE_GOOGLE'] ?? 'true') !== 'false';
 
-/**
- * When true, creating an account requires one of ACCESS_CODES. Signing in to an
- * existing account never does — a paying user who cleared their browser must
- * not be locked out by a code they no longer have.
- */
-export const GATE_SIGN_UP: boolean = (ACCESS_MODE as AccessMode) === 'code';
-
-export function isValidAccessCode(input: string): boolean {
-  const needle = input.trim().toLowerCase();
-  if (needle.length === 0) return false;
-  return ACCESS_CODES.some((c) => c.trim().toLowerCase() === needle);
-}

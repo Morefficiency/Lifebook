@@ -38,7 +38,6 @@ check('Landing promises the map, not a six-stage programme',
   /ten minutes, four steps/i.test(promise) && /where your own goals collide/i.test(promise));
 check('...and says the rest is optional', /nothing pushes you into it/i.test(promise));
 
-if (await page.locator('#access-code').count()) await page.fill('#access-code', 'COHERENCE-V1');
 await click(page.locator('input[type=checkbox]').nth(0));
 await click(page.locator('input[type=checkbox]').nth(1));
 await click(page.getByRole('button', { name: /^Start with the life you want/ }));

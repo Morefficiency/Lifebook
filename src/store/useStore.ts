@@ -15,7 +15,7 @@ import {
   computeGraph, computeXp, coolEdgeHeat, earnedBadgeIds, edgeKey, levelFor,
   badgeById, isPredictionBroken, shouldPromptRerating,
 } from '../engine';
-import { UNLOCK_KEY, isCloudEnabled } from '../config';
+import { isCloudEnabled } from '../config';
 import { emptyState, loadState, saveState, scheduleSave, wipeEverything } from '../data/db';
 import { emptyLifebook } from '../types';
 import type { SyncStatus } from '../data/sync';
@@ -55,7 +55,6 @@ export interface Session { userId: string; email: string | null }
 interface Store {
   state: AppState;
   hydrated: boolean;
-  unlocked: boolean;
   persistenceError: string | null;
 
   /* Accounts. All null / 'off' when no backend is configured. */
@@ -93,7 +92,6 @@ interface Store {
   setOnLocalChange: (fn: ((state: AppState) => void) | null) => void;
 
   hydrate: () => Promise<void>;
-  setUnlocked: (v: boolean) => void;
 
   acceptConsent: () => void;
   setValues: (chosen: string[], reflection: string) => void;
@@ -177,7 +175,6 @@ export const useStore = create<Store>((set, get) => {
   return {
     state: emptyState(),
     hydrated: false,
-    unlocked: false,
     persistenceError: null,
 
     session: null,
@@ -212,28 +209,15 @@ export const useStore = create<Store>((set, get) => {
     setOnLocalChange: (onLocalChange) => set({ onLocalChange }),
 
     hydrate: async () => {
-      let unlocked = false;
-      try {
-        unlocked = localStorage.getItem(UNLOCK_KEY) === '1';
-      } catch { /* storage disabled; the gate simply asks again */ }
       try {
         const loaded = await loadState();
-        set({ state: loaded ?? emptyState(), hydrated: true, unlocked });
+        set({ state: loaded ?? emptyState(), hydrated: true });
       } catch (err: unknown) {
         set({
           hydrated: true,
-          unlocked,
           persistenceError: err instanceof Error ? err.message : String(err),
         });
       }
-    },
-
-    setUnlocked: (v) => {
-      try {
-        if (v) localStorage.setItem(UNLOCK_KEY, '1');
-        else localStorage.removeItem(UNLOCK_KEY);
-      } catch { /* non-fatal */ }
-      set({ unlocked: v });
     },
 
     acceptConsent: () => commit((s) => ({
@@ -567,8 +551,7 @@ export const useStore = create<Store>((set, get) => {
 
     deleteEverything: async () => {
       await wipeEverything();
-      try { localStorage.removeItem(UNLOCK_KEY); } catch { /* non-fatal */ }
-      set({ state: emptyState(), unlocked: false, persistenceError: null });
+      set({ state: emptyState(), persistenceError: null });
     },
   };
 });

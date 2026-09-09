@@ -1,7 +1,7 @@
-/** §5 A0 — landing, access gate, consent. */
+/** §5 A0 — landing and consent. */
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { ACCESS_MODE, PRICE_DISPLAY, REFUND_DAYS, isCloudEnabled, isSellingEnabled, isValidAccessCode } from '../config';
+import { PRICE_DISPLAY, REFUND_DAYS, isCloudEnabled, isSellingEnabled } from '../config';
 import { S } from '../strings';
 import { useStore } from '../store/useStore';
 import { resumePath } from '../store/progress';
@@ -10,12 +10,8 @@ import { FieldError } from '../components/ui';
 export default function Landing() {
   const navigate = useNavigate();
   const state = useStore((s) => s.state);
-  const unlocked = useStore((s) => s.unlocked);
-  const setUnlocked = useStore((s) => s.setUnlocked);
   const acceptConsent = useStore((s) => s.acceptConsent);
 
-  const [code, setCode] = useState('');
-  const [codeError, setCodeError] = useState(false);
   const [therapyAck, setTherapyAck] = useState(false);
   const [localAck, setLocalAck] = useState(false);
   const [consentError, setConsentError] = useState(false);
@@ -23,22 +19,16 @@ export default function Landing() {
   const session = useStore((s) => s.session);
   const authReady = useStore((s) => s.authReady);
   const cloud = isCloudEnabled();
-  // With accounts on, the account is the gate; the code (if any) guards sign-up.
-  const gateOpen = cloud || ACCESS_MODE === 'open' || unlocked;
 
   // Someone already signed in and already started goes back to where they were.
   if (cloud && authReady && session && state.profile.consent) {
     return <Navigate to={resumePath(state)} replace />;
   }
-  if (!cloud && gateOpen && state.profile.consent) {
+  if (!cloud && state.profile.consent) {
     return <Navigate to={resumePath(state)} replace />;
   }
 
   const begin = () => {
-    if (!gateOpen) {
-      if (!isValidAccessCode(code)) { setCodeError(true); return; }
-      setUnlocked(true);
-    }
     if (!therapyAck || !localAck) { setConsentError(true); return; }
     acceptConsent();
     // With accounts on, there is somewhere for this to be saved to first.
@@ -98,21 +88,6 @@ export default function Landing() {
       ) : null}
 
       <section className="card mt-10">
-        {!gateOpen && !cloud ? (
-          <div className="mb-6">
-            <label htmlFor="access-code" className="label">{S.gate.codeLabel}</label>
-            <input
-              id="access-code"
-              className="field mt-2"
-              value={code}
-              autoComplete="off"
-              placeholder={S.gate.codePlaceholder}
-              onChange={(e) => { setCode(e.target.value); setCodeError(false); }}
-              aria-invalid={codeError}
-            />
-            {codeError ? <FieldError>{S.gate.codeBad}</FieldError> : null}
-          </div>
-        ) : null}
 
         <fieldset>
           <legend className="sr-only">{S.a11y.consent}</legend>
