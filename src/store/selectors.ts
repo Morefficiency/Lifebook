@@ -10,7 +10,7 @@ import {
 import { useStore } from './useStore';
 import type { AppState } from '../types';
 
-export const useAppState = (): AppState => useStore((s) => s.state);
+const useAppState = (): AppState => useStore((s) => s.state);
 
 export function useGraph() {
   const s = useAppState();

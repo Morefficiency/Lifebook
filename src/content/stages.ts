@@ -22,8 +22,8 @@ export const STAGE_LABEL: Record<LifebookStage, string> = {
  * it is shaped like that — which is a much smaller number of people, and the
  * ones worth building the rest for.
  */
-export const ACT_ONE: LifebookStage[] = ['vision', 'goals', 'pairs', 'mirror'];
-export const ACT_TWO: LifebookStage[] = ['current', 'reflect', 'self_image', 'becoming', 'blueprint'];
+const ACT_ONE: LifebookStage[] = ['vision', 'goals', 'pairs', 'mirror'];
+const ACT_TWO: LifebookStage[] = ['current', 'reflect', 'self_image', 'becoming', 'blueprint'];
 export const STAGE_ORDER: LifebookStage[] = [...ACT_ONE, ...ACT_TWO];
 
 /**

@@ -40,7 +40,7 @@ export interface Calibration {
 }
 
 /** Pairs each field report with its quest; orphans and duplicates are ignored, not scored. */
-export function scoredForecasts(quests: Quest[], reports: FieldReport[]): ScoredForecast[] {
+function scoredForecasts(quests: Quest[], reports: FieldReport[]): ScoredForecast[] {
   const byId = new Map(quests.map((q) => [q.id, q]));
   const seen = new Set<string>();
   return [...reports]

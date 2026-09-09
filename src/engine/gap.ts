@@ -32,7 +32,7 @@ export interface AreaTension {
 }
 
 /** Only areas with both a vision and a current rating; the rest are unknown, not zero. */
-export function areaTensions(visions: AreaVision[], currents: AreaCurrent[]): AreaTension[] {
+function areaTensions(visions: AreaVision[], currents: AreaCurrent[]): AreaTension[] {
   const byArea = new Map(currents.map((c) => [c.area, c]));
   return visions.flatMap((v) => {
     const c = byArea.get(v.area);
