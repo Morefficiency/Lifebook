@@ -12,7 +12,7 @@
 import { isCloudEnabled } from '../config';
 import {
   clearLocalOnlyState, loadLocalOnlyState, loadState, loadSyncMark, saveState,
-  saveSyncMark, setStorageScope, storageScope, wipeCurrentScope,
+  saveSyncMark, setStorageScope, wipeCurrentScope,
 } from '../data/db';
 import { emptyState } from '../data/db';
 import { supabaseRemote } from '../data/remote';
@@ -215,10 +215,6 @@ export async function deleteAccountEverywhere(): Promise<void> {
   setStorageScope(null);
   useStore.getState().setSession(null);
   await useStore.getState().replaceState(emptyState());
-}
-
-export function currentScope(): string | null {
-  return storageScope();
 }
 
 /** Supabase's messages are aimed at developers; these are aimed at people. */

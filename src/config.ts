@@ -26,7 +26,6 @@ export const ACCESS_CODES: string[] = ['COHERENCE-V1'];
  * ========================================================================== */
 
 export const PRICE_DISPLAY = '$29';
-export const PRICE_CURRENCY = 'USD';
 export const PRICE_NOTE = 'one payment, kept for good';
 
 /**

@@ -23,10 +23,6 @@ export function edgeKey(aId: string, bId: string): string {
   return `${e.aId}|${e.bId}`;
 }
 
-export function sameEdge(a: EdgeRef, b: EdgeRef): boolean {
-  return edgeKey(a.aId, a.bId) === edgeKey(b.aId, b.bId);
-}
-
 /** c_ij = |effect_ij| × (1 + heat_ij / 10), and 0 for any non-negative edge. */
 export function edgeConflictLoad(r: PairRating): number {
   if (r.effect >= 0) return 0;

@@ -100,13 +100,3 @@ export function shouldPromptRerating(edge: EdgeRef, quests: Quest[], reports: Fi
   if (onEdge.length < 2) return false;
   return onEdge.slice(0, 2).every(({ quest, report }) => isPredictionBroken(quest, report));
 }
-
-/** How many broken predictions this edge has already collected — drives edge cooling. */
-export function brokenPredictionsOnEdge(edge: EdgeRef, quests: Quest[], reports: FieldReport[]): number {
-  const key = edgeKey(edge.aId, edge.bId);
-  const byId = new Map(quests.map((q) => [q.id, q]));
-  return reports.filter((r) => {
-    const q = byId.get(r.questId);
-    return !!q?.edge && edgeKey(q.edge.aId, q.edge.bId) === key && isPredictionBroken(q, r);
-  }).length;
-}

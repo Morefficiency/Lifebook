@@ -249,5 +249,3 @@ export const lifebook = {
   reopenBeliefs() { useStore.getState().reopenBeliefs(); },
   resetAll() { useStore.getState().resetLifebook(); },
 };
-
-export type LifebookActions = typeof lifebook;

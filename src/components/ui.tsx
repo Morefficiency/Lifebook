@@ -123,10 +123,6 @@ export function FieldError({ children }: { children: ReactNode }) {
   );
 }
 
-export function Divider() {
-  return <hr className="my-8 border-hairline" />;
-}
-
 export function Tag({ children, tone = 'neutral' }: {
   children: ReactNode; tone?: 'neutral' | 'fault' | 'facil' | 'carry';
 }) {

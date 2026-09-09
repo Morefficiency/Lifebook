@@ -90,8 +90,6 @@ function mergeStages(
   return out;
 }
 
-export interface MergeResult { state: AppState; changed: boolean }
-
 /**
  * @param mine            this device's copy
  * @param theirs          the copy that came back from the server

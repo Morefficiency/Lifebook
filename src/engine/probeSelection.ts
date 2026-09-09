@@ -97,11 +97,6 @@ export function coreProbes(probes: Probe[], n: number = REFLECT_CORE_PROBES): Pr
   return orderProbesByCoverage(probes).slice(0, n);
 }
 
-/** Everything the first pass left out, for anyone who wants a sharper read. */
-export function extraProbes(probes: Probe[], n: number = REFLECT_CORE_PROBES): Probe[] {
-  return orderProbesByCoverage(probes).slice(n);
-}
-
 /** How many distinct probes in this set could evidence each belief. */
 export function coverageCounts(probes: Probe[]): Map<string, number> {
   const counts = new Map<string, number>();

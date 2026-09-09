@@ -528,8 +528,6 @@ export const BELIEF_CATALOGUE: BeliefCandidate[] = [
   },
 ];
 
-export const BELIEF_BY_ID = new Map(BELIEF_CATALOGUE.map((b) => [b.id, b]));
-
 /**
  * The fallback programme, for a belief the user wrote himself that matches
  * nothing in the catalogue.

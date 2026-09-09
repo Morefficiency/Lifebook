@@ -43,9 +43,6 @@ export function setStorageScope(userId: string | null): void {
   scope = userId;
 }
 
-export function storageScope(): string | null {
-  return scope;
-}
 
 /** The pre-accounts document, if this browser has one to carry into an account. */
 export async function loadLocalOnlyState(): Promise<AppState | null> {
